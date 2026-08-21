@@ -94,7 +94,9 @@ docs(caso-estudio): documentar demostración matemática Levenshtein/NW
 
 ## Tablero Jira
 
-El tablero de Jira contiene las 6 épicas y todas las tareas del [cronograma del proyecto](./docs/cronograma.md), con sprint, responsable, estimación y prioridad asignados a cada una.
+El tablero de Jira contiene las 6 épicas y todas las tareas del cronograma del proyecto, con sprint, responsable, estimación y prioridad asignados a cada una.
+
+🔗 [Tablero Jira del proyecto](https://uqvirtual-team-analisis-algoritmos-dc.atlassian.net/jira/software/projects/SCRUM/boards/1?filter=&groupBy=none)
 
 ## Documentación técnica
 
