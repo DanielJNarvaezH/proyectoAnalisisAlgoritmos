@@ -59,17 +59,13 @@ pip install -r requirements.txt
 
 ### Ramas
 
-Formato: `feat/<componente>`
+Dado que el equipo es de 2 personas y las tareas están claramente repartidas por componente (ver Jira), se trabaja **directamente sobre `main`**, sin ramas por funcionalidad. Cada quien comitea y hace push de su propia tarea cuando la termina.
 
-Ejemplos:
-- `feat/preprocesamiento`
-- `feat/tfidf-coseno`
-- `feat/clustering-single-linkage`
-- `feat/backend-api`
-- `fix/<descripcion-corta>` para correcciones puntuales
-- `docs/<descripcion-corta>` para cambios solo de documentación
-
-`main` siempre debe quedar en estado funcional. Se trabaja en la rama del componente y se integra a `main` cuando la tarea está lista (merge o pull request, según acuerden).
+Reglas para que esto funcione sin choques:
+- Antes de empezar a trabajar, hacer **Fetch origin / Pull** en GitHub Desktop para traer los últimos cambios del compañero.
+- Evitar editar el mismo archivo al mismo tiempo que el otro integrante (la división de tareas del cronograma ya minimiza esto).
+- Comitear con frecuencia y en unidades pequeñas (una tarea o subtarea por commit), no un solo commit gigante al final del sprint.
+- Si en algún momento surge un conflicto de merge, se resuelve entre los dos antes de seguir avanzando.
 
 ### Formato de commits
 
