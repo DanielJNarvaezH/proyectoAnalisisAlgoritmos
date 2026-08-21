@@ -1,0 +1,57 @@
+@startuml arquitectura
+
+title Análisis de Algoritmos en el Contexto de la Bibliometría\nDiagrama de Componentes
+
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam component {
+  BackgroundColor #EFF3FB
+  BorderColor #2F5496
+  ArrowColor #2F5496
+}
+skinparam package {
+  BackgroundColor #F7F9FD
+  BorderColor #8FAADC
+}
+
+' ---------- Fuente de datos ----------
+component "PDFs científicos\n(20 artículos)" as PDFS <<input>>
+
+package "Ingesta y Preparación de Datos" {
+  component "Extracción\n(EXT)" as EXT
+  component "Preprocesamiento\n(PRE)" as PRE
+  database "Corpus\n(JSON/CSV)" as CORPUS
+}
+
+package "Motor de Algoritmos" {
+  component "Algoritmos Clásicos\n(Levenshtein, NW,\nTF-IDF+Coseno, Jaccard)" as CLASICOS
+  component "Algoritmos de IA\n(Embeddings)" as IA
+  component "Clustering Jerárquico\n(Single, Complete,\nAverage Linkage)" as CLUSTERING
+}
+
+package "Aplicación" {
+  component "Backend / API\n(FastAPI)" as BACKEND
+  component "Frontend\n(interfaz de usuario)" as FRONTEND
+}
+
+actor "Usuario /\nDocente evaluador" as USUARIO
+
+' ---------- Flujo de datos ----------
+PDFS --> EXT : archivos .pdf
+EXT --> CORPUS : título, autores, abstract
+CORPUS --> PRE : texto crudo
+PRE --> CORPUS : texto limpio y normalizado
+
+CORPUS ..> CLASICOS : abstracts preprocesados
+CORPUS ..> IA : abstracts preprocesados
+CLASICOS ..> CLUSTERING : matriz de\nsimilitud/distancia
+
+CLASICOS --> BACKEND : resultados de similitud
+IA --> BACKEND : resultados de similitud
+CLUSTERING --> BACKEND : dendrogramas +\nmétrica de evaluación
+
+BACKEND --> FRONTEND : API REST (JSON)
+FRONTEND --> USUARIO : visualización de\nresultados y dendrogramas
+USUARIO --> FRONTEND : selección de artículo y algoritmo a ejecutar
+
+@enduml
