@@ -52,29 +52,77 @@ from typing import Literal
 
 import nltk
 from nltk.corpus import stopwords
-from nltk.corpus import words as nltk_words
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 # ---------------------------------------------------------------------------
-# Descarga silenciosa de recursos NLTK (solo baja lo que falte).
+# Descarga de recursos NLTK, con degradacion controlada.
+#
+# El servidor de datos de NLTK (raw.githubusercontent.com) a veces falla de
+# forma temporal (error 503 "Backend.max_conn reached"), fuera del control
+# del equipo. En vez de detener todo el script con un traceback, cada
+# recurso "de lujo" (que mejora la calidad pero no es indispensable) se
+# marca como disponible o no, y las funciones que lo usan cambian
+# automaticamente a una alternativa mas simple si no esta disponible.
+# Basta con volver a correr el script cuando el servidor se recupere para
+# obtener la version completa sin cambiar nada en el codigo.
 # ---------------------------------------------------------------------------
-_RECURSOS_NLTK = [
-    ("tokenizers/punkt", "punkt"),
-    ("tokenizers/punkt_tab", "punkt_tab"),
-    ("corpora/stopwords", "stopwords"),
-    ("corpora/wordnet", "wordnet"),
-    ("corpora/omw-1.4", "omw-1.4"),
-    ("corpora/words", "words"),
-    ("taggers/averaged_perceptron_tagger", "averaged_perceptron_tagger"),
-    ("taggers/averaged_perceptron_tagger_eng", "averaged_perceptron_tagger_eng"),
-]
 
-for _ruta, _paquete in _RECURSOS_NLTK:
+def _disponible(ruta_recurso: str, nombre_paquete: str) -> bool:
+    """Intenta encontrar el recurso; si falta, intenta descargarlo una vez.
+    Devuelve True/False segun quede disponible, sin lanzar excepciones."""
     try:
-        nltk.data.find(_ruta)
+        nltk.data.find(ruta_recurso)
+        return True
     except LookupError:
-        nltk.download(_paquete, quiet=True)
+        try:
+            nltk.download(nombre_paquete, quiet=True)
+            nltk.data.find(ruta_recurso)
+            return True
+        except Exception:
+            return False
+
+
+# Indispensables para el funcionamiento minimo (tokenizar + stopwords).
+_TIENE_PUNKT = _disponible("tokenizers/punkt_tab", "punkt_tab") or _disponible(
+    "tokenizers/punkt", "punkt"
+)
+_TIENE_STOPWORDS = _disponible("corpora/stopwords", "stopwords")
+
+# "De lujo": mejoran la calidad del preprocesamiento pero tienen alternativa.
+_TIENE_WORDNET = _disponible("corpora/wordnet", "wordnet")
+_TIENE_OMW = _disponible("corpora/omw-1.4", "omw-1.4")
+_TIENE_TAGGER = _disponible(
+    "taggers/averaged_perceptron_tagger_eng", "averaged_perceptron_tagger_eng"
+) or _disponible("taggers/averaged_perceptron_tagger", "averaged_perceptron_tagger")
+_TIENE_VOCABULARIO = _disponible("corpora/words", "words")
+
+if not _TIENE_PUNKT:
+    print(
+        "[preprocessing] Aviso: no se pudo descargar el tokenizador 'punkt_tab' "
+        "(posible falla temporal del servidor de NLTK). Se usara una "
+        "tokenizacion simple de respaldo (separar por palabras alfabeticas)."
+    )
+if not _TIENE_WORDNET:
+    print(
+        "[preprocessing] Aviso: no se pudo descargar 'wordnet' (posible falla "
+        "temporal del servidor de NLTK). Se usara stemming en vez de "
+        "lematizacion para esta ejecucion. Vuelve a correr el script mas "
+        "tarde para obtener lematizacion."
+    )
+if not _TIENE_VOCABULARIO:
+    print(
+        "[preprocessing] Aviso: no se pudo descargar el diccionario 'words' "
+        "(posible falla temporal del servidor de NLTK). La correccion de "
+        "ligaduras partidas (ej. 'arti ficial' -> 'artificial') se hara de "
+        "forma mas simple, sin verificar contra diccionario."
+    )
+if not _TIENE_TAGGER:
+    print(
+        "[preprocessing] Aviso: no se pudo descargar el etiquetador POS. "
+        "La lematizacion (si esta disponible) se hara sin desambiguar por "
+        "categoria gramatical (un poco menos precisa, pero funcional)."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -90,11 +138,30 @@ STOPWORDS_ADICIONALES = {
     "http", "https", "doi", "www",
 }
 
-STOPWORDS_EN = set(stopwords.words(IDIOMA)) | STOPWORDS_ADICIONALES
+if _TIENE_STOPWORDS:
+    STOPWORDS_EN = set(stopwords.words(IDIOMA)) | STOPWORDS_ADICIONALES
+else:
+    # Lista minima de respaldo por si tampoco se pudo descargar 'stopwords'.
+    print(
+        "[preprocessing] Aviso: no se pudo descargar 'stopwords'. Se usa una "
+        "lista reducida de respaldo; vuelve a correr el script mas tarde "
+        "para obtener la lista completa de NLTK."
+    )
+    STOPWORDS_EN = {
+        "a", "an", "the", "and", "or", "but", "of", "in", "on", "to", "for",
+        "with", "is", "are", "was", "were", "be", "been", "being", "this",
+        "that", "these", "those", "it", "its", "as", "by", "at", "from",
+        "we", "our", "their", "which", "also", "can", "has", "have", "had",
+    } | STOPWORDS_ADICIONALES
 
 # Diccionario de ingles usado unicamente para decidir si un fragmento
 # generado por una ligadura mal extraida es o no una palabra real.
-_VOCABULARIO_INGLES = set(w.lower() for w in nltk_words.words())
+# Si no esta disponible, la correccion de ligaduras simplemente se hace
+# sin esa verificacion extra (ver _reconstruir_ligaduras_partidas).
+_VOCABULARIO_INGLES: set[str] = set()
+if _TIENE_VOCABULARIO:
+    from nltk.corpus import words as nltk_words
+    _VOCABULARIO_INGLES = set(w.lower() for w in nltk_words.words())
 
 _lematizador = WordNetLemmatizer()
 _stemmer = PorterStemmer()
@@ -114,7 +181,12 @@ def _pos_a_wordnet(tag: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _es_palabra_valida(palabra: str) -> bool:
-    """True si `palabra` (o su singular simple) existe en el diccionario ingles."""
+    """True si `palabra` (o su singular simple) existe en el diccionario ingles.
+    Si el diccionario no esta disponible (fallo de descarga), devuelve
+    siempre False y la reconstruccion de ligaduras se hace de forma mas
+    simple (ver nota en _reconstruir_ligaduras_partidas)."""
+    if not _TIENE_VOCABULARIO:
+        return False
     palabra = palabra.lower()
     if palabra in _VOCABULARIO_INGLES:
         return True
@@ -134,7 +206,16 @@ def _reconstruir_ligaduras_partidas(texto: str) -> str:
     "arti" + "ficial" -> "artificial"). Si el fragmento SI es una
     palabra valida (ej. "field", "findings"), se respeta el espacio
     porque de verdad son dos palabras distintas (ej. "research field").
+
+    Si el diccionario de ingles no esta disponible (fallo de descarga),
+    esta reconstruccion "inteligente" se omite por completo para no
+    arriesgarse a fusionar por error palabras reales (ej. "research" +
+    "field"); en ese caso la ligadura igual queda corregida a nivel de
+    caracter mas adelante, en normalizar_unicode, mediante NFKC.
     """
+    if not _TIENE_VOCABULARIO:
+        return texto
+
     patron = re.compile(r"(\w+)(\s+)([\ufb00-\ufb06]\w*)")
 
     def _reemplazar(coincidencia: re.Match) -> str:
@@ -149,7 +230,11 @@ def _reconstruir_ligaduras_partidas(texto: str) -> str:
 
 def _reconstruir_saltos_de_linea(texto: str) -> str:
     """Reune palabras partidas por guion de fin de linea (ej. 'long-\\nterm')
-    solo cuando la union sin guion forma una palabra valida del diccionario."""
+    solo cuando la union sin guion forma una palabra valida del diccionario.
+    Se omite si el diccionario no esta disponible (ver nota arriba)."""
+    if not _TIENE_VOCABULARIO:
+        return texto
+
     def _reemplazar(coincidencia: re.Match) -> str:
         junto = coincidencia.group(1) + coincidencia.group(2)
         if _es_palabra_valida(junto):
@@ -178,9 +263,19 @@ def normalizar_unicode(texto: str) -> str:
 
 
 def tokenizar_y_limpiar(texto: str) -> list[str]:
-    """Minusculas + tokeniza + elimina puntuacion y numeros (solo alfabeticos)."""
+    """Minusculas + tokeniza + elimina puntuacion y numeros (solo alfabeticos).
+
+    Intenta usar el tokenizador de NLTK; si falla en tiempo de ejecucion
+    porque falta un recurso (ej. 'punkt_tab' no se pudo descargar), cae
+    automaticamente a una tokenizacion simple por expresion regular que
+    no depende de ningun dato descargado."""
     texto = texto.lower()
-    tokens = word_tokenize(texto)
+
+    try:
+        tokens = word_tokenize(texto)
+    except LookupError:
+        tokens = re.findall(r"[a-zA-Z]+", texto)
+
     tabla_puntuacion = str.maketrans("", "", string.punctuation)
     tokens_limpios = []
     for token in tokens:
@@ -195,11 +290,23 @@ def eliminar_stopwords(tokens: list[str]) -> list[str]:
 
 
 def lematizar(tokens: list[str]) -> list[str]:
-    etiquetas = nltk.pos_tag(tokens)
-    return [
-        _lematizador.lemmatize(token, _pos_a_wordnet(tag))
-        for token, tag in etiquetas
-    ]
+    """Lematiza con desambiguacion por categoria gramatical (POS) cuando el
+    etiquetador esta disponible; si falla en tiempo de ejecucion (falta
+    el tagger o wordnet), cae a stemming para esos tokens en vez de
+    detener el proceso."""
+    try:
+        etiquetas = nltk.pos_tag(tokens)
+        return [
+            _lematizador.lemmatize(token, _pos_a_wordnet(tag))
+            for token, tag in etiquetas
+        ]
+    except LookupError:
+        pass
+
+    try:
+        return [_lematizador.lemmatize(token) for token in tokens]
+    except LookupError:
+        return aplicar_stemming(tokens)
 
 
 def aplicar_stemming(tokens: list[str]) -> list[str]:
@@ -241,7 +348,7 @@ def preprocess_text(
     tokens = eliminar_stopwords(tokens)
 
     if method == "lemma":
-        tokens = lematizar(tokens)
+        tokens = lematizar(tokens)  # cae solo a stemming si wordnet/tagger fallan
     elif method == "stem":
         tokens = aplicar_stemming(tokens)
     else:
