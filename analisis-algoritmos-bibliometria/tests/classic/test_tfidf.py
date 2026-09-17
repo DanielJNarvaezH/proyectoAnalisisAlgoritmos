@@ -16,7 +16,7 @@ import os
 # y el módulo real vive en src/, dos niveles arriba.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from tfidf_manual import (
+from tfidf_cosine import (
     tokenizar,
     calcular_tf,
     calcular_idf,
