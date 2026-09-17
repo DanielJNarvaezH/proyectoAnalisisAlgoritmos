@@ -39,6 +39,8 @@ def calcular_tf(tokens):
     total_terminos = len(tokens)
     conteo = Counter(tokens)
     tf = {termino: cuenta / total_terminos for termino, cuenta in conteo.items()}
+    print("tf")
+    print(tf)
     return tf
 
 
@@ -70,6 +72,9 @@ def calcular_idf(documentos_tokenizados):
     idf = {}
     for termino, frecuencia_doc in df.items():
         idf[termino] = math.log(N / (1 + frecuencia_doc)) + 1
+
+    print("idf")
+    print(idf)
 
     return idf
 
@@ -171,9 +176,9 @@ def matriz_similitud(matriz_tfidf):
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
     corpus = [
-        "El perro corre en el parque",
-        "El gato duerme en la casa",
-        "El perro y el gato juegan en el parque",
+        "good boy",
+        "good girl",
+        "boy girl good",
     ]
 
     vocabulario, matriz_tfidf = vectorizar_tfidf(corpus)
