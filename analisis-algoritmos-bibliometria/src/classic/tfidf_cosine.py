@@ -39,8 +39,7 @@ def calcular_tf(tokens):
     total_terminos = len(tokens)
     conteo = Counter(tokens)
     tf = {termino: cuenta / total_terminos for termino, cuenta in conteo.items()}
-    print("tf")
-    print(tf)
+
     return tf
 
 
@@ -72,9 +71,6 @@ def calcular_idf(documentos_tokenizados):
     idf = {}
     for termino, frecuencia_doc in df.items():
         idf[termino] = math.log(N / (1 + frecuencia_doc)) + 1
-
-    print("idf")
-    print(idf)
 
     return idf
 
