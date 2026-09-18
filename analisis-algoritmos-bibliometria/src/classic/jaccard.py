@@ -26,10 +26,13 @@ def tokenizar(texto):
     """
     Convierte un texto (por ejemplo, un abstract) en una lista de tokens.
 
-    Se asume que el texto ya viene preprocesado (minúsculas, sin
-    stopwords, sin puntuación excesiva, etc.), pero de todas formas se
-    hace una limpieza básica por seguridad.
+    Si 'texto' ya viene como lista (ej. abstract_preprocesado, ya
+    tokenizado en un sprint anterior), solo se normaliza a minúsculas
+    sin volver a aplicar limpieza de puntuación.
     """
+    if isinstance(texto, list):
+        return [str(token).lower() for token in texto]
+
     texto = texto.lower()
     texto = re.sub(r"[^a-záéíóúñü0-9\s]", " ", texto)
     tokens = texto.split()

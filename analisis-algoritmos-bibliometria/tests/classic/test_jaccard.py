@@ -11,9 +11,9 @@ import unittest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..",  ".." , "src"))
 
-from jaccard import (
+from classic.jaccard import (
     tokenizar,
     generar_ngramas,
     texto_a_conjunto,
