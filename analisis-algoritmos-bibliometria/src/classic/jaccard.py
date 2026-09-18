@@ -30,6 +30,7 @@ def tokenizar(texto):
     tokenizado en un sprint anterior), solo se normaliza a minúsculas
     sin volver a aplicar limpieza de puntuación.
     """
+
     if isinstance(texto, list):
         return [str(token).lower() for token in texto]
 

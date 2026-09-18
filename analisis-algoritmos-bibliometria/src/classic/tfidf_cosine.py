@@ -20,13 +20,10 @@ def tokenizar(texto):
     """
     Convierte un texto en una lista de tokens (palabras) en minúsculas,
     eliminando signos de puntuación y caracteres no alfanuméricos.
-
-    Si 'texto' ya viene como lista (ej. abstract_preprocesado, ya
-    tokenizado y limpio en un sprint anterior), solo se normaliza a
-    minúsculas sin volver a aplicar limpieza de puntuación.
     """
-    if isinstance(texto, list):
-        return [str(token).lower() for token in texto]
+
+    if isinstance(texto, (list, tuple)):
+        texto = " ".join(str(elemento) for elemento in texto)
 
     texto = texto.lower()
     # Solo conserva letras (incluye acentos y ñ), números y espacios
