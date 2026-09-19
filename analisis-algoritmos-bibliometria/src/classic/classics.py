@@ -4,7 +4,7 @@ from typing import List, Sequence
 
 # === IMPORTANTE: Importa aquí tus funciones desde tus archivos actuales ===
 # Ejemplo (descomenta y ajusta según tus nombres de archivos reales):
-from levenshtein import levenshtein_similarity, similarity_matrix as levenshtein_matrix
+from levenshtein import similarity_matrix as matriz_levenshtein
 from jaccard import matriz_jaccard
 from tfidf_cosine import matriz_similitud as coseno_matrix, similitud_coseno
 
@@ -53,38 +53,9 @@ def matriz_jaccard_local(corpus_tokens):
             matriz[i][j] = jaccard(corpus_tokens[i], corpus_tokens[j])
     return matriz
 
-# 2. Levenshtein (Basado en tu imagen)
-def levenshtein_distance(seq_a, seq_b):
-    # Implementación básica integrada para asegurar la ejecución de la distancia
-    if len(seq_a) < len(seq_b): return levenshtein_distance(seq_b, seq_a)
-    if len(seq_b) == 0: return len(seq_a)
-    previous_row = range(len(seq_b) + 1)
-    for i, c1 in enumerate(seq_a):
-        current_row = [i + 1]
-        for j, c2 in enumerate(seq_b):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-    return previous_row[-1]
+# 2. Levenshtein - usa la implementación real de src/classic/levenshtein.py
+# (Ya importada al inicio como matriz_levenshtein)
 
-def levenshtein_similarity(seq_a, seq_b):
-    n, m = len(seq_a), len(seq_b)
-    if n == 0 and m == 0: return 1.0
-    distancia = levenshtein_distance(seq_a, seq_b)
-    return 1.0 - (distancia / max(n, m))
-
-def matriz_levenshtein(corpus_tokens):
-    n_docs = len(corpus_tokens)
-    matriz = [[0.0] * n_docs for _ in range(n_docs)]
-    for i in range(n_docs):
-        matriz[i][i] = 1.0
-        for j in range(i + 1, n_docs):
-            sim = levenshtein_similarity(corpus_tokens[i], corpus_tokens[j])
-            matriz[i][j] = sim
-            matriz[j][i] = sim
-    return matriz
 
 # 3. Coseno (Basado en tu imagen)
 def similitud_coseno(vector_a, vector_b):
