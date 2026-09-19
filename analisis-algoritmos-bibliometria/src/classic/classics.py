@@ -104,23 +104,8 @@ def matriz_coseno(matriz_tfidf):
             matriz[i][j] = similitud_coseno(matriz_tfidf[i], matriz_tfidf[j])
     return matriz
 
-# 4. Needleman-Wunsch (Basado en tu texto)
-GAP = "-"
-def needleman_wunsch_alignment(seq_a, seq_b, match, mismatch, gap):
-    # Alineamiento ficticio simplificado para emular tu función si no está importada
-    return seq_a, seq_b, 0
-
-def needleman_wunsch_similarity(seq_a: Sequence, seq_b: Sequence, match: int = 1, mismatch: int = -1, gap: int = -2) -> float:
-    if len(seq_a) == 0 and len(seq_b) == 0: return 1.0
-    # Nota: Aquí se asume que tienes 'needleman_wunsch_alignment' definido en tu entorno
-    try:
-        alineado_a, alineado_b, _ = needleman_wunsch_alignment(seq_a, seq_b, match, mismatch, gap)
-    except NameError:
-        return 0.5 # Fallback si no encuentra la función de alineamiento exacta
-    longitud_alineamiento = len(alineado_a)
-    if longitud_alineamiento == 0: return 0.0
-    coincidencias = sum(1 for a, b in zip(alineado_a, alineado_b) if a == b and a != GAP and b != GAP)
-    return coincidencias / longitud_alineamiento
+# 4. Needleman-Wunsch (usa la implementación real de src/classic/needleman_wunsch.py)
+from needleman_wunsch import needleman_wunsch_alignment, needleman_wunsch_similarity, GAP
 
 def matriz_needleman(corpus_tokens: Sequence[Sequence[str]]) -> List[List[float]]:
     n_docs = len(corpus_tokens)
