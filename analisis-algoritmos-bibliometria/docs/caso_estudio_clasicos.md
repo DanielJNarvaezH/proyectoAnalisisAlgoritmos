@@ -57,7 +57,8 @@ D[i][j] = 1 + min(D[i-1][j], D[i][j-1], D[i-1][j-1])  en otro caso
 *(en negrita: la diagonal que forma el camino óptimo de retroceso)*
 
 **Camino óptimo (backtracking desde D[6][6] hasta D[0][0]):** el recorrido
-es puramente diagonal:
+es puramente diagonal. Generado automáticamente con `traceback()` de
+`src/classic/levenshtein.py` (ver sección 6):
 
 | Paso | A[i-1] | B[j-1] | ¿Coinciden? | Costo | D acumulado |
 |------|--------|--------|-------------|-------|--------------|
@@ -138,8 +139,8 @@ comparar clásicos vs. IA.
 
 ## 6. Evidencia reproducible
 
-Todos los valores de este documento (matrices, backtracking y resultado
-final) se pueden regenerar ejecutando:
+Todos los valores de este documento (matrices, caminos de backtracking y
+resultado final) se pueden regenerar ejecutando:
 
 ```
 .\venv\Scripts\python.exe notebooks/caso_estudio_cas2.py
@@ -147,6 +148,10 @@ final) se pueden regenerar ejecutando:
 
 El script no recibe parámetros: carga directamente los artículos 2 y 9
 del corpus, reconstruye el mismo fragmento usado en las secciones 3 y 4,
-e imprime en consola las matrices, el alineamiento y el resultado final
-sobre los abstracts completos, usando las mismas funciones de
-`src/classic/levenshtein.py` y `src/classic/needleman_wunsch.py`.
+e imprime en consola las matrices, el camino óptimo (backtracking) y el
+resultado final sobre los abstracts completos. Tanto Levenshtein como
+Needleman-Wunsch reconstruyen su camino automáticamente mediante sus
+respectivas funciones `traceback()`, definidas en
+`src/classic/levenshtein.py` y `src/classic/needleman_wunsch.py` — el
+camino no se transcribe a mano, se genera con el mismo algoritmo que
+calcula la matriz.

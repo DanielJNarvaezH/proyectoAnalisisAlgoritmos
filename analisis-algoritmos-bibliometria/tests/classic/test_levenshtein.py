@@ -14,6 +14,7 @@ from classic.levenshtein import (
     levenshtein_similarity,
     build_levenshtein_matrix,
     similarity_matrix,
+    traceback,
 )
 
 
@@ -76,6 +77,67 @@ class TestLevenshteinDistance(unittest.TestCase):
             self.assertEqual(matriz[i][0], i)
         for j in range(len(b) + 1):
             self.assertEqual(matriz[0][j], j)
+
+
+class TestTraceback(unittest.TestCase):
+
+    def test_secuencias_identicas_solo_coincidencias(self):
+        # Si A == B, el camino debe ser puro "coincidencia", sin sustituciones,
+        # inserciones ni eliminaciones
+        a = ["gato", "come", "pescado"]
+        D = build_levenshtein_matrix(a, a)
+        operaciones = traceback(a, a, D)
+        self.assertTrue(all(op.startswith("coincidencia") for op in operaciones))
+
+    def test_longitud_camino_igual_o_mayor_que_la_secuencia_mas_larga(self):
+        # El camino no puede ser más corto que la secuencia más larga
+        a, b = "kitten", "sitting"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        self.assertGreaterEqual(len(operaciones), max(len(a), len(b)))
+
+    def test_suma_de_costos_coincide_con_la_distancia(self):
+        # La cantidad de operaciones que NO son "coincidencia" debe ser
+        # exactamente igual a la distancia de Levenshtein
+        a, b = "gato", "pato"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        costo_total = sum(1 for op in operaciones if not op.startswith("coincidencia"))
+        self.assertEqual(costo_total, levenshtein_distance(a, b))
+
+    def test_caso_solo_inserciones(self):
+        # "gato" -> "gatos": debe aparecer una única inserción, sin eliminaciones
+        a, b = "gato", "gatos"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        self.assertEqual(sum(1 for op in operaciones if op.startswith("inserción")), 1)
+        self.assertEqual(sum(1 for op in operaciones if op.startswith("eliminación")), 0)
+
+    def test_caso_solo_eliminaciones(self):
+        # "gatos" -> "gato": debe aparecer una única eliminación, sin inserciones
+        a, b = "gatos", "gato"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        self.assertEqual(sum(1 for op in operaciones if op.startswith("eliminación")), 1)
+        self.assertEqual(sum(1 for op in operaciones if op.startswith("inserción")), 0)
+
+    def test_caso_solo_sustitucion(self):
+        # "gato" -> "pato": debe aparecer una única sustitución
+        a, b = "gato", "pato"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        sustituciones = [op for op in operaciones if op.startswith("sustitución")]
+        self.assertEqual(len(sustituciones), 1)
+        self.assertEqual(sustituciones[0], "sustitución(g→p)")
+
+    def test_orden_natural_de_izquierda_a_derecha(self):
+        # El primer elemento del camino debe corresponder al inicio de las
+        # secuencias, no al final (verifica que se hizo el reverse())
+        a, b = "gato", "pato"
+        D = build_levenshtein_matrix(a, b)
+        operaciones = traceback(a, b, D)
+        self.assertTrue(operaciones[0].startswith("sustitución"))
+        self.assertTrue(operaciones[-1].startswith("coincidencia"))
 
 
 class TestLevenshteinSimilarity(unittest.TestCase):

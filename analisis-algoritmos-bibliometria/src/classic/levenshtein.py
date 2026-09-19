@@ -70,6 +70,65 @@ def build_levenshtein_matrix(seq_a: Sequence, seq_b: Sequence) -> List[List[int]
     return D
 
 
+def traceback(seq_a: Sequence, seq_b: Sequence, D: List[List[int]]) -> List[str]:
+    """
+    Reconstruye la secuencia de operaciones (backtracking) que explican
+    la distancia de Levenshtein, recorriendo la matriz D desde la esquina
+    inferior derecha D[n][m] hasta D[0][0].
+
+    En cada celda se decide de cuál de las tres celdas vecinas vino el
+    valor óptimo, siguiendo el mismo orden de prioridad que
+    build_levenshtein_matrix (diagonal > arriba > izquierda) para que el
+    resultado sea determinista.
+
+    Parámetros
+    ----------
+    seq_a, seq_b : Sequence
+        Las mismas secuencias usadas para construir D.
+    D : List[List[int]]
+        La matriz ya construida con build_levenshtein_matrix(seq_a, seq_b).
+
+    Retorna
+    -------
+    List[str]
+        Lista de operaciones en orden natural (de seq_a hacia seq_b), donde
+        cada elemento es una de:
+        "coincidencia(x)", "sustitución(x→y)", "eliminación(x)", "inserción(y)".
+    """
+    n, m = len(seq_a), len(seq_b)
+    i, j = n, m
+    operaciones: List[str] = []
+
+    while i > 0 or j > 0:
+        actual = D[i][j]
+
+        if i > 0 and j > 0:
+            costo = 0 if seq_a[i - 1] == seq_b[j - 1] else 1
+            if actual == D[i - 1][j - 1] + costo:
+                # Vino de la diagonal: coincidencia o sustitución
+                if costo == 0:
+                    operaciones.append(f"coincidencia({seq_a[i - 1]})")
+                else:
+                    operaciones.append(f"sustitución({seq_a[i - 1]}→{seq_b[j - 1]})")
+                i -= 1
+                j -= 1
+                continue
+
+        if i > 0 and actual == D[i - 1][j] + 1:
+            # Vino de arriba: sobra un elemento de seq_a
+            operaciones.append(f"eliminación({seq_a[i - 1]})")
+            i -= 1
+            continue
+
+        # En otro caso, vino de la izquierda: falta un elemento de seq_b
+        operaciones.append(f"inserción({seq_b[j - 1]})")
+        j -= 1
+
+    # Se construyó de atrás hacia adelante, hay que invertir
+    operaciones.reverse()
+    return operaciones
+
+
 def levenshtein_distance(seq_a: Sequence, seq_b: Sequence) -> int:
     """
     Calcula la distancia de edición (Levenshtein) entre dos secuencias.

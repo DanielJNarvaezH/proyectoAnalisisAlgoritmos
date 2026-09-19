@@ -22,7 +22,12 @@ import sys
 # Permite importar desde src/classic/ (este archivo vive en /notebooks)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "classic"))
 
-from levenshtein import build_levenshtein_matrix, levenshtein_distance, levenshtein_similarity
+from levenshtein import (
+    build_levenshtein_matrix,
+    levenshtein_distance,
+    levenshtein_similarity,
+    traceback as levenshtein_traceback,
+)
 from needleman_wunsch import build_score_matrix, needleman_wunsch_alignment, needleman_wunsch_similarity
 
 RUTA_CORPUS = os.path.join(os.path.dirname(__file__), "..", "data", "corpus_preprocesado.json")
@@ -59,6 +64,10 @@ def demostrar_levenshtein(frag_a, frag_b):
     D = build_levenshtein_matrix(frag_a, frag_b)
     print("\nMatriz de programación dinámica:")
     imprimir_matriz(frag_a, frag_b, D)
+
+    print("\nCamino óptimo (backtracking):")
+    for operacion in levenshtein_traceback(frag_a, frag_b, D):
+        print("  -", operacion)
 
     dist = levenshtein_distance(frag_a, frag_b)
     sim = levenshtein_similarity(frag_a, frag_b)
