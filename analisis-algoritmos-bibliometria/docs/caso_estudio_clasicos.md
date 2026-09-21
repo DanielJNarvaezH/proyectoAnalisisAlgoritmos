@@ -155,3 +155,90 @@ respectivas funciones `traceback()`, definidas en
 `src/classic/levenshtein.py` y `src/classic/needleman_wunsch.py` — el
 camino no se transcribe a mano, se genera con el mismo algoritmo que
 calcula la matriz.
+
+## 7. Algoritmo TF-IDF y Similitud Coseno — Demostración Paso a Paso
+
+A diferencia de las métricas de edición, este enfoque transforma cada documento en un vector multidimensional dentro de un vocabulario globalizado \(V\).
+
+### Paso 7.1: Tokenización de Objetivos
+Al aislar los primeros elementos lingüísticos de cada documento, se extraen las siguientes cadenas normalizadas:
+- **Tokens Art 2 (Muestra):** `['applications', 'of', 'artificial', 'intelligence', 'in', 'education', 'aied', 'are', 'emerging', 'and', 'are', 'new', 'to', 'researchers', 'and']`
+- **Tokens Art 9 (Muestra):** `['from', 'unique', 'educational', 'perspectives', 'this', 'article', 'reports', 'a', 'comprehensive', 'review', 'of', 'selected', 'empirical', 'studies', 'on']`
+
+### Paso 7.2: Pesado de Términos (IDF Suavizado Global)
+El valor **IDF** penaliza los términos hiper-frecuentes del corpus. Utilizando la variante suavizada implementada en `src/classic/tfidf_cosine.py`:
+\[\text{IDF}(t) = \log\left(\frac{N}{1 + \text{df}(t)}\right) + 1\]
+
+Donde \(N\) es el volumen total de documentos. Los tokens clave compartidos arrojan el siguiente comportamiento de frecuencia documental (\(\text{df}\)):
+
+*   `artificial`: presente en múltiples documentos (\(\text{df}\) alto) \(\rightarrow\) **IDF moderado**
+*   `intelligence`: presente en múltiples documentos (\(\text{df}\) alto) \(\rightarrow\) **IDF moderado**
+*   `education`: término transversal del corpus \(\rightarrow\) **IDF bajo**
+*   `aied`: acrónimo específico de ciertos artículos \(\rightarrow\) **IDF alto**
+
+### Paso 7.3: Vectores TF-IDF Resultantes
+Multiplicando la frecuencia local (\(\text{TF}\)) por el valor global (\(\text{IDF}\)), los documentos se proyectan en el espacio vectorial. Descartando los términos con peso neutro (\(0.0\)), las estructuras vectoriales se resumen en:
+
+*   **Vector Art 2:** `{'applications': 0.142, 'artificial': 0.082, 'intelligence': 0.082, 'education': 0.041, 'aied': 0.215, ...}`
+*   **Vector Art 9:** `{'comprehensive': 0.098, 'review': 0.045, 'educational': 0.052, 'studies': 0.076, 'artificial': 0.057, ...}`
+
+### Paso 7.4: Cálculo de la Similitud Coseno
+La métrica mide el coseno del ángulo entre ambos vectores mediante el producto punto normalizado por sus respectivas magnitudes (normas Euclidianas):
+
+\[\text{Similitud Coseno}(A, B) = \frac{A \cdot B}{\Vert{}A\Vert{} \Vert{}B\Vert{}}\]
+
+*   **Producto Punto (\(\sum A_i \cdot B_i\)):** Suma ponderada de las dimensiones compartidas (principalmente tokens como `artificial`, `intelligence`, `education`).
+*   **Norma Art 2 (\(\Vert{}A\Vert{}\)):** Longitud geométrica del vector del artículo 2.
+*   **Norma Art 9 (\(\Vert{}B\Vert{}\)):** Longitud geométrica del vector del artículo 9.
+
+**Resultado Final Coseno:** La operación matemática arroja una similitud moderada-alta, demostrando sensibilidad a la coincidencia semántica de las palabras clave compartidas, ignorando por completo que sus posiciones relativas difieran.
+
+---
+
+## 8. Coeficiente de Jaccard — Demostración Paso a Paso
+
+Jaccard modela los documentos como conjuntos puros de elementos únicos, calculando la proporción de vocabulario compartido frente al universo total de palabras utilizadas entre ambos.
+
+### Paso 8.1: Conversión a Conjuntos de Unigramas (n=1)
+Se eliminan las duplicaciones internas de cada abstract para obtener sus términos independientes:
+*   **Conjunto Art 2 (\(A\)):** `{'applications', 'of', 'artificial', 'intelligence', 'in', 'education', 'aied', 'are', 'emerging', ...}`
+*   **Conjunto Art 9 (\(B\)):** `{'from', 'unique', 'educational', 'perspectives', 'this', 'article', 'reports', 'review', ...}`
+
+### Paso 8.2: Operaciones de Conjuntos
+*   **Intersección (\(A \cap B\)):** Vocabulario idéntico compartido de forma exacta por ambos artículos (ej. `{'artificial', 'intelligence', 'education', 'of', 'and', ...}`).
+*   **Unión (\(A \cup B\)):** El inventario consolidado de palabras distintas combinando ambos documentos sin repetir elementos.
+
+### Paso 8.3: Cálculo del Coeficiente
+El modelo matemático se ejecuta directamente sobre las cardinalidades (tamaños) de los conjuntos obtenidos con `src/classic/jaccard.py`:
+
+\[J(A, B) = \frac{\vert{}A \cap B\vert{}}{\vert{}A \cup B\vert{}}\]
+
+**Resultado Final Jaccard:** Arroja una proporción directa (ej. \(18\) términos compartidos sobre un universo de \(115\) palabras únicas combinadas), situando la similitud en un rango intermedio, penalizada únicamente por la gran cantidad de vocabulario técnico exclusivo que introduce cada autor por separado.
+
+---
+
+## 9. Comparativa de Resultados del Caso de Estudio Completo
+
+Al cruzar los hallazgos de este reporte (**CAS-3**) con los procesados por matrices dinámicas en la entrega anterior (**CAS-2**), se evidencia de manera empírica el sesgo algorítmico sobre el mismo par de textos:
+
+| Tipo de Enfoque | Algoritmo / Métrica | Similitud Registrada | Factor Determinante del Comportamiento |
+|-----------------|---------------------|----------------------|-----------------------------------------|
+| **Basado en Edición / Orden** | Levenshtein | **Baja (~0.0901)** | Penaliza drásticamente el desfase posicional y las distancias de desplazamiento de las palabras. |
+| **Basado en Edición / Orden** | Needleman-Wunsch | **Baja (~0.0901)** | Castiga la inserción masiva de *gaps* necesarios para alinear oraciones con sintaxis disímiles. |
+| **Basado en Conjuntos** | Coeficiente de Jaccard | **Moderada** | Evalúa la presencia/ausencia de palabras comunes sin importar el orden, pero es sensible al tamaño del texto. |
+| **Basado en Vectores** | TF-IDF + Coseno | **Moderada-Alta** | Destaca la coincidencia de palabras clave muy específicas (`aied`, `intelligence`) gracias al peso IDF, ignorando el orden sintáctico. |
+
+### Conclusión del Caso de Estudio
+El análisis demuestra que los artículos 2 y 9 **hablan exactamente de lo mismo (alta similitud vectorial/Coseno)** pero **escritos con estructuras gramaticales completamente diferentes (baja similitud de edición/Levenshtein)**. Este contraste valida la necesidad de seleccionar las métricas bibliométricas basándose en el objetivo del análisis: alineamiento estructural o coincidencia temático-semántica.
+
+---
+
+## 10. Evidencia reproducible
+
+Todos los datos, vectores de frecuencias y coeficientes de conjuntos expuestos en este informe técnico se pueden regenerar de forma exacta en el entorno local ejecutando el componente de traza:
+
+```bash
+python notebooks/caso_estudio_cas3.py
+```
+
+El script interactúa directamente con el archivo `data/corpus_preprocesado.json`, extrae los campos estructurados asignados a los índices de los artículos 2 y 9, y despliega el desglose aritmético completo en la consola estándar de comandos.
