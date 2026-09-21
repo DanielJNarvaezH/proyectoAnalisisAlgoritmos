@@ -133,9 +133,9 @@ en educación) y comparten vocabulario clave (`artificial`,
 otro — y Levenshtein/Needleman-Wunsch son sensibles al orden posicional,
 a diferencia de Jaccard (que ignora el orden) o TF-IDF+Coseno (que
 compara distribución de frecuencias, también sin importar el orden).
-Ese contraste es justamente lo que en CAS-3 se documentará al comparar
-contra Jaccard y TF-IDF, y en el análisis crítico del Sprint 3 al
-comparar clásicos vs. IA.
+Ese contraste se confirma y se cuantifica en la sección 9 (CAS-3), al
+comparar contra Jaccard y TF-IDF, y será insumo directo para el análisis
+crítico del Sprint 3 al comparar clásicos vs. IA.
 
 ## 6. Evidencia reproducible
 
@@ -156,89 +156,114 @@ respectivas funciones `traceback()`, definidas en
 camino no se transcribe a mano, se genera con el mismo algoritmo que
 calcula la matriz.
 
-## 7. Algoritmo TF-IDF y Similitud Coseno — Demostración Paso a Paso
+## 7. Algoritmo TF-IDF + Similitud Coseno — demostración paso a paso (CAS-3)
 
-A diferencia de las métricas de edición, este enfoque transforma cada documento en un vector multidimensional dentro de un vocabulario globalizado \(V\).
+A diferencia de Levenshtein/Needleman-Wunsch, este enfoque no compara
+secuencias posición por posición: convierte cada abstract en un vector
+numérico dentro de un vocabulario común, y mide el ángulo entre esos
+dos vectores. Se calcula sobre `abstract_preprocesado` completo de los
+artículos 2 y 9 (77 y 111 tokens respectivamente), igual que el resto
+del caso de estudio.
 
-### Paso 7.1: Tokenización de Objetivos
-Al aislar los primeros elementos lingüísticos de cada documento, se extraen las siguientes cadenas normalizadas:
-- **Tokens Art 2 (Muestra):** `['applications', 'of', 'artificial', 'intelligence', 'in', 'education', 'aied', 'are', 'emerging', 'and', 'are', 'new', 'to', 'researchers', 'and']`
-- **Tokens Art 9 (Muestra):** `['from', 'unique', 'educational', 'perspectives', 'this', 'article', 'reports', 'a', 'comprehensive', 'review', 'of', 'selected', 'empirical', 'studies', 'on']`
+**Paso 7.1 — Vocabulario y frecuencia de término (TF):** se tokeniza cada
+abstract (ya viene tokenizado desde PRE-1) y se cuenta cuántas veces
+aparece cada palabra dividido entre el total de palabras del documento.
 
-### Paso 7.2: Pesado de Términos (IDF Suavizado Global)
-El valor **IDF** penaliza los términos hiper-frecuentes del corpus. Utilizando la variante suavizada implementada en `src/classic/tfidf_cosine.py`:
-\[\text{IDF}(t) = \log\left(\frac{N}{1 + \text{df}(t)}\right) + 1\]
+**Paso 7.2 — IDF (frecuencia inversa de documento), calculado sobre el
+par seleccionado:**
+```
+IDF(t) = log(N / (1 + df(t))) + 1
+```
+Con N=2 (solo se comparan estos dos documentos, igual que hace
+`classics.py`/CLA-5 al comparar un par). Los 19 términos que **comparten**
+ambos artículos (aparecen en df=2 de 2 documentos) reciben el mismo IDF,
+por ejemplo:
 
-Donde \(N\) es el volumen total de documentos. Los tokens clave compartidos arrojan el siguiente comportamiento de frecuencia documental (\(\text{df}\)):
+| Término | df | IDF |
+|---|---|---|
+| `artificial` | 2/2 | 0.5945 |
+| `intelligence` | 2/2 | 0.5945 |
+| `education` | 2/2 | 0.5945 |
+| `aied` | 2/2 | 0.5945 |
+| `ai` | 2/2 | 0.5945 |
 
-*   `artificial`: presente en múltiples documentos (\(\text{df}\) alto) \(\rightarrow\) **IDF moderado**
-*   `intelligence`: presente en múltiples documentos (\(\text{df}\) alto) \(\rightarrow\) **IDF moderado**
-*   `education`: término transversal del corpus \(\rightarrow\) **IDF bajo**
-*   `aied`: acrónimo específico de ciertos artículos \(\rightarrow\) **IDF alto**
+Los términos que solo aparecen en **uno** de los dos artículos (df=1/2)
+reciben un IDF más alto (`log(2/2)+1 = 1.0`), penalizando menos su
+exclusividad al ser un corpus de solo 2 documentos.
 
-### Paso 7.3: Vectores TF-IDF Resultantes
-Multiplicando la frecuencia local (\(\text{TF}\)) por el valor global (\(\text{IDF}\)), los documentos se proyectan en el espacio vectorial. Descartando los términos con peso neutro (\(0.0\)), las estructuras vectoriales se resumen en:
+**Paso 7.3 — Vectores TF-IDF:** multiplicando TF × IDF para cada término
+del vocabulario conjunto (120 términos en total), el artículo 2 queda
+representado con 57 dimensiones no nulas y el artículo 9 con 82.
 
-*   **Vector Art 2:** `{'applications': 0.142, 'artificial': 0.082, 'intelligence': 0.082, 'education': 0.041, 'aied': 0.215, ...}`
-*   **Vector Art 9:** `{'comprehensive': 0.098, 'review': 0.045, 'educational': 0.052, 'studies': 0.076, 'artificial': 0.057, ...}`
-
-### Paso 7.4: Cálculo de la Similitud Coseno
-La métrica mide el coseno del ángulo entre ambos vectores mediante el producto punto normalizado por sus respectivas magnitudes (normas Euclidianas):
-
-\[\text{Similitud Coseno}(A, B) = \frac{A \cdot B}{\Vert{}A\Vert{} \Vert{}B\Vert{}}\]
-
-*   **Producto Punto (\(\sum A_i \cdot B_i\)):** Suma ponderada de las dimensiones compartidas (principalmente tokens como `artificial`, `intelligence`, `education`).
-*   **Norma Art 2 (\(\Vert{}A\Vert{}\)):** Longitud geométrica del vector del artículo 2.
-*   **Norma Art 9 (\(\Vert{}B\Vert{}\)):** Longitud geométrica del vector del artículo 9.
-
-**Resultado Final Coseno:** La operación matemática arroja una similitud moderada-alta, demostrando sensibilidad a la coincidencia semántica de las palabras clave compartidas, ignorando por completo que sus posiciones relativas difieran.
-
----
-
-## 8. Coeficiente de Jaccard — Demostración Paso a Paso
-
-Jaccard modela los documentos como conjuntos puros de elementos únicos, calculando la proporción de vocabulario compartido frente al universo total de palabras utilizadas entre ambos.
-
-### Paso 8.1: Conversión a Conjuntos de Unigramas (n=1)
-Se eliminan las duplicaciones internas de cada abstract para obtener sus términos independientes:
-*   **Conjunto Art 2 (\(A\)):** `{'applications', 'of', 'artificial', 'intelligence', 'in', 'education', 'aied', 'are', 'emerging', ...}`
-*   **Conjunto Art 9 (\(B\)):** `{'from', 'unique', 'educational', 'perspectives', 'this', 'article', 'reports', 'review', ...}`
-
-### Paso 8.2: Operaciones de Conjuntos
-*   **Intersección (\(A \cap B\)):** Vocabulario idéntico compartido de forma exacta por ambos artículos (ej. `{'artificial', 'intelligence', 'education', 'of', 'and', ...}`).
-*   **Unión (\(A \cup B\)):** El inventario consolidado de palabras distintas combinando ambos documentos sin repetir elementos.
-
-### Paso 8.3: Cálculo del Coeficiente
-El modelo matemático se ejecuta directamente sobre las cardinalidades (tamaños) de los conjuntos obtenidos con `src/classic/jaccard.py`:
-
-\[J(A, B) = \frac{\vert{}A \cap B\vert{}}{\vert{}A \cup B\vert{}}\]
-
-**Resultado Final Jaccard:** Arroja una proporción directa (ej. \(18\) términos compartidos sobre un universo de \(115\) palabras únicas combinadas), situando la similitud en un rango intermedio, penalizada únicamente por la gran cantidad de vocabulario técnico exclusivo que introduce cada autor por separado.
-
----
-
-## 9. Comparativa de Resultados del Caso de Estudio Completo
-
-Al cruzar los hallazgos de este reporte (**CAS-3**) con los procesados por matrices dinámicas en la entrega anterior (**CAS-2**), se evidencia de manera empírica el sesgo algorítmico sobre el mismo par de textos:
-
-| Tipo de Enfoque | Algoritmo / Métrica | Similitud Registrada | Factor Determinante del Comportamiento |
-|-----------------|---------------------|----------------------|-----------------------------------------|
-| **Basado en Edición / Orden** | Levenshtein | **Baja (~0.0901)** | Penaliza drásticamente el desfase posicional y las distancias de desplazamiento de las palabras. |
-| **Basado en Edición / Orden** | Needleman-Wunsch | **Baja (~0.0901)** | Castiga la inserción masiva de *gaps* necesarios para alinear oraciones con sintaxis disímiles. |
-| **Basado en Conjuntos** | Coeficiente de Jaccard | **Moderada** | Evalúa la presencia/ausencia de palabras comunes sin importar el orden, pero es sensible al tamaño del texto. |
-| **Basado en Vectores** | TF-IDF + Coseno | **Moderada-Alta** | Destaca la coincidencia de palabras clave muy específicas (`aied`, `intelligence`) gracias al peso IDF, ignorando el orden sintáctico. |
-
-### Conclusión del Caso de Estudio
-El análisis demuestra que los artículos 2 y 9 **hablan exactamente de lo mismo (alta similitud vectorial/Coseno)** pero **escritos con estructuras gramaticales completamente diferentes (baja similitud de edición/Levenshtein)**. Este contraste valida la necesidad de seleccionar las métricas bibliométricas basándose en el objetivo del análisis: alineamiento estructural o coincidencia temático-semántica.
-
----
-
-## 10. Evidencia reproducible
-
-Todos los datos, vectores de frecuencias y coeficientes de conjuntos expuestos en este informe técnico se pueden regenerar de forma exacta en el entorno local ejecutando el componente de traza:
-
-```bash
-python notebooks/caso_estudio_cas3.py
+**Paso 7.4 — Similitud coseno:**
+```
+similitud = (A · B) / (||A|| × ||B||)
 ```
 
-El script interactúa directamente con el archivo `data/corpus_preprocesado.json`, extrae los campos estructurados asignados a los índices de los artículos 2 y 9, y despliega el desglose aritmético completo en la consola estándar de comandos.
+| Cantidad | Valor |
+|---|---|
+| Producto punto (A · B) | 0.003308 |
+| Norma \|\|A\|\| (artículo 2) | 0.122586 |
+| Norma \|\|B\|\| (artículo 9) | 0.105717 |
+| **Similitud coseno** | **0.2553** |
+
+## 8. Coeficiente de Jaccard — demostración paso a paso (CAS-3)
+
+Jaccard ignora tanto el orden como la frecuencia: solo le importa si una
+palabra aparece o no en cada documento.
+
+**Paso 8.1 — Conjuntos de unigramas únicos** (sobre `abstract_preprocesado`):
+- Conjunto artículo 2: 57 tokens únicos
+- Conjunto artículo 9: 82 tokens únicos
+
+**Paso 8.2 — Intersección y unión:**
+- Intersección (términos en ambos): 19 — incluye `artificial`, `intelligence`,
+  `education`, `aied`, `ai`, `analysis`, `application`, `content`, `current`, `direction`...
+- Unión (términos distintos combinando ambos): 120
+
+**Paso 8.3 — Coeficiente:**
+```
+J(A, B) = |A ∩ B| / |A ∪ B| = 19 / 120 = 0.1583
+```
+
+## 9. Comparativa de resultados del caso de estudio completo (CAS-2 + CAS-3)
+
+| Algoritmo | Similitud (artículos 2 vs 9) | Qué mide |
+|-----------|-------------------------------|----------|
+| Levenshtein | 0.0901 | Coincidencia exacta de secuencia, penaliza cualquier desfase de orden |
+| Needleman-Wunsch | 0.0901 | Igual que Levenshtein, pero con alineamiento explícito y gaps |
+| Jaccard | 0.1583 | Presencia/ausencia de vocabulario compartido, ignora orden y frecuencia |
+| TF-IDF + Coseno | 0.2553 | Distribución de frecuencias ponderadas por relevancia, ignora orden |
+
+**Lectura honesta del resultado:** ninguno de los cuatro algoritmos
+reporta una similitud *alta* entre los artículos 2 y 9 — los cuatro
+números están por debajo de 0.30. Lo que sí se observa con claridad es
+el **mismo patrón en los cuatro**: los algoritmos sensibles al orden
+posicional (Levenshtein, Needleman-Wunsch ≈ 0.09) dan una similitud
+notablemente más baja que los que ignoran el orden (Jaccard 0.16,
+TF-IDF+Coseno 0.26). Esto es consistente con la hipótesis planteada en
+la sección 5: los artículos comparten vocabulario temático
+(`artificial`, `intelligence`, `education`, `aied`), pero lo usan en
+estructuras de oración muy distintas, por lo que las métricas de edición
+"ven" mucho menos parecido que las métricas de conjunto/vector.
+
+TF-IDF+Coseno da el valor más alto de los cuatro porque, a diferencia de
+Jaccard, no solo cuenta si un término aparece sino que pondera su
+relevancia (vía IDF) y su frecuencia relativa (vía TF) — los términos
+compartidos y temáticamente relevantes (`aied`, `artificial`,
+`intelligence`) pesan más que términos comunes poco informativos.
+
+## 10. Evidencia reproducible (CAS-3)
+
+Los valores de las secciones 7-9 se pueden regenerar ejecutando:
+
+```
+.\venv\Scripts\python.exe notebooks/caso_estudio_cas3.py
+```
+
+El script carga `data/corpus_preprocesado.json`, busca los artículos 2 y
+9 por su campo `"numero"` (igual que `caso_estudio_cas2.py`), usa
+`abstract_preprocesado` de cada uno, y calcula TF-IDF/Coseno y Jaccard
+con las implementaciones reales de `src/classic/tfidf_cosine.py` y
+`src/classic/jaccard.py` — las mismas que usa `classics.py` (CLA-5) y
+que tienen 18 y 16 pruebas unitarias respectivamente.

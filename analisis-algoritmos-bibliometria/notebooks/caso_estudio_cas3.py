@@ -1,182 +1,130 @@
-import sys
-import os
-import math
+"""
+CAS-3 — Evidencia ejecutable del caso de estudio (TF-IDF + Coseno / Jaccard)
+==================================================================================
+
+Reproduce, corriendo este script, los números que se documentan en
+/docs/caso_estudio_clasicos.md (secciones 7-9) para los artículos 2 y 9.
+
+Usa exclusivamente `abstract_preprocesado` (el corpus ya limpio, sin
+stopwords y lematizado, construido en PRE-1 y validado en PRE-2), para
+ser consistente con CAS-1/CAS-2 y con los números ya verificados en
+classics.py (CLA-5): Jaccard = 0.1583, Coseno TF-IDF = 0.2553.
+
+No define ninguna lógica nueva de los algoritmos: solo IMPORTA las
+implementaciones reales de src/classic/tfidf_cosine.py y
+src/classic/jaccard.py.
+
+Ejecutar desde la raíz del proyecto:
+    .\\venv\\Scripts\\python.exe notebooks/caso_estudio_cas3.py
+"""
 import json
+import os
+import sys
 
-# Añadir la raíz del proyecto al path para poder importar desde la carpeta 'src'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Permite importar desde src/classic/ (este archivo vive en /notebooks)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "classic"))
 
-# Importar las funciones desde tus módulos originales en src/classic/
-from src.classic.tfidf_cosine import (
-    tokenizar as tokenizar_tfidf,
-    calcular_tf,
-    calcular_idf,
-    construir_vocabulario,
-    vectorizar_tfidf,
-    similitud_coseno
-)
-from src.classic.jaccard import (
-    texto_a_conjunto,
-    jaccard
-)
+from tfidf_cosine import calcular_idf, construir_vocabulario, vectorizar_tfidf, similitud_coseno
+from jaccard import texto_a_conjunto, jaccard
 
-def encabezado_seccion(titulo):
-    print("\n" + "="*70)
-    print(f" {titulo.upper()} ")
-    print("="*70)
+RUTA_CORPUS = os.path.join(os.path.dirname(__file__), "..", "data", "corpus_preprocesado.json")
 
-def cargar_articulos_desde_json():
-    """
-    Busca y carga el archivo corpus en la carpeta data/.
-    """
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    rutas_posibles = [
-        os.path.join(base_dir, 'data', 'corpus_preprocesado.json'),
-        os.path.join(base_dir, 'data', 'corpus.json')
-    ]
+# Mismos artículos seleccionados en CAS-1 y usados en CAS-2
+ARTICULOS_SELECCIONADOS = (2, 9)
 
-    for ruta in rutas_posibles:
-        if os.path.exists(ruta):
-            with open(ruta, 'r', encoding='utf-8') as f:
-                datos = json.load(f)
-                if isinstance(datos, dict):
-                    for clave in ['documentos', 'corpus', 'articulos']:
-                        if clave in datos and isinstance(datos[clave], list):
-                            return datos[clave]
-                    return list(datos.values())
-                return datos
 
-    raise FileNotFoundError("No se encontró 'corpus_preprocesado.json' o 'corpus.json' en la carpeta data/")
+def cargar_articulos(ruta_corpus, numeros):
+    with open(ruta_corpus, "r", encoding="utf-8") as f:
+        corpus = json.load(f)
+    articulos = {doc["numero"]: doc for doc in corpus}
+    faltantes = [n for n in numeros if n not in articulos]
+    if faltantes:
+        raise ValueError(f"No se encontraron en el corpus los artículos: {faltantes}")
+    return {n: articulos[n] for n in numeros}
 
-def obtener_texto_util(articulo):
-    """
-    Extrae de forma segura el texto relevante de un objeto diccionario.
-    Prioriza el abstract/resumen, si no existe usa el título.
-    """
-    if isinstance(articulo, str):
-        return articulo
-    elif isinstance(articulo, list):
-        return " ".join(str(x) for x in articulo)
-    elif isinstance(articulo, dict):
-        # Intentar extraer contenido por prioridades de claves comunes
-        for clave in ['abstract', 'resumen', 'texto', 'content', 'description']:
-            if clave in articulo and articulo[clave]:
-                val = articulo[clave]
-                return " ".join(val) if isinstance(val, list) else str(val)
 
-        # Si no tiene abstract, usamos el título
-        if 'titulo' in articulo and articulo['titulo']:
-            return str(articulo['titulo'])
+def encabezado(titulo):
+    print("\n" + "=" * 70)
+    print(titulo)
+    print("=" * 70)
 
-        # Si no encuentra claves conocidas, une todos los valores de tipo string/lista
-        valores = []
-        for v in articulo.values():
-            if isinstance(v, str):
-                valores.append(v)
-            elif isinstance(v, list):
-                valores.append(" ".join(str(x) for x in v))
-        return " ".join(valores)
-    return str(articulo)
 
-def mostrar_paso_a_paso_articulos(corpus, idx_a=1, idx_b=8):
-    """
-    Muestra la ejecución paso a paso de TF-IDF, Similitud Coseno y Jaccard
-    enfocándose específicamente en los artículos seleccionados.
-    """
-    art_2_dict = corpus[idx_a]
-    art_9_dict = corpus[idx_b]
+def demostrar_tfidf_coseno(tokens_a, tokens_b, num_a, num_b):
+    encabezado(f"TF-IDF + SIMILITUD COSENO — artículos {num_a} vs {num_b}")
 
-    # Extraer el texto real para procesar
-    art_2_texto = obtener_texto_util(art_2_dict)
-    art_9_texto = obtener_texto_util(art_9_dict)
+    print(f"Tokens artículo {num_a} (primeros 10):", tokens_a[:10])
+    print(f"Tokens artículo {num_b} (primeros 10):", tokens_b[:10])
 
-    # Preparar corpus de texto plano para alimentar los algoritmos clásicos
-    corpus_texto = [obtener_texto_util(doc) for doc in corpus]
-
-    # =========================================================================
-    # SECCIÓN 1: TF-IDF & SIMILITUD COSENO
-    # =========================================================================
-    encabezado_seccion("1. TRAZA COMPLETA: TF-IDF Y SIMILITUD COSENO (ART. 2 vs ART. 9)")
-
-    print(f"• Detalle Art. 2: {art_2_dict.get('titulo', 'Sin título')[:90]}...")
-    print(f"• Detalle Art. 9: {art_9_dict.get('titulo', 'Sin título')[:90]}...\n")
-
-    # Procesamos el corpus de texto plano
-    docs_tokenizados = [tokenizar_tfidf(txt) for txt in corpus_texto]
+    # IDF calculado sobre el subconjunto de 2 documentos seleccionados,
+    # igual que hace classics.py (CLA-5) al comparar un par de artículos.
+    docs_tokenizados = [tokens_a, tokens_b]
     vocabulario = construir_vocabulario(docs_tokenizados)
-    idf_dicc = calcular_idf(docs_tokenizados)
-    vocab_sistema, matriz_tfidf = vectorizar_tfidf(corpus_texto)
+    idf = calcular_idf(docs_tokenizados)
 
-    tokens_2 = docs_tokenizados[idx_a]
-    tokens_9 = docs_tokenizados[idx_b]
+    print(f"\nTamaño del vocabulario conjunto: {len(vocabulario)} términos")
 
-    print("-> PASO 1.1: Tokenización de los objetivos:")
-    print(f"   Tokens Art 2 (primeros 15): {tokens_2[:15]}")
-    print(f"   Tokens Art 9 (primeros 15): {tokens_9[:15]}\n")
+    terminos_compartidos = sorted(set(tokens_a) & set(tokens_b))
+    print(f"\nTérminos compartidos entre ambos ({len(terminos_compartidos)}), con su IDF:")
+    for t in terminos_compartidos[:10]:
+        print(f"  - '{t}': df=2/2 -> IDF = {idf[t]:.4f}")
+    if len(terminos_compartidos) > 10:
+        print(f"  ... ({len(terminos_compartidos) - 10} términos más omitidos)")
 
-    print("-> PASO 1.2: Valores IDF de los tokens compartidos o relevantes (Muestra):")
-    tokens_interes = set(tokens_2).union(set(tokens_9))
-    # Mostramos los primeros 10 términos ordenados para no saturar la consola
-    for t in sorted(tokens_interes)[:10]:
-        df_t = sum(1 for tokens in docs_tokenizados if t in tokens)
-        print(f"   - '{t}': df={df_t} de {len(corpus)} docs -> IDF = {idf_dicc.get(t, 1.0):.4f}")
-    print("   ... (más términos omitidos para simplificar salida) ...\n")
+    _, matriz_tfidf = vectorizar_tfidf(docs_tokenizados)
+    vec_a, vec_b = matriz_tfidf[0], matriz_tfidf[1]
 
-    print("-> PASO 1.3: Vectores TF-IDF Resultantes (Solo términos con valor > 0):")
-    vec_2 = matriz_tfidf[idx_a]
-    vec_9 = matriz_tfidf[idx_b]
+    no_cero_a = {vocabulario[i]: round(vec_a[i], 4) for i in range(len(vocabulario)) if vec_a[i] > 0}
+    no_cero_b = {vocabulario[i]: round(vec_b[i], 4) for i in range(len(vocabulario)) if vec_b[i] > 0}
+    print(f"\nVector TF-IDF artículo {num_a} (términos no nulos): {len(no_cero_a)} dimensiones")
+    print(f"Vector TF-IDF artículo {num_b} (términos no nulos): {len(no_cero_b)} dimensiones")
 
-    print("   [Art 2]: ", {vocab_sistema[i]: round(vec_2[i], 4) for i in range(len(vocab_sistema)) if vec_2[i] > 0})
-    print("   [Art 9]: ", {vocab_sistema[i]: round(vec_9[i], 4) for i in range(len(vocab_sistema)) if vec_9[i] > 0})
+    producto_punto = sum(x * y for x, y in zip(vec_a, vec_b))
+    norma_a = sum(x ** 2 for x in vec_a) ** 0.5
+    norma_b = sum(y ** 2 for y in vec_b) ** 0.5
+    sim = similitud_coseno(vec_a, vec_b)
 
-    print("\n-> PASO 1.4: Cálculo de Similitud Coseno:")
-    producto_punto = sum(a * b for a, b in zip(vec_2, vec_9))
-    norma_2 = math.sqrt(sum(x**2 for x in vec_2))
-    norma_9 = math.sqrt(sum(x**2 for x in vec_9))
-    sim_cos = similitud_coseno(vec_2, vec_9)
+    print(f"\nProducto punto (A . B)  = {producto_punto:.6f}")
+    print(f"Norma ||A||             = {norma_a:.6f}")
+    print(f"Norma ||B||             = {norma_b:.6f}")
+    print(f"Similitud coseno        = {sim:.4f}")
+    return sim
 
-    print(f"   - Producto punto (∑ A_i * B_i) = {producto_punto:.6f}")
-    print(f"   - Norma Art 2 (||A||) = {norma_2:.6f}")
-    print(f"   - Norma Art 9 (||B||) = {norma_9:.6f}")
-    print(f"   => SIMILITUD COSENO = {sim_cos:.6f}")
 
-    # =========================================================================
-    # SECCIÓN 2: COEFICIENTE DE JACCARD
-    # =========================================================================
-    encabezado_seccion("2. TRAZA COMPLETA: COEFICIENTE DE JACCARD (ART. 2 vs ART. 9)")
+def demostrar_jaccard(tokens_a, tokens_b, num_a, num_b, n=1):
+    encabezado(f"COEFICIENTE DE JACCARD — artículos {num_a} vs {num_b}")
 
-    conjunto_2 = texto_a_conjunto(art_2_texto, n=1)
-    conjunto_9 = texto_a_conjunto(art_9_texto, n=1)
+    conjunto_a = texto_a_conjunto(tokens_a, n=n)
+    conjunto_b = texto_a_conjunto(tokens_b, n=n)
 
-    print("-> PASO 2.1: Tamaño de los Conjuntos de Unigramas Únicos:")
-    print(f"   Cardinalidad de conjunto Art 2 = {len(conjunto_2)}")
-    print(f"   Cardinalidad de conjunto Art 9 = {len(conjunto_9)}\n")
+    print(f"Cardinalidad conjunto artículo {num_a}: {len(conjunto_a)} unigramas únicos")
+    print(f"Cardinalidad conjunto artículo {num_b}: {len(conjunto_b)} unigramas únicos")
 
-    interseccion = conjunto_2.intersection(conjunto_9)
-    union = conjunto_2.union(conjunto_9)
+    interseccion = conjunto_a & conjunto_b
+    union = conjunto_a | conjunto_b
 
-    print("-> PASO 2.2: Operaciones de Conjuntos:")
-    print(f"   - Intersección (A ∩ B) [Elementos compartidos]: {sorted(list(interseccion))[:10]} ...")
-    print(f"     Tamaño de la intersección = {len(interseccion)}")
-    print(f"   - Tamaño de la Unión (A ∪ B) [Total elementos únicos] = {len(union)}")
+    print(f"\nIntersección (primeros 10): {sorted(interseccion)[:10]}")
+    print(f"Tamaño de la intersección = {len(interseccion)}")
+    print(f"Tamaño de la unión        = {len(union)}")
 
-    print("\n-> PASO 2.3: Coeficiente Resultante:")
-    coef_jaccard = jaccard(conjunto_2, conjunto_9)
-    print(f"   Fórmula: J(A, B) = |A ∩ B| / |A ∪ B|")
-    print(f"   J(Art 2, Art 9) = {len(interseccion)} / {len(union)} = {coef_jaccard:.6f}")
+    coef = jaccard(conjunto_a, conjunto_b)
+    print(f"\nJ(A, B) = {len(interseccion)} / {len(union)} = {coef:.4f}")
+    return coef
 
 
 if __name__ == "__main__":
-    try:
-        corpus_total = cargar_articulos_desde_json()
+    num_a, num_b = ARTICULOS_SELECCIONADOS
+    articulos = cargar_articulos(RUTA_CORPUS, ARTICULOS_SELECCIONADOS)
 
-        if len(corpus_total) < 9:
-            print(f"⚠️ Alerta: El corpus solo contiene {len(corpus_total)} elementos. Se requiere un mínimo de 9.")
-            sys.exit(1)
+    tokens_a = articulos[num_a]["abstract_preprocesado"]
+    tokens_b = articulos[num_b]["abstract_preprocesado"]
 
-        mostrar_paso_a_paso_articulos(corpus_total, idx_a=1, idx_b=8)
+    print(f"Caso de estudio CAS-1/CAS-3: artículos {num_a} y {num_b}")
+    print(f"  [{num_a}] {articulos[num_a]['titulo']}")
+    print(f"  [{num_b}] {articulos[num_b]['titulo']}")
 
-    except FileNotFoundError as e:
-        print(f"❌ Error de archivo: {e}")
-    except Exception as e:
-        print(f"❌ Ocurrió un error inesperado: {e}")
+    sim_coseno = demostrar_tfidf_coseno(tokens_a, tokens_b, num_a, num_b)
+    sim_jaccard = demostrar_jaccard(tokens_a, tokens_b, num_a, num_b)
+
+    encabezado("RESUMEN")
+    print(f"TF-IDF + Coseno -> similitud = {sim_coseno:.4f}")
+    print(f"Jaccard         -> similitud = {sim_jaccard:.4f}")
