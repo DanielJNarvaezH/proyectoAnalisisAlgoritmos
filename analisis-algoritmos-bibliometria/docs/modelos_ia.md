@@ -1,0 +1,189 @@
+# Selección de Modelos de IA para Similitud Textual (IA-1)
+
+**Requerimiento 1, parte 2 · Sprint 3 · Responsable: Daniel Narváez**
+
+Este documento evalúa los modelos preentrenados candidatos para los dos enfoques de similitud basados en embeddings que exige el Requerimiento 1, y justifica la elección de cada uno. Las tareas IA-2 e IA-3 implementan los modelos elegidos aquí.
+
+---
+
+## 1. Qué exige el enunciado y qué implica
+
+El enunciado pide **dos enfoques de similitud apoyados en embeddings** (representaciones vectoriales densas). Permite usar modelos preentrenados (menciona Word2Vec, FastText y modelos de lenguaje vía APIs o librerías) para vectorizar los abstracts y, después, calcular la similitud métrica (distancia euclidiana o coseno) entre los vectores.
+
+Al mismo tiempo, el proyecto prohíbe usar funciones de alto nivel que implementen directamente los algoritmos solicitados. De ahí sale la división de responsabilidades que sigue todo este documento:
+
+| Paso | Lo aporta | Justificación |
+|---|---|---|
+| Vectores de palabras o de documento | Modelo preentrenado (librería) | Permitido explícitamente por el enunciado. Entrenar un modelo propio no es viable con este corpus (sección 4.1). |
+| Combinar vectores de palabras en un vector de documento (Word2Vec) | Implementación propia | Es parte del diseño algorítmico del enfoque; se programa con estructuras básicas. |
+| Similitud coseno y distancia euclidiana | Implementación propia (IA-4) | Es el algoritmo de similitud solicitado. No se usan `model.similarity`, `util.cos_sim`, `sklearn` ni `scipy.spatial`. |
+| Matriz de similitud entre N artículos | Implementación propia | Igual que en los algoritmos clásicos (CLA-5). |
+
+Con esto, la IA actúa como apoyo para obtener la representación semántica, y el cálculo de similitud sigue siendo transparente y analizable, en coherencia con lo que se declarará en la sección de uso de IA del documento técnico.
+
+## 2. Características del corpus que condicionan la elección
+
+Las cifras se calcularon sobre `data/corpus.json` y `data/corpus_preprocesado.json` (versión regenerada con la corrección de palabras compuestas):
+
+| Medida | Valor | Por qué importa |
+|---|---|---|
+| Artículos | 20 | Corpus muy pequeño para entrenar embeddings propios. |
+| Tokens preprocesados en total | ≈ 2.500 | Ídem. |
+| Vocabulario distinto | 868 términos, 484 de ellos (≈ 56 %) con una sola aparición | Un modelo entrenado aquí vería casi todas las palabras una única vez. |
+| Longitud del abstract crudo | 134 a 263 palabras (promedio ≈ 202) | Los modelos de lenguaje truncan la entrada a partir de cierto número de sub-palabras (sección 4.5). |
+| Idioma | Inglés | Todos los modelos evaluados tienen versiones preentrenadas en inglés. |
+
+Además, el corpus tiene **términos propios del dominio** que un modelo preentrenado general puede no conocer:
+
+| Término | Apariciones | Artículos donde aparece | Observación |
+|---|---|---|---|
+| `aied` (AI in Education) | 38 | 7 | Es el 5.º término más frecuente de todo el corpus. |
+| `gai` (Generative AI) | 11 | 1 | Sigla. |
+| `chatgpt` | 7 | 3 | Término posterior a 2022. |
+| `genai` | 5 | 1 | Sigla. |
+
+Estos términos pesan mucho en los algoritmos clásicos (por ejemplo, `aied` es uno de los términos compartidos que explican la similitud TF-IDF entre los artículos 2 y 9). Por eso, cómo trata cada modelo las palabras que no conoce es un criterio central de la evaluación.
+
+## 3. Criterios de evaluación
+
+1. **Calidad semántica** para textos científicos: que abstracts sobre el mismo tema queden cerca aunque usen palabras distintas.
+2. **Cobertura del vocabulario del dominio**: comportamiento frente a palabras fuera del vocabulario (OOV) como `aied` o `chatgpt`.
+3. **Longitud de entrada**: que el abstract completo quepa en el modelo sin truncarse.
+4. **Costo computacional**: tamaño de descarga y memoria necesaria en los equipos del equipo.
+5. **Reproducibilidad**: que los resultados se puedan regenerar de forma idéntica, sin depender de un servicio externo.
+6. **Aporte al análisis comparativo**: que los dos enfoques elegidos sean conceptualmente distintos entre sí y frente a los clásicos, para que la comparación de CMP-2 diga algo.
+
+## 4. Candidatos evaluados
+
+### 4.1 Word2Vec entrenado sobre el propio corpus — descartado
+
+Entrenar un Word2Vec propio daría control total, pero con ≈ 2.500 tokens y más de la mitad del vocabulario apareciendo una sola vez, el modelo no tendría contextos suficientes para aprender relaciones semánticas estables. Los vectores resultantes reflejarían sobre todo ruido del entrenamiento. Se descarta.
+
+### 4.2 Word2Vec preentrenado — Google News (`word2vec-google-news-300`)
+
+**Qué es.** Modelo de Mikolov et al. (2013), entrenado con la arquitectura *skip-gram* sobre un corpus de noticias de Google de unos 100 mil millones de palabras. Asigna un vector fijo de 300 dimensiones a cada palabra de un vocabulario de unos 3 millones de palabras y frases. El archivo pesa ≈ 1,6 GB.
+
+**Cómo se obtiene un vector por abstract.** Word2Vec produce vectores de *palabras*, no de documentos. El vector del abstract se calcula como el **promedio aritmético** de los vectores de sus tokens:
+
+```
+v(d) = (1 / |T|) · Σ v(t)     para cada token t ∈ T, donde T son los tokens de d que existen en el vocabulario del modelo
+```
+
+**Ventajas.**
+- Es el modelo de embeddings estáticos de referencia y el primero que menciona el enunciado.
+- El promedio es un paso sencillo y transparente que se implementa a mano, lo cual se presta para el análisis matemático.
+- Carga manejable: gensim permite leer solo las N palabras más frecuentes (parámetro `limit`), reduciendo la memoria si hace falta.
+
+**Limitaciones.**
+- **Palabras fuera del vocabulario.** Si una palabra no está en el modelo, no tiene vector y queda excluida del promedio. Es muy probable que `aied`, `chatgpt`, `genai` y `gai` no existan en un modelo de 2013; esto se confirmará en IA-2 midiendo la cobertura real.
+- **Vectores estáticos.** Cada palabra tiene un único vector sin importar el contexto (por ejemplo, `model` en "modelo de lenguaje" y en "modelo pedagógico" es el mismo vector).
+- **El promedio pierde el orden** de las palabras, igual que TF-IDF y Jaccard.
+- El modelo distingue mayúsculas; los tokens del corpus están en minúscula, así que IA-2 debe decidir si prueba también la forma capitalizada cuando la minúscula no existe (por ejemplo `ai` → `AI`).
+
+### 4.3 FastText preentrenado — Facebook (`cc.en.300` / `crawl-300d-2M-subword`)
+
+**Qué es.** Extensión de Word2Vec de Bojanowski et al. (2017). Cada palabra se representa como la suma de los vectores de sus **n-gramas de caracteres** (de 3 a 6 caracteres) más el vector de la palabra completa. Así puede construir un vector incluso para palabras que nunca vio en el entrenamiento.
+
+**Ventajas.**
+- Maneja palabras fuera del vocabulario, que es justamente la debilidad de Word2Vec.
+- Robusto frente a variantes morfológicas y errores de extracción.
+
+**Limitaciones que pesan en este proyecto.**
+- **La capacidad de manejar palabras desconocidas solo existe en el modelo binario completo** (`.bin`, ≈ 7 GB, y requiere una cantidad de memoria RAM similar para cargarlo). Las versiones en texto (`.vec`) y la que se descarga con `gensim.downloader` (`fasttext-wiki-news-subwords-300`) contienen solo los vectores de palabras completas, sin los n-gramas, así que se comportan igual que Word2Vec ante una palabra desconocida.
+- **Los términos desconocidos de este corpus son siglas.** Para `aied`, FastText construiría un vector a partir de fragmentos como `aie` o `ied`, que no tienen relación con "AI in Education". El vector existiría, pero su significado sería poco confiable. La ventaja práctica frente a Word2Vec es menor de lo que parece.
+
+### 4.4 Modelos de lenguaje vía librería — `sentence-transformers`
+
+**Qué son.** Modelos basados en la arquitectura Transformer, ajustados para producir directamente un vector por texto completo (Reimers & Gurevych, 2019). A diferencia de Word2Vec y FastText, los vectores son **contextuales**: el significado de cada palabra depende de las palabras que la rodean, y el modelo sí tiene en cuenta el orden.
+
+Se evaluaron tres modelos de la librería:
+
+| Modelo | Dimensión | Entrada máxima | Tamaño aprox. | Observación |
+|---|---|---|---|---|
+| `all-MiniLM-L6-v2` | 384 | 256 sub-palabras | ≈ 90 MB | Muy liviano y rápido, pero trunca los abstracts más largos del corpus. |
+| `all-mpnet-base-v2` | 768 | 384 sub-palabras | ≈ 420 MB | El de mejor calidad general de la familia `all-*`. |
+| `allenai-specter` | 768 | 512 sub-palabras | ≈ 440 MB | Especializado en artículos científicos (entrenado con citas entre papers), pero pensado para recibir título + abstract. |
+
+**Sobre la truncación.** Un Transformer divide el texto en sub-palabras (una palabra poco común puede partirse en dos o tres piezas), y lo que exceda la entrada máxima **se descarta en silencio**. Para textos académicos en inglés, cada palabra ocupa en promedio algo más de una sub-palabra, así que los abstracts del corpus (134–263 palabras más la puntuación) ocuparían aproximadamente entre 180 y 380 sub-palabras. Con `all-MiniLM-L6-v2` (256) una buena parte de los abstracts perdería su parte final (normalmente las conclusiones). Con `all-mpnet-base-v2` (384) caben todos o casi todos; el valor exacto se debe medir en IA-3 con el tokenizador del propio modelo.
+
+**Ventajas generales.**
+- Capturan paráfrasis y relaciones semánticas que ningún enfoque basado en palabras sueltas detecta.
+- Ante una palabra desconocida como `aied`, la dividen en sub-palabras y la interpretan en su contexto ("Artificial Intelligence in Education (AIEd)"), lo que reduce el problema de la sección 2.
+
+**Limitaciones generales.**
+- Son una caja negra: no se puede mostrar paso a paso cómo se calcula cada componente del vector, a diferencia del promedio de Word2Vec.
+- Requieren PyTorch, que es pesado para instalar y para desplegar.
+
+### 4.5 APIs comerciales de embeddings — descartadas
+
+Servicios como los de OpenAI, Cohere o Voyage producen embeddings de muy buena calidad mediante una llamada HTTP. Se descartan como enfoque principal por cuatro razones:
+
+- **Reproducibilidad.** El proveedor puede actualizar o retirar el modelo, y los resultados del documento técnico dejarían de poder regenerarse.
+- **Dependencia de una clave de API y de costos**, que además habría que gestionar como secreto en el despliegue.
+- **Opacidad.** El modelo no se puede inspeccionar ni descargar.
+- **No aporta frente a `sentence-transformers`** para un corpus de 20 abstracts: la calidad de un modelo local es suficiente y se obtiene sin salir del equipo.
+
+## 5. Cuadro comparativo
+
+| Criterio | Word2Vec (Google News) | FastText (`.bin` completo) | `all-mpnet-base-v2` | API comercial |
+|---|---|---|---|---|
+| Tipo de vector | Estático, por palabra | Estático, por palabra y sub-palabra | Contextual, por texto | Contextual, por texto |
+| Vector del abstract | Promedio propio | Promedio propio | Lo produce el modelo | Lo produce el servicio |
+| Palabras desconocidas (`aied`, `chatgpt`) | Se pierden | Vector aproximado por fragmentos | Se interpretan por sub-palabras y contexto | Se interpretan |
+| Considera el orden | No | No | Sí | Sí |
+| Abstract completo sin truncar | Sí | Sí | Sí o casi (verificar) | Sí |
+| Descarga / memoria | ≈ 1,6 GB | ≈ 7 GB | ≈ 420 MB + PyTorch | Ninguna local |
+| Reproducible offline | Sí | Sí | Sí | No |
+| Explicable paso a paso | Sí (el promedio) | Parcialmente | No | No |
+
+## 6. Decisión
+
+### Enfoque de IA 1 (tarea IA-2, Daniel Narváez): **Word2Vec preentrenado de Google News**
+
+- **Modelo:** `word2vec-google-news-300`, cargado con gensim (`KeyedVectors`).
+- **Entrada:** `abstract_preprocesado` (tokens en minúscula, sin *stopwords* y lematizados). Se usa el texto preprocesado porque, al promediar, las *stopwords* aportarían vectores casi iguales en todos los documentos y acercarían artificialmente todos los abstracts entre sí.
+- **Vector del documento:** promedio de los vectores de los tokens presentes en el modelo, implementado a mano.
+- **Palabras desconocidas:** se excluyen del promedio y se registran. IA-2 debe reportar, por artículo, qué porcentaje de tokens se encontró en el modelo y cuáles faltaron.
+
+**Por qué Word2Vec y no FastText.** La ventaja real de FastText (vectores para palabras desconocidas) exige un archivo de ≈ 7 GB y una cantidad de memoria similar, y en este corpus las palabras desconocidas relevantes son siglas, para las cuales los fragmentos de caracteres no aportan un significado confiable. Word2Vec ofrece el mismo tipo de representación (vectores estáticos promediados) con una cuarta parte del costo, y su limitación con el vocabulario del dominio se convierte en un hallazgo medible y útil para el análisis comparativo en lugar de un problema oculto.
+
+**Plan B.** Si en IA-2 la cobertura de tokens resulta muy baja (por ejemplo, menos del 90 % en varios artículos), se reevaluará FastText con el modelo binario completo.
+
+### Enfoque de IA 2 (tarea IA-3, Camilo Ospina): **`sentence-transformers` con `all-mpnet-base-v2`**
+
+- **Modelo:** `sentence-transformers/all-mpnet-base-v2`.
+- **Entrada:** el campo `abstract` **original**, sin preprocesar. Los modelos Transformer se entrenaron con texto natural y dependen de las *stopwords*, la puntuación y las formas originales de las palabras para interpretar el contexto; lematizar y eliminar *stopwords* les quitaría justamente la información que los diferencia de Word2Vec. Esta diferencia de entrada respecto a los demás algoritmos debe declararse en el análisis comparativo.
+- **Vector del documento:** lo produce el modelo (768 dimensiones).
+- **Verificación obligatoria en IA-3:** medir con el tokenizador del modelo cuántas sub-palabras ocupa cada abstract y reportar si alguno supera las 384 y queda truncado.
+
+**Por qué `all-mpnet-base-v2`.** Es el modelo de mayor calidad general de su familia, admite la entrada más larga de los modelos generales (384 sub-palabras, suficiente para el corpus) y es de uso libre y reproducible. `all-MiniLM-L6-v2` se descarta porque truncaría parte de los abstracts, y `allenai-specter` porque está diseñado para recibir título y abstract juntos, mientras que el enunciado centra el análisis en el abstract.
+
+**Plan B.** Si IA-3 detecta que varios abstracts superan las 384 sub-palabras, se puede usar `allenai-specter` (512 sub-palabras) con solo el abstract como entrada, documentando la decisión.
+
+### Por qué esta combinación sirve para el análisis crítico
+
+Los dos enfoques elegidos representan dos generaciones distintas de embeddings, y cada uno se relaciona de forma distinta con los algoritmos clásicos:
+
+| | Clásicos de edición (Levenshtein, NW) | Clásicos vectoriales (TF-IDF, Jaccard) | Word2Vec promediado | `all-mpnet-base-v2` |
+|---|---|---|---|---|
+| ¿Qué compara? | Secuencias exactas de tokens | Vocabulario compartido | Significado de las palabras | Significado del texto completo |
+| ¿Considera el orden? | Sí | No | No | Sí |
+| ¿Reconoce sinónimos? | No | No | Sí | Sí |
+
+Esto permite plantear en CMP-2 preguntas concretas. Por ejemplo, si Word2Vec da una similitud mayor que TF-IDF para el mismo par, la diferencia se explica por sinónimos o términos relacionados que TF-IDF trata como palabras distintas. Y si `all-mpnet-base-v2` supera a Word2Vec, la diferencia se atribuye al contexto y al orden.
+
+## 7. Implicaciones técnicas para las siguientes tareas
+
+1. **Embeddings precalculados.** Como el corpus es estático, los vectores de los 20 abstracts se calcularán una sola vez y se guardarán en `data/embeddings/` (por ejemplo, `word2vec.json` y `mpnet.json`, con el `numero` del artículo como clave). IA-4, el clustering y el backend leerán esos archivos sin cargar los modelos, lo que evita llevar gensim, PyTorch ni archivos de gigabytes al despliegue del Sprint 5.
+2. **Los modelos no se suben al repositorio.** Se recomienda activar en `.gitignore` las líneas ya previstas (`*.bin`, `*.model`) y agregar la carpeta de caché de modelos que se use.
+3. **Dependencias nuevas.** Al implementar IA-2 e IA-3 se agregarán `gensim` y `sentence-transformers` a `requirements.txt`. Hay que verificar que la versión de gensim instalada sea compatible con numpy 2.x (la del entorno actual), porque algunas versiones de gensim exigían numpy 1.x.
+4. **Similitud implementada a mano (IA-4).** La similitud coseno y la distancia euclidiana se implementarán en `src/ia/` con operaciones básicas, sin usar las funciones de similitud de las librerías de los modelos.
+
+## 8. Referencias
+
+- Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). *Efficient Estimation of Word Representations in Vector Space*. arXiv:1301.3781.
+- Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2017). *Enriching Word Vectors with Subword Information*. Transactions of the ACL, 5, 135–146.
+- Reimers, N., & Gurevych, I. (2019). *Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks*. EMNLP 2019.
+- Song, K., Tan, X., Qin, T., Lu, J., & Liu, T.-Y. (2020). *MPNet: Masked and Permuted Pre-training for Language Understanding*. NeurIPS 2020.
+- Cohan, A., Feldman, S., Beltagy, I., Downey, D., & Weld, D. S. (2020). *SPECTER: Document-level Representation Learning using Citation-informed Transformers*. ACL 2020.
+- Documentación de Sentence Transformers: https://sbert.net
