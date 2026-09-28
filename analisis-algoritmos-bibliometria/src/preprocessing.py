@@ -20,7 +20,10 @@ Pasos de preprocesamiento aplicados:
        si SI lo es (ej. "field", "findings"), se deja como dos palabras
        distintas porque realmente lo son (ej. "research field").
        Tambien se reconstruyen palabras partidas por guion de fin de
-       linea (ej. "long-\nterm" -> "long-term" o "important" partido).
+       linea (ej. "edu-\ncational" -> "educational") y se resuelven las
+       palabras compuestas con guion o barra (ej. "problem-solving" ->
+       "problem solving"), para que no queden fusionadas en un token
+       inexistente ("problemsolving") al eliminar la puntuacion.
     2. Minusculas.
     3. Tokenizacion y eliminacion de puntuacion/numeros (se conservan solo
        tokens alfabeticos).
@@ -90,8 +93,24 @@ _TIENE_PUNKT = _disponible("tokenizers/punkt_tab", "punkt_tab") or _disponible(
 _TIENE_STOPWORDS = _disponible("corpora/stopwords", "stopwords")
 
 # "De lujo": mejoran la calidad del preprocesamiento pero tienen alternativa.
-_TIENE_WORDNET = _disponible("corpora/wordnet", "wordnet")
-_TIENE_OMW = _disponible("corpora/omw-1.4", "omw-1.4")
+def _encontrado(ruta_recurso: str) -> bool:
+    """True si el recurso ya esta instalado, sin intentar descargarlo."""
+    try:
+        nltk.data.find(ruta_recurso)
+        return True
+    except LookupError:
+        return False
+
+
+# WordNet suele quedar instalado como "wordnet.zip" sin descomprimir: el
+# lematizador lo lee sin problema, pero nltk.data.find("corpora/wordnet")
+# no lo encuentra y producia un aviso falso. Se revisa primero el .zip.
+_TIENE_WORDNET = _encontrado("corpora/wordnet.zip") or _disponible(
+    "corpora/wordnet", "wordnet"
+)
+_TIENE_OMW = _encontrado("corpora/omw-1.4.zip") or _disponible(
+    "corpora/omw-1.4", "omw-1.4"
+)
 _TIENE_TAGGER = _disponible(
     "taggers/averaged_perceptron_tagger_eng", "averaged_perceptron_tagger_eng"
 ) or _disponible("taggers/averaged_perceptron_tagger", "averaged_perceptron_tagger")
@@ -192,6 +211,8 @@ def _es_palabra_valida(palabra: str) -> bool:
         return True
     if palabra.endswith("s") and palabra[:-1] in _VOCABULARIO_INGLES:
         return True  # plural simple, ej. "findings" -> "finding"
+    if palabra.endswith("ies") and palabra[:-3] + "y" in _VOCABULARIO_INGLES:
+        return True  # plural en -ies, ej. "technologies" -> "technology"
     return False
 
 
@@ -244,20 +265,92 @@ def _reconstruir_saltos_de_linea(texto: str) -> str:
     return re.sub(r"(\w+)-\s+(\w+)", _reemplazar, texto)
 
 
+# Correcciones puntuales detectadas en la validacion manual (PRE-2) que no
+# se pueden resolver con una regla generica sin arriesgar falsos positivos.
+# Se aplican despues de NFKC (la ligadura ya es "fi" en texto plano).
+# Cada entrada: (patron regex, reemplazo, articulo donde se detecto).
+CORRECCIONES_PUNTUALES = [
+    # Articulo 5: la ligadura y el guion de fin de linea caen sobre la
+    # misma palabra ("de ﬁ- nitions"), asi que ni la regla de ligaduras
+    # ni la de saltos de linea la reconstruyen por si solas.
+    (r"\bde\s*fi-?\s*nitions\b", "definitions", 5),
+]
+
+# Guiones "internos" (sin espacio despues) y barras entre palabras.
+# Incluye el guion ASCII y las variantes Unicode que aparecen en PDFs.
+_SEPARADORES_COMPUESTOS = "-\u2010\u2011\u2012\u2013/"
+_PATRON_COMPUESTO = re.compile(
+    rf"\b\w+(?:[{_SEPARADORES_COMPUESTOS}]\w+)+\b"
+)
+
+# Prefijos que en ingles forman una sola palabra con lo que sigue, aunque
+# el diccionario de NLTK no incluya la palabra completa (ej. "inter-
+# disciplinary" -> "interdisciplinary", que otros articulos del corpus ya
+# escriben sin guion). "meta" se excluye a proposito: en PRE-2 se decidio
+# separar "meta-analyses" -> "meta analyses".
+PREFIJOS_UNIBLES = {"inter", "intra", "non", "co", "sub", "multi"}
+
+
+def _aplicar_correcciones_puntuales(texto: str) -> str:
+    for patron, reemplazo, _articulo in CORRECCIONES_PUNTUALES:
+        texto = re.sub(patron, reemplazo, texto, flags=re.IGNORECASE)
+    return texto
+
+
+def _resolver_compuestos(texto: str) -> str:
+    """
+    Resuelve palabras compuestas unidas por guion o barra ANTES de
+    tokenizar, para que no terminen fusionadas en un solo token.
+
+    Motivo (hallazgo de PRE-2): word_tokenize conserva "problem-solving"
+    como un unico token y luego la eliminacion de puntuacion borraba el
+    guion, produciendo tokens inexistentes como "problemsolving",
+    "metaanalyses", "humanai" o "yearofstudy".
+
+    Regla:
+      - Barra ("/"): siempre se separa ("design/methodology/approach"
+        -> "design methodology approach"; "LA/AIED" -> "LA AIED").
+      - Guion con prefijo de PREFIJOS_UNIBLES ("inter-", "non-", "co-"...):
+        siempre se une ("inter-connected" -> "interconnected").
+      - Otro guion: si la union sin guion es una palabra valida del
+        diccionario, se une ("inter-disciplinary" -> "interdisciplinary",
+        "tech-nologies" -> "technologies"); si no, se separa
+        ("problem-solving" -> "problem solving", "AI-driven" -> "AI driven").
+      - Sin diccionario disponible (fallo de descarga), siempre se separa.
+    """
+
+    def _reemplazar(coincidencia: re.Match) -> str:
+        compuesto = coincidencia.group(0)
+        partes = [p for p in re.split(rf"[{_SEPARADORES_COMPUESTOS}]", compuesto) if p]
+        if "/" in compuesto:
+            return " ".join(partes)
+        if len(partes) == 2 and partes[0].lower() in PREFIJOS_UNIBLES:
+            return "".join(partes)
+        if _es_palabra_valida("".join(partes)):
+            return "".join(partes)
+        return " ".join(partes)
+
+    return _PATRON_COMPUESTO.sub(_reemplazar, texto)
+
+
 def normalizar_unicode(texto: str) -> str:
     """
     Corrige ligaduras (ﬁ, ﬂ...) mal extraidas del PDF, reconstruye palabras
-    partidas por espacios/guiones espurios, y homogeniza espacios.
+    partidas por espacios/guiones espurios, resuelve palabras compuestas
+    con guion o barra, y homogeniza espacios.
 
-    Nota: se detecto un unico caso residual en el corpus (articulo 5,
-    "de fi- nitions" -> deberia ser "definitions") donde la ligadura y un
-    salto de linea con guion caen sobre la misma palabra; por su rareza
-    (1 caso en ~4000 palabras del corpus) no se resuelve con una regla
-    generica y queda anotado para revision manual en la tarea PRE-2.
+    El orden importa:
+      1. Ligaduras partidas ("arti ﬁcial" -> "artiﬁcial").
+      2. NFKC ("ﬁ" -> "fi").
+      3. Correcciones puntuales documentadas en PRE-2 (CORRECCIONES_PUNTUALES).
+      4. Guion de fin de linea ("edu- cational" -> "educational").
+      5. Compuestos con guion/barra ("problem-solving" -> "problem solving").
     """
     texto = _reconstruir_ligaduras_partidas(texto)
     texto = unicodedata.normalize("NFKC", texto)
+    texto = _aplicar_correcciones_puntuales(texto)
     texto = _reconstruir_saltos_de_linea(texto)
+    texto = _resolver_compuestos(texto)
     texto = re.sub(r"\s+", " ", texto).strip()
     return texto
 

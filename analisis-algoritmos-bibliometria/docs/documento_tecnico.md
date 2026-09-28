@@ -5,7 +5,7 @@ Universidad del Quindío · Programa de Ingeniería de Sistemas y Computación �
 
 **Equipo:** Daniel Josué Narváez Hincapié · Camilo Alberto Ospina
 
-> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1); la sección 4 se completó en el Sprint 2 (tarea DOC-A1). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen los modelos de IA, el análisis comparativo, el clustering, el despliegue y el uso de IA generativa (ver tabla de estado al final).
+> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1), con la sección 2 actualizada en el Sprint 3 con el proceso real de extracción y validación del corpus; la sección 4 se completó en el Sprint 2 (tarea DOC-A1). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen los modelos de IA, el análisis comparativo, el clustering, el despliegue y el uso de IA generativa (ver tabla de estado al final).
 
 ---
 
@@ -37,12 +37,20 @@ A diferencia de un proceso tradicional de recolección automatizada sobre bases 
 
 **Proceso de obtención (Sprint 1, épica EPIC-1):**
 
-1. Extracción de texto crudo (título, autores, abstract) de cada uno de los 20 PDFs (tarea EXT-1).
-2. Estructuración del corpus en un formato uniforme JSON/CSV con los campos `{id, titulo, autores, abstract}` (tarea EXT-2).
-3. Validación manual de una muestra del corpus contra los PDF originales, para detectar errores de extracción como saltos de línea, caracteres especiales o autores mal separados (tarea PRE-2).
-4. Preprocesamiento del texto de los abstracts (tokenización, minúsculas, eliminación de stopwords/puntuación, lematización/stemming) mediante una función reutilizable, empleada por todos los algoritmos posteriores (tarea PRE-1).
+1. **Extracción (EXT-1, `src/extraer_datos.py`).** Se usa `pypdf` para extraer el texto completo de cada PDF. El título se toma de las primeras líneas del documento, los autores de las líneas entre el título y el encabezado *Abstract*, y el abstract mediante expresiones regulares que capturan el texto entre *Abstract* y *Keywords*/*Introduction*. El resultado crudo queda en `data/raw/articulos_extraidos.csv`.
+2. **Estructuración (EXT-2, `src/csv_json.py`).** El CSV se normaliza a `data/corpus.json`, con 20 registros de estructura `{numero, titulo, autores, abstract}`. El campo `numero` (1–20) funciona como identificador único del artículo y es el que usan todos los módulos posteriores para seleccionarlo.
+3. **Preprocesamiento (PRE-1, `src/preprocessing.py`).** La función reutilizable `preprocess_text()` aplica, en orden: reconstrucción de ligaduras tipográficas mal extraídas (`arti ﬁcial` → `artificial`, validando contra el diccionario de inglés de NLTK), normalización Unicode NFKC, reconstrucción de palabras partidas por guion de fin de línea (`edu- cational` → `educational`), resolución de palabras compuestas con guion o barra (`problem-solving` → `problem solving`; con prefijos como `inter-` o `non-` se une: `inter-disciplinary` → `interdisciplinary`), minúsculas, tokenización, eliminación de puntuación, números y *stopwords* en inglés (más residuos académicos como `et`, `al`, `fig`), y lematización con desambiguación por categoría gramatical (WordNet + etiquetador POS). El corpus resultante se guarda en `data/corpus_preprocesado.json`, que agrega a cada artículo `abstract_preprocesado` (lista de tokens) y `abstract_preprocesado_texto` (los mismos tokens unidos por espacios).
+4. **Validación manual (PRE-2, `docs/validacion_corpus.md`).** Se revisaron los abstracts extraídos contra los PDF originales. El hallazgo principal fue que las palabras compuestas con guion o barra (`English-written`, `meta-analyses`, `Human-AI`, `design/methodology/approach`, entre otras, en 17 de los 20 artículos) quedaban fusionadas en un único token inexistente (`englishwritten`, `metaanalyses`, `humanai`). La corrección se incorporó como regla genérica en el propio preprocesamiento, de modo que el corpus preprocesado se regenera de forma reproducible ejecutando `python src/preprocessing.py`, sin ediciones manuales sobre el JSON. El único caso que no admite regla genérica (artículo 5, `de ﬁ- nitions`, donde coinciden una ligadura y un guion de fin de línea) se corrige mediante una tabla explícita de correcciones puntuales (`CORRECCIONES_PUNTUALES`).
 
-> ⚠️ **Estado actual:** al momento de redactar este borrador, el equipo aún no ha recibido los 20 artículos PDF por parte del docente, por lo que las tareas de extracción (EXT-1, EXT-2) y preprocesamiento (PRE-1, PRE-2) todavía no se han ejecutado. Esta sección se actualizará con las decisiones técnicas concretas (librerías finales usadas, estructura exacta del JSON, hallazgos de la validación) una vez el corpus esté disponible y procesado.
+**Características del corpus procesado:**
+
+| Medida | Valor |
+|---|---|
+| Artículos | 20 |
+| Longitud del abstract crudo | 134 a 263 palabras (promedio ≈ 202) |
+| Longitud del abstract preprocesado | 77 a 159 tokens (≈ 2.530 en total) |
+| Vocabulario (tokens distintos, todo el corpus) | 868 términos, de los cuales 484 (≈ 56 %) aparecen una sola vez |
+| Términos más frecuentes | `ai`, `education`, `review`, `research`, `aied`, `assessment` |
 
 ## 3. Arquitectura del Sistema
 
@@ -196,7 +204,7 @@ Los cuatro algoritmos se ejecutaron sobre el mismo par de artículos, selecciona
 | Sección | Contenido | Estado | Sprint |
 |---|---|---|---|
 | 1. Introducción | Contexto y propósito del proyecto | ✅ Completa | Sprint 1 |
-| 2. Fuentes de información | Corpus y proceso de obtención | 🟡 Borrador (pendiente corpus real) | Sprint 1 |
+| 2. Fuentes de información | Corpus, proceso de obtención y validación | ✅ Completa | Sprint 1 (actualizada en Sprint 3) |
 | 3. Arquitectura | Módulos y stack tecnológico | ✅ Completa | Sprint 1 |
 | 4. Algoritmos clásicos | Implementación, complejidad y caso de estudio | ✅ Completa | Sprint 2 |
 | 5. Modelos de IA | Embeddings y análisis comparativo clásicos vs. IA | ⬜ Pendiente | Sprint 3 |

@@ -246,7 +246,7 @@
             "eligibility",
             "criterion",
             "english",
-            "written",
+            "write",
             "original",
             "empirical",
             "research",
@@ -347,7 +347,7 @@
             "ai",
             "education"
         ],
-        "abstract_preprocesado_texto": "artificial intelligence ai prevalent nearly every aspect live however recent study find significant amount confusion misunderstand surround ai develop effective educational program field ai vital examine understand learner pre misconception well myth ai study examine corpus study relevant study identify apply follow eligibility criterion englishwritten original empirical research education ai report ai conception formal learn context review find study six continent majority conduct europe north america study predominantly focus school university level finding reveal range preconception misconception myth ai learner often limit understanding ai technical level tend attribute humanlike characteristic attribute ai system may narrow view ai scope capability limitation review also show learner often binary unspecific view threats danger benefit ai effective educational program key empower learner understand ai thus help make informed decision integration ai society rather swayed misinformation unnecessary fear review may help inform development effective teaching outreach strategy ai education"
+        "abstract_preprocesado_texto": "artificial intelligence ai prevalent nearly every aspect live however recent study find significant amount confusion misunderstand surround ai develop effective educational program field ai vital examine understand learner pre misconception well myth ai study examine corpus study relevant study identify apply follow eligibility criterion english write original empirical research education ai report ai conception formal learn context review find study six continent majority conduct europe north america study predominantly focus school university level finding reveal range preconception misconception myth ai learner often limit understanding ai technical level tend attribute humanlike characteristic attribute ai system may narrow view ai scope capability limitation review also show learner often binary unspecific view threats danger benefit ai effective educational program key empower learner understand ai thus help make informed decision integration ai society rather swayed misinformation unnecessary fear review may help inform development effective teaching outreach strategy ai education"
     },
     {
         "numero": 4,
@@ -366,7 +366,7 @@
             "ai",
             "complex",
             "problem",
-            "solving",
+            "solve",
             "problem",
             "complex",
             "due",
@@ -380,7 +380,7 @@
             "state",
             "complex",
             "problem",
-            "solving",
+            "solve",
             "situation",
             "often",
             "change",
@@ -406,13 +406,13 @@
             "support",
             "complex",
             "problem",
-            "solving",
+            "solve",
             "opportunity",
             "ai",
             "support",
             "complex",
             "problem",
-            "solving",
+            "solve",
             "need",
             "investigate",
             "article",
@@ -442,11 +442,12 @@
             "quality",
             "publish",
             "work",
-            "humanai",
+            "human",
+            "ai",
             "collaboration",
             "complex",
             "problem",
-            "solving",
+            "solve",
             "explore",
             "across",
             "broad",
@@ -487,13 +488,13 @@
             "practice",
             "discuss"
         ],
-        "abstract_preprocesado_texto": "research objective paper advance knowledge role artificial intelligence ai complex problemsolving problem complex due large number highly interconnected variable affect problem state complex problemsolving situation often change decremental worsen force problem solver act immediately considerable time pressure research finding support assumption affective meta cognitive social process support complex problemsolving opportunity ai support complex problemsolving need investigate article present scoping review relevant literature last five year study include study cod analysis finding show addition increase number publication current trend suggest increase quality publish work humanai collaboration complex problemsolving explore across broad variety ai application domain however four dimension complex problem namely cognitive metacognitive social affective augment ai different extent although work do cognitive domain encourage see progress across social affective dimension well implication future research practice discuss"
+        "abstract_preprocesado_texto": "research objective paper advance knowledge role artificial intelligence ai complex problem solve problem complex due large number highly interconnected variable affect problem state complex problem solve situation often change decremental worsen force problem solver act immediately considerable time pressure research finding support assumption affective meta cognitive social process support complex problem solve opportunity ai support complex problem solve need investigate article present scoping review relevant literature last five year study include study cod analysis finding show addition increase number publication current trend suggest increase quality publish work human ai collaboration complex problem solve explore across broad variety ai application domain however four dimension complex problem namely cognitive metacognitive social affective augment ai different extent although work do cognitive domain encourage see progress across social affective dimension well implication future research practice discuss"
     },
     {
         "numero": 5,
         "titulo": "Application and theory gaps during the rise of Artificial Intelligence in Education",
         "autores": "Xieling Chen, Haoran Xie, Di Zou, Gwo-Jen Hwang",
-        "abstract": "Considering the increasing importance of Artificial Intelligence in Education (AIEd) and the absence of a comprehensive review on it, this research aims to conduct a comprehensive and systematic review of influential AIEd studies. We analyzed 45 articles in terms of annual distribution, leading journals, institutions, countries/ regions, the most frequently used terms, as well as theories and technologies adopted. We also evaluated definitions of AIEd from broad and narrow perspectives and clari ﬁed the relationship among AIEd, Educational Data Mining, Computer-Based Education, and Learning Analytics. Results indicated that: 1) there was a continuingly increasing interest in and impact of AIEd research; 2) little work had been conducted to bring deep learning technologies into educational contexts; 3) traditional AI technologies, such as natural language processing were commonly adopted in educational contexts, while more advanced techniques were rarely adopted, 4) there was a lack of studies that both employ AI technologies and engage deeply with educational theories. Findings suggested scholars to 1) seek the potential of applying AI in physical classroom settings; 2) spare efforts to recognize detailed entailment relationships between learners ’ answers and the desired conceptual understanding within intelligent tutoring systems; 3) pay more attention to the adoption of advanced deep learning algorithms such as generative adversarial network and deep neural network; 4) seek the potential of NLP in promoting precision or personalized education; 5) combine biomedical detection and imaging technologies such as electroencephalogram, and target at issues regarding learners ’ during the learning process; and 6) closely incorporate the application of AI tech-nologies with educational theories.",
+        "abstract": "Considering the increasing importance of Artificial Intelligence in Education (AIEd) and the absence of a comprehensive review on it, this research aims to conduct a comprehensive and systematic review of in ﬂuential AIEd studies. We analyzed 45 articles in terms of annual distribution, leading journals, institutions, countries/ regions, the most frequently used terms, as well as theories and technologies adopted. We also evaluated de ﬁ- nitions of AIEd from broad and narrow perspectives and clari ﬁed the relationship among AIEd, Educational Data Mining, Computer-Based Education, and Learning Analytics. Results indicated that: 1) there was a continuingly increasing interest in and impact of AIEd research; 2) little work had been conducted to bring deep learning technologies into educational contexts; 3) traditional AI technologies, such as natural language processing were commonly adopted in educational contexts, while more advanced techniques were rarely adopted, 4) there was a lack of studies that both employ AI technologies and engage deeply with educational theories. Findings suggested scholars to 1) seek the potential of applying AI in physical classroom settings; 2) spare efforts to recognize detailed entailment relationships between learners ’ answers and the desired conceptual understanding within intelligent tutoring systems; 3) pay more attention to the adoption of advanced deep learning algorithms such as generative adversarial network and deep neural network; 4) seek the potential of NLP in promoting precision or personalized education; 5) combine biomedical detection and imaging technologies such as electroencephalogram, and target at issues regarding learners ’ during the learning process; and 6) closely incorporate the application of AI tech-nologies with educational theories.",
         "abstract_preprocesado": [
             "consider",
             "increase",
@@ -533,7 +534,7 @@
             "adopt",
             "also",
             "evaluate",
-            "definitions",
+            "definition",
             "aied",
             "broad",
             "narrow",
@@ -545,7 +546,8 @@
             "educational",
             "data",
             "mining",
-            "computerbased",
+            "computer",
+            "base",
             "education",
             "learn",
             "analytics",
@@ -654,7 +656,7 @@
             "educational",
             "theory"
         ],
-        "abstract_preprocesado_texto": "consider increase importance artificial intelligence education aied absence comprehensive review research aim conduct comprehensive systematic review influential aied study analyze article term annual distribution lead journal institution country region frequently use term well theory technology adopt also evaluate de fi nitions aied broad narrow perspective clarify relationship among aied educational data mining computerbased education learn analytics result indicate continuingly increase interest impact aied research little work conduct bring deep learning technology educational contexts traditional ai technology natural language process commonly adopt educational context advance technique rarely adopt lack study employ ai technology engage deeply educational theory finding suggest scholar seek potential applying ai physical classroom setting spare effort recognize detailed entailment relationship learner answer desire conceptual understanding within intelligent tutor system pay attention adoption advance deep learning algorithms generative adversarial network deep neural network seek potential nlp promote precision personalize education combine biomedical detection image technology electroencephalogram target issue regard learner learn process closely incorporate application ai technology educational theory"
+        "abstract_preprocesado_texto": "consider increase importance artificial intelligence education aied absence comprehensive review research aim conduct comprehensive systematic review influential aied study analyze article term annual distribution lead journal institution country region frequently use term well theory technology adopt also evaluate definition aied broad narrow perspective clarify relationship among aied educational data mining computer base education learn analytics result indicate continuingly increase interest impact aied research little work conduct bring deep learning technology educational contexts traditional ai technology natural language process commonly adopt educational context advance technique rarely adopt lack study employ ai technology engage deeply educational theory finding suggest scholar seek potential applying ai physical classroom setting spare effort recognize detailed entailment relationship learner answer desire conceptual understanding within intelligent tutor system pay attention adoption advance deep learning algorithms generative adversarial network deep neural network seek potential nlp promote precision personalize education combine biomedical detection image technology electroencephalogram target issue regard learner learn process closely incorporate application ai technology educational theory"
     },
     {
         "numero": 6,
@@ -767,7 +769,7 @@
             "artificial",
             "intelligence"
         ],
-        "abstract_preprocesado_texto": "rapid development artificial intelligence ai technology continuously grow interest application educational context significant growth scientific literature relation application ai education aied study aim present multiple perspective development aied term relevant grant conference journal software tool article trend top issue institution researcher provide overview aied development implementation study contribute research field enable educator scholar understand status development relevant grant publication concern aied also finding concern active actor help educator scholar identify active researcher institution research aied furthermore researcher educators able identify relevant journal aware major issue aied study addition also highlight significance necessity launch new elsevier journal aiedrelated journal name computer education artificial intelligence"
+        "abstract_preprocesado_texto": "rapid development artificial intelligence ai technology continuously grow interest application educational context significant growth scientific literature relation application ai education aied study aim present multiple perspective development aied term relevant grant conference journal software tool article trend top issue institution researcher provide overview aied development implementation study contribute research field enable educator scholar understand status development relevant grant publication concern aied also finding concern active actor help educator scholar identify active researcher institution research aied furthermore researcher educators able identify relevant journal aware major issue aied study addition also highlight significance necessity launch new elsevier journal aied related journal name computer education artificial intelligence"
     },
     {
         "numero": 7,
@@ -812,7 +814,7 @@
             "shift",
             "towards",
             "human",
-            "centred",
+            "centre",
             "design",
             "recent",
             "la",
@@ -844,7 +846,7 @@
             "current",
             "state",
             "human",
-            "centred",
+            "centre",
             "la",
             "aied",
             "research",
@@ -856,7 +858,7 @@
             "design",
             "process",
             "human",
-            "centred",
+            "centre",
             "la",
             "aied",
             "system",
@@ -884,7 +886,7 @@
             "aied",
             "system",
             "design",
-            "limit",
+            "limited",
             "end",
             "user",
             "involvement",
@@ -909,7 +911,7 @@
             "involve",
             "target",
             "end",
-            "users",
+            "user",
             "especially",
             "student",
             "delineate",
@@ -924,12 +926,12 @@
             "principles",
             "future",
             "human",
-            "centred",
+            "centre",
             "la",
             "aied",
             "system"
         ],
-        "abstract_preprocesado_texto": "rapid expansion learn analytics la artificial intelligence education aied offer new scalable dataintensive system raise concern data privacy agency exclude stakeholder like student teacher design process potentially lead mistrust inadequately align tool despite shift towards humancentred design recent la aied research remain gap understand importance human control safety reliability trustworthiness design implementation system conduct systematic literature review explore concern gap analyse paper provide insight current state humancentred laaied research ii extent educational stakeholder contribute design process humancentred laaied system iii current balance human control computer automation system iv extent safety reliability trustworthiness consider literature result indicate consideration human control laaied system design limit enduser involvement actual design base finding recommend carefully balance stakeholder involvement design deploy laaied system throughout design phase actively involve target endusers especially student delineate balance human control automation explore safety reliability trustworthiness principles future humancentred laaied system"
+        "abstract_preprocesado_texto": "rapid expansion learn analytics la artificial intelligence education aied offer new scalable data intensive system raise concern data privacy agency exclude stakeholder like student teacher design process potentially lead mistrust inadequately align tool despite shift towards human centre design recent la aied research remain gap understand importance human control safety reliability trustworthiness design implementation system conduct systematic literature review explore concern gap analyse paper provide insight current state human centre la aied research ii extent educational stakeholder contribute design process human centre la aied system iii current balance human control computer automation system iv extent safety reliability trustworthiness consider literature result indicate consideration human control la aied system design limited end user involvement actual design base finding recommend carefully balance stakeholder involvement design deploy la aied system throughout design phase actively involve target end user especially student delineate balance human control automation explore safety reliability trustworthiness principles future human centre la aied system"
     },
     {
         "numero": 8,
@@ -966,7 +968,7 @@
             "systematic",
             "review",
             "meta",
-            "analyses",
+            "analysis",
             "prisma",
             "protocol",
             "journal",
@@ -1071,7 +1073,7 @@
             "area",
             "study"
         ],
-        "abstract_preprocesado_texto": "systematic review focus publication related study use artificial intelligence ai collaborative learning use ai collaborative learning recent phenomenon systematic review study lack follow preferred report item systematic review metaanalyses prisma protocol journal article shortlist article analyse term context study year group size platform interaction type learner use thematic approach two broad focus five subcategories use ai collaborative learning identify learn outcomes collective performance content learn social interaction process sentiment emotion discourse pattern talk move learner characteristic behaviour ai technique cod accord three broad purpose discover learn reason nine technique cluster ensemble regression algorithms deep learn decision tree natural language processing instance base fuzzy logic agent sankey diagram use depict relationship among nine ai technique five subcategories ai use support collaborative learning gap select article limitation current review discuss suggest future area study"
+        "abstract_preprocesado_texto": "systematic review focus publication related study use artificial intelligence ai collaborative learning use ai collaborative learning recent phenomenon systematic review study lack follow preferred report item systematic review meta analysis prisma protocol journal article shortlist article analyse term context study year group size platform interaction type learner use thematic approach two broad focus five subcategories use ai collaborative learning identify learn outcomes collective performance content learn social interaction process sentiment emotion discourse pattern talk move learner characteristic behaviour ai technique cod accord three broad purpose discover learn reason nine technique cluster ensemble regression algorithms deep learn decision tree natural language processing instance base fuzzy logic agent sankey diagram use depict relationship among nine ai technique five subcategories ai use support collaborative learning gap select article limitation current review discuss suggest future area study"
     },
     {
         "numero": 9,
@@ -1120,7 +1122,7 @@
             "analysis",
             "categorical",
             "meta",
-            "trends",
+            "trend",
             "analysis",
             "article",
             "report",
@@ -1185,13 +1187,13 @@
             "transdisciplinary",
             "collaboration",
             "large",
-            "scaled",
+            "scale",
             "longitudinal",
             "research",
             "development",
             "effort"
         ],
-        "abstract_preprocesado_texto": "unique educational perspective article report comprehensive review select empirical study artificial intelligence education aied publish collect web science database select aiedspecialized journal total empirical study meet selection criterion fully review use multiple method include select bibliometrics content analysis categorical metatrends analysis article report current state aied research highlight select aied technology application review proven potential benefit education bridge gap ai technological innovation educational application generate practical example inspiration technological expert create aied technology educator spearhead ai innovation education also provide rich discussion practical implication future research direction multiple perspective advancement aied call critical initiative address ai ethic privacy concern require interdisciplinary transdisciplinary collaboration largescaled longitudinal research development effort"
+        "abstract_preprocesado_texto": "unique educational perspective article report comprehensive review select empirical study artificial intelligence education aied publish collect web science database select aied specialized journal total empirical study meet selection criterion fully review use multiple method include select bibliometrics content analysis categorical meta trend analysis article report current state aied research highlight select aied technology application review proven potential benefit education bridge gap ai technological innovation educational application generate practical example inspiration technological expert create aied technology educator spearhead ai innovation education also provide rich discussion practical implication future research direction multiple perspective advancement aied call critical initiative address ai ethic privacy concern require interdisciplinary transdisciplinary collaboration large scale longitudinal research development effort"
     },
     {
         "numero": 10,
@@ -1233,8 +1235,8 @@
             "application",
             "ai",
             "simulation",
-            "based",
-            "learning",
+            "base",
+            "learn",
             "fifty",
             "nine",
             "study",
@@ -1250,7 +1252,6 @@
             "literature",
             "review",
             "year",
-            "of",
             "study",
             "trend",
             "method",
@@ -1277,19 +1278,19 @@
             "virtual",
             "agent",
             "simulation",
-            "based",
+            "base",
             "learn",
             "ai",
             "infuse",
             "simulation",
-            "based",
+            "base",
             "learn",
             "affective",
             "computing",
             "ai",
             "leverage",
             "simulation",
-            "based",
+            "base",
             "learn",
             "assessment",
             "trend",
@@ -1336,10 +1337,10 @@
             "education",
             "use",
             "simulation",
-            "based",
+            "base",
             "learning"
         ],
-        "abstract_preprocesado_texto": "field education experience transformation artificial intelligence ai become increasingly applicable learning purpose ai potential transform social interaction educational context among learner teacher technology systematic mapping review focus map frame trend educational application ai simulationbased learning fiftynine study meet inclusion exclusion criterion cod analyzed six mapped category literature review yearofstudy trend method ai technology simulation study trend learn principle theory provide nuanced detail include literature also synthesize three thematic trend ai build virtual agent simulationbased learn ai infuse simulationbased learn affective computing ai leverage simulationbased learn assessment trend one build general acknowledgement virtual agent guide situate learn trend two posit role affective state learn trajectory suggest related machine learn approach trend three discusses machine learn technique multimodal compute use assessment feedback paper conclude implication suggestion research practice ai education use simulationbased learning"
+        "abstract_preprocesado_texto": "field education experience transformation artificial intelligence ai become increasingly applicable learning purpose ai potential transform social interaction educational context among learner teacher technology systematic mapping review focus map frame trend educational application ai simulation base learn fifty nine study meet inclusion exclusion criterion cod analyzed six mapped category literature review year study trend method ai technology simulation study trend learn principle theory provide nuanced detail include literature also synthesize three thematic trend ai build virtual agent simulation base learn ai infuse simulation base learn affective computing ai leverage simulation base learn assessment trend one build general acknowledgement virtual agent guide situate learn trend two posit role affective state learn trajectory suggest related machine learn approach trend three discusses machine learn technique multimodal compute use assessment feedback paper conclude implication suggestion research practice ai education use simulation base learning"
     },
     {
         "numero": 11,
@@ -1369,7 +1370,7 @@
             "review",
             "take",
             "forward",
-            "thinking",
+            "think",
             "approach",
             "investigate",
             "generative",
@@ -1413,7 +1414,7 @@
             "cultivate",
             "student",
             "self",
-            "regulated",
+            "regulate",
             "learn",
             "skill",
             "responsible",
@@ -1463,7 +1464,7 @@
             "program",
             "teach"
         ],
-        "abstract_preprocesado_texto": "generative artificial intelligence provide opportunity challenge high education exist literature properly investigate technology would impact assessment high education scoping review take forwardthinking approach investigate generative artificial intelligence transforms assessment high education use prisma extension scoping review select article review report result screen retrieved article select empirical study analysis article publish use three level student teacher institution analysis article result suggest assessment transform cultivate student selfregulated learn skill responsible learning integrity successfully transform assessment high education review suggest teacher professional development activity assessment ai digital literacy provide ii teacher beliefs human ai assessment strengthen iii teacher innovative holistic teaching reflect assessment transformation educational institution recommend review rethink assessment policy well provide interdisciplinary program teach"
+        "abstract_preprocesado_texto": "generative artificial intelligence provide opportunity challenge high education exist literature properly investigate technology would impact assessment high education scoping review take forward think approach investigate generative artificial intelligence transforms assessment high education use prisma extension scoping review select article review report result screen retrieved article select empirical study analysis article publish use three level student teacher institution analysis article result suggest assessment transform cultivate student self regulate learn skill responsible learning integrity successfully transform assessment high education review suggest teacher professional development activity assessment ai digital literacy provide ii teacher beliefs human ai assessment strengthen iii teacher innovative holistic teaching reflect assessment transformation educational institution recommend review rethink assessment policy well provide interdisciplinary program teach"
     },
     {
         "numero": 12,
@@ -1582,7 +1583,6 @@
             "team",
             "mostly",
             "domestic",
-            "only",
             "collaboration",
             "finding",
             "show",
@@ -1632,7 +1632,7 @@
             "secondary",
             "research"
         ],
-        "abstract_preprocesado_texto": "although field artificial intelligence education aied substantial history research domain never rapid evolution ai application education spark prominent public discourse give already rapidly grow aied literature base high education time ensure field solid research conceptual grounding review review first comprehensive meta review explore scope nature aied high education aihed research synthesise secondary research systematic review index web science scopus eric ebscohost ieee xplore sciencedirect acm digital library capture snowball openalex researchgate google scholar review include synthesised application ai solely formal high continue education publish english july journal article full conference paper method section publication include data extraction synthesis eppi reviewer predominantly systematic review publish author north america conduct team mostly domesticonly collaboration finding show review mostly focus aihed generally profile prediction thematic focus however key finding indicate predominance use adaptive system personalisation high education research gap identify suggest need great ethical methodological contextual consideration within future research alongside interdisciplinary approach aihed application suggestion provide guide future primary secondary research"
+        "abstract_preprocesado_texto": "although field artificial intelligence education aied substantial history research domain never rapid evolution ai application education spark prominent public discourse give already rapidly grow aied literature base high education time ensure field solid research conceptual grounding review review first comprehensive meta review explore scope nature aied high education aihed research synthesise secondary research systematic review index web science scopus eric ebscohost ieee xplore sciencedirect acm digital library capture snowball openalex researchgate google scholar review include synthesised application ai solely formal high continue education publish english july journal article full conference paper method section publication include data extraction synthesis eppi reviewer predominantly systematic review publish author north america conduct team mostly domestic collaboration finding show review mostly focus aihed generally profile prediction thematic focus however key finding indicate predominance use adaptive system personalisation high education research gap identify suggest need great ethical methodological contextual consideration within future research alongside interdisciplinary approach aihed application suggestion provide guide future primary secondary research"
     },
     {
         "numero": 13,
@@ -1794,7 +1794,7 @@
             "evaluation",
             "aq"
         ],
-        "abstract_preprocesado_texto": "purpose purpose study analyze importance artificial intelligence ai education emphasis assessment adversity quotient aq designmethodologyapproach study utilizes systematic literature review journal paper psychometric test evaluate aq thematic analysis quantitative qualitative study explore domain ai education finding result suggest assess aq student help ai technique necessary education vital tool develop improve natural intelligence survey present discourse use ai technique behavioral strategy education sector recent era study propose conceptual framework aq help assessment style high education undergraduates originalityvalue research aq evaluation indian context still emerge present potential avenue future research investigate relationship aq academic performance among indian student crucial area research provide insight role aq academic motivation persistence success different academic discipline level education aq evaluation offer valuable insight individual deal overcome challenge finding study implication high education institution prepare future challenge well equip student necessary skill success paper review related ai education open research opportunity field psychometrics educational assessment evaluation aq"
+        "abstract_preprocesado_texto": "purpose purpose study analyze importance artificial intelligence ai education emphasis assessment adversity quotient aq design methodology approach study utilizes systematic literature review journal paper psychometric test evaluate aq thematic analysis quantitative qualitative study explore domain ai education finding result suggest assess aq student help ai technique necessary education vital tool develop improve natural intelligence survey present discourse use ai technique behavioral strategy education sector recent era study propose conceptual framework aq help assessment style high education undergraduates originality value research aq evaluation indian context still emerge present potential avenue future research investigate relationship aq academic performance among indian student crucial area research provide insight role aq academic motivation persistence success different academic discipline level education aq evaluation offer valuable insight individual deal overcome challenge finding study implication high education institution prepare future challenge well equip student necessary skill success paper review related ai education open research opportunity field psychometrics educational assessment evaluation aq"
     },
     {
         "numero": 14,
@@ -1973,7 +1973,7 @@
             "systematic",
             "review",
             "meta",
-            "analyses",
+            "analysis",
             "prisma",
             "guideline",
             "search",
@@ -1996,8 +1996,8 @@
             "document",
             "citation",
             "document",
-            "sources",
-            "authors",
+            "source",
+            "author",
             "keywords",
             "coauthorship",
             "research",
@@ -2009,7 +2009,7 @@
             "understanding",
             "detection",
             "ai",
-            "generated",
+            "generate",
             "text",
             "may",
             "beneficial",
@@ -2044,7 +2044,7 @@
             "genai",
             "usage"
         ],
-        "abstract_preprocesado_texto": "use generative artificial intelligence genai academia subjective hotly debate topic currently agree guideline towards usage genai system high education thus still unclear make effective use technology teach learning practice paper provide overview current state research genai teach learn end study conduct systematic review relevant study index scopus use preferred reporting item systematic review metaanalyses prisma guideline search criterion reveal total research paper meet final inclusion criterion finding review show current state future trend document citation document sourcesauthors keywords coauthorship research gap identify suggest author look understanding detection aigenerated text may beneficial understand genai incorporate support educational curriculum assessment teach learn delivery furthermore need additional interdisciplinary multidimensional study collaboration strengthen awareness understanding student tutor stakeholder instrumental formulate guideline framework policy genai usage"
+        "abstract_preprocesado_texto": "use generative artificial intelligence genai academia subjective hotly debate topic currently agree guideline towards usage genai system high education thus still unclear make effective use technology teach learning practice paper provide overview current state research genai teach learn end study conduct systematic review relevant study index scopus use preferred reporting item systematic review meta analysis prisma guideline search criterion reveal total research paper meet final inclusion criterion finding review show current state future trend document citation document source author keywords coauthorship research gap identify suggest author look understanding detection ai generate text may beneficial understand genai incorporate support educational curriculum assessment teach learn delivery furthermore need additional interdisciplinary multidimensional study collaboration strengthen awareness understanding student tutor stakeholder instrumental formulate guideline framework policy genai usage"
     },
     {
         "numero": 16,
@@ -2103,8 +2103,7 @@
             "ai",
             "act",
             "provide",
-            "made",
-            "up",
+            "make",
             "untruthful",
             "output",
             "article",
@@ -2154,7 +2153,7 @@
             "issue",
             "assessment"
         ],
-        "abstract_preprocesado_texto": "emergence generative artificial intelligence ai chatgpt spark significant assessment concern within tertiary education assessment concern largely revolve around academic integrity issue among student plagiarism cheat nonetheless also critical consider generative ai model train information retrieve internet could produce biased discriminatory output hallucination issue large language model upon generative ai act provide madeup untruthful output article considers affordances challenge generative ai specific assessment within tertiary education illustrate consideration assessment redesign existence generative ai proposes avoid adopt aaa principle rethink redesign assessment argue generative ai tool emerge exponentially hence engage arm race generative ai police use technology may address fundamental issue assessment"
+        "abstract_preprocesado_texto": "emergence generative artificial intelligence ai chatgpt spark significant assessment concern within tertiary education assessment concern largely revolve around academic integrity issue among student plagiarism cheat nonetheless also critical consider generative ai model train information retrieve internet could produce biased discriminatory output hallucination issue large language model upon generative ai act provide make untruthful output article considers affordances challenge generative ai specific assessment within tertiary education illustrate consideration assessment redesign existence generative ai proposes avoid adopt aaa principle rethink redesign assessment argue generative ai tool emerge exponentially hence engage arm race generative ai police use technology may address fundamental issue assessment"
     },
     {
         "numero": 17,
@@ -2176,7 +2175,7 @@
             "assessment",
             "although",
             "ai",
-            "driven",
+            "drive",
             "educational",
             "assessment",
             "potential",
@@ -2194,7 +2193,8 @@
             "holistically",
             "examine",
             "field",
-            "aidriven",
+            "ai",
+            "drive",
             "educational",
             "assessment",
             "especially",
@@ -2204,7 +2204,8 @@
             "gain",
             "overview",
             "application",
-            "aidriven",
+            "ai",
+            "drive",
             "educational",
             "assessment",
             "stem",
@@ -2276,7 +2277,8 @@
             "technological",
             "effect",
             "apply",
-            "aidriven",
+            "ai",
+            "drive",
             "educational",
             "assessment",
             "stem",
@@ -2293,13 +2295,14 @@
             "future",
             "practice",
             "research",
-            "aidriven",
+            "ai",
+            "drive",
             "educational",
             "assessment",
             "stem",
             "education"
         ],
-        "abstract_preprocesado_texto": "artificial intelligence ai emerge technology widely use stem education promote educational assessment although aidriven educational assessment potential assess student learn automatically reduce workload instructor still lack review work holistically examine field aidriven educational assessment especially stem education context gain overview application aidriven educational assessment stem education research conduct systematic review base empirical research publish january april specifically review examined function algorithms effect ai application stem educational assessment result clarify three main function ai drive educational assessment namely academic performance assessment learn status assessment instructional quality assessment moreover systematic review find traditional algorithms natural language processing machine learn advanced algorithms deep learn neural fuzzy system apply stem educational assessment furthermore educational technological effect apply aidriven educational assessment stem education reveal base result research propose educational technological implication guide future practice research aidriven educational assessment stem education"
+        "abstract_preprocesado_texto": "artificial intelligence ai emerge technology widely use stem education promote educational assessment although ai drive educational assessment potential assess student learn automatically reduce workload instructor still lack review work holistically examine field ai drive educational assessment especially stem education context gain overview application ai drive educational assessment stem education research conduct systematic review base empirical research publish january april specifically review examined function algorithms effect ai application stem educational assessment result clarify three main function ai drive educational assessment namely academic performance assessment learn status assessment instructional quality assessment moreover systematic review find traditional algorithms natural language processing machine learn advanced algorithms deep learn neural fuzzy system apply stem educational assessment furthermore educational technological effect apply ai drive educational assessment stem education reveal base result research propose educational technological implication guide future practice research ai drive educational assessment stem education"
     },
     {
         "numero": 18,
@@ -2308,7 +2311,7 @@
         "abstract": "In the ever-evolving era of technological advancements, generative artiﬁcial intelligence (GAI) emerges as a transformative force, revolutionizing education. This review paper, guided by the PRISMA framework, presents a comprehensive analysis of GAI in education, synthesizing key insights from a selection of 207 research papers to identify research gaps and future directions in the ﬁeld. This study begins with a content analysis that explores GAI’s transformative impact in speciﬁc educational domains, including medical education and engineering education. The versatile applications of GAI encompass assessment, personalized learning support, and intelligent tutoring systems. Ethical considerations, interdisciplinary collaboration, and responsible technology use are highlighted, emphasizing the need for transparent GAI models and addressing biases. Subsequently, a bibliometric analysis of GAI in education is conducted, examining prominent AI tools, research focus, geographic distribution, and interdisciplinary collaboration. ChatGPT emerges as a dominant GAI tool, and the analysis reveals signiﬁcant and exponential growth in GAI research in 2023. Moreover, this paper identiﬁes promising future research directions, such as GAI-enhanced curriculum design and longitudinal studies tracking its long-term impact on learning outcomes. These ﬁndings provide a comprehensive understanding of GAI’s potential in reshaping education and offer valuable insights to researchers, educators, and policymakers interested in the intersection of GAI and education.",
         "abstract_preprocesado": [
             "ever",
-            "evolving",
+            "evolve",
             "era",
             "technological",
             "advancement",
@@ -2421,7 +2424,7 @@
             "research",
             "direction",
             "gai",
-            "enhanced",
+            "enhance",
             "curriculum",
             "design",
             "longitudinal",
@@ -2451,7 +2454,7 @@
             "gai",
             "education"
         ],
-        "abstract_preprocesado_texto": "everevolving era technological advancement generative artificial intelligence gai emerge transformative force revolutionize education review paper guide prisma framework present comprehensive analysis gai education synthesize key insight selection research paper identify research gap future direction field study begin content analysis explore gai transformative impact specific educational domain include medical education engineering education versatile application gai encompass assessment personalize learn support intelligent tutor system ethical consideration interdisciplinary collaboration responsible technology use highlight emphasize need transparent gai model address bias subsequently bibliometric analysis gai education conduct examine prominent ai tool research focus geographic distribution interdisciplinary collaboration chatgpt emerge dominant gai tool analysis reveals significant exponential growth gai research moreover paper identifies promise future research direction gaienhanced curriculum design longitudinal study track longterm impact learn outcome finding provide comprehensive understanding gai potential reshaping education offer valuable insight researcher educator policymakers interested intersection gai education"
+        "abstract_preprocesado_texto": "ever evolve era technological advancement generative artificial intelligence gai emerge transformative force revolutionize education review paper guide prisma framework present comprehensive analysis gai education synthesize key insight selection research paper identify research gap future direction field study begin content analysis explore gai transformative impact specific educational domain include medical education engineering education versatile application gai encompass assessment personalize learn support intelligent tutor system ethical consideration interdisciplinary collaboration responsible technology use highlight emphasize need transparent gai model address bias subsequently bibliometric analysis gai education conduct examine prominent ai tool research focus geographic distribution interdisciplinary collaboration chatgpt emerge dominant gai tool analysis reveals significant exponential growth gai research moreover paper identifies promise future research direction gai enhance curriculum design longitudinal study track long term impact learn outcome finding provide comprehensive understanding gai potential reshaping education offer valuable insight researcher educator policymakers interested intersection gai education"
     },
     {
         "numero": 19,
@@ -2461,7 +2464,7 @@
         "abstract_preprocesado": [
             "artificial",
             "intelligence",
-            "based",
+            "base",
             "chatbot",
             "chatgpt",
             "launch",
@@ -2578,7 +2581,7 @@
             "educational",
             "environment"
         ],
-        "abstract_preprocesado_texto": "artificial intelligencebased chatbot chatgpt launch november capable generate cohesive informative humanlike response user input rapid review literature aim enrich understand chatgpt capability across subject domain use education potential issue raise researcher first three month release december february search relevant databases google scholar yield article content analysis open cod axial cod selective coding finding review suggest chatgpt performance vary across subject domain range outstanding economics satisfactory program unsatisfactory mathematics although chatgpt potential serve assistant instructor generate course material provide suggestion virtual tutor student answer question facilitate collaboration challenge associate use generate incorrect fake information bypass plagiarism detector immediate action take update assessment method institutional policy school university instructor train student education also essential respond impact chatgpt educational environment"
+        "abstract_preprocesado_texto": "artificial intelligence base chatbot chatgpt launch november capable generate cohesive informative humanlike response user input rapid review literature aim enrich understand chatgpt capability across subject domain use education potential issue raise researcher first three month release december february search relevant databases google scholar yield article content analysis open cod axial cod selective coding finding review suggest chatgpt performance vary across subject domain range outstanding economics satisfactory program unsatisfactory mathematics although chatgpt potential serve assistant instructor generate course material provide suggestion virtual tutor student answer question facilitate collaboration challenge associate use generate incorrect fake information bypass plagiarism detector immediate action take update assessment method institutional policy school university instructor train student education also essential respond impact chatgpt educational environment"
     },
     {
         "numero": 20,
