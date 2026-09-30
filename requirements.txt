@@ -4,3 +4,4 @@ matplotlib
 pypdf
 pdfplumber
 nltk
+gensim==4.4.0

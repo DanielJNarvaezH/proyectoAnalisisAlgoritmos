@@ -75,7 +75,7 @@ v(d) = (1 / |T|) · Σ v(t)     para cada token t ∈ T, donde T son los tokens 
 - Carga manejable: gensim permite leer solo las N palabras más frecuentes (parámetro `limit`), reduciendo la memoria si hace falta.
 
 **Limitaciones.**
-- **Palabras fuera del vocabulario.** Si una palabra no está en el modelo, no tiene vector y queda excluida del promedio. Es muy probable que `aied`, `chatgpt`, `genai` y `gai` no existan en un modelo de 2013; esto se confirmará en IA-2 midiendo la cobertura real.
+- **Palabras fuera del vocabulario.** Si una palabra no está en el modelo, no tiene vector y queda excluida del promedio. Se esperaba que `aied`, `chatgpt`, `genai` y `gai` no existieran en un modelo de 2013. La implementación mostró un problema distinto y más sutil: la mayoría sí existe, pero con otro significado (ver sección 8).
 - **Vectores estáticos.** Cada palabra tiene un único vector sin importar el contexto (por ejemplo, `model` en "modelo de lenguaje" y en "modelo pedagógico" es el mismo vector).
 - **El promedio pierde el orden** de las palabras, igual que TF-IDF y Jaccard.
 - El modelo distingue mayúsculas; los tokens del corpus están en minúscula, así que IA-2 debe decidir si prueba también la forma capitalizada cuando la minúscula no existe (por ejemplo `ai` → `AI`).
@@ -144,6 +144,7 @@ Servicios como los de OpenAI, Cohere o Voyage producen embeddings de muy buena c
 - **Entrada:** `abstract_preprocesado` (tokens en minúscula, sin *stopwords* y lematizados). Se usa el texto preprocesado porque, al promediar, las *stopwords* aportarían vectores casi iguales en todos los documentos y acercarían artificialmente todos los abstracts entre sí.
 - **Vector del documento:** promedio de los vectores de los tokens presentes en el modelo, implementado a mano.
 - **Palabras desconocidas:** se excluyen del promedio y se registran. IA-2 debe reportar, por artículo, qué porcentaje de tokens se encontró en el modelo y cuáles faltaron.
+- **Siglas del dominio:** se reemplazan por su forma expandida antes de buscarlas (decisión tomada durante IA-2 a partir del diagnóstico de la sección 8).
 
 **Por qué Word2Vec y no FastText.** La ventaja real de FastText (vectores para palabras desconocidas) exige un archivo de ≈ 7 GB y una cantidad de memoria similar, y en este corpus las palabras desconocidas relevantes son siglas, para las cuales los fragmentos de caracteres no aportan un significado confiable. Word2Vec ofrece el mismo tipo de representación (vectores estáticos promediados) con una cuarta parte del costo, y su limitación con el vocabulario del dominio se convierte en un hallazgo medible y útil para el análisis comparativo en lugar de un problema oculto.
 
@@ -179,7 +180,62 @@ Esto permite plantear en CMP-2 preguntas concretas. Por ejemplo, si Word2Vec da 
 3. **Dependencias nuevas.** Al implementar IA-2 e IA-3 se agregarán `gensim` y `sentence-transformers` a `requirements.txt`. Hay que verificar que la versión de gensim instalada sea compatible con numpy 2.x (la del entorno actual), porque algunas versiones de gensim exigían numpy 1.x.
 4. **Similitud implementada a mano (IA-4).** La similitud coseno y la distancia euclidiana se implementarán en `src/ia/` con operaciones básicas, sin usar las funciones de similitud de las librerías de los modelos.
 
-## 8. Referencias
+## 8. Resultados de la implementación (IA-2)
+
+**Implementación:** `src/ia/embeddings_w2v.py` · **Pruebas:** `tests/ia/test_embeddings_w2v.py` · **Resultado:** `data/embeddings/word2vec.json` (20 vectores de 300 dimensiones).
+
+### 8.1 Cobertura del vocabulario
+
+Se cargó el modelo completo (3.000.000 de palabras). La cobertura fue mucho mayor de lo previsto en la sección 4.2:
+
+| Medida | Sin expansión de siglas | Con expansión de siglas (versión final) |
+|---|---|---|
+| Cobertura global | 2.515 de 2.532 tokens (99,3 %) | 2.525 de 2.532 tokens (99,7 %) |
+| Artículos con 100 % de cobertura | 14 de 20 | 17 de 20 |
+| Cobertura más baja | Art. 12 (95,0 %) | Art. 12 (96,9 %) |
+
+En la versión final quedan 7 tokens sin vector, cada uno con una sola aparición: `ebscohost`, `openalex`, `researchgate`, `sciencedirect` y `synthesised` (art. 12), `entailment` (art. 5) y `coauthorship` (art. 15). Casi todos son nombres de bases de datos y plataformas, que aportan poco al significado del abstract. Ningún artículo quedó por debajo del 90 %, así que el plan B (FastText) no fue necesario.
+
+Doce tokens se encontraron con otra forma de escritura. Por ejemplo, `nlp` → `NLP` y `scopus` → `Scopus`. También aparecieron formas británicas como `behaviour` → `Behaviour`, porque el modelo se entrenó con noticias mayoritariamente estadounidenses y solo tiene esas formas con mayúscula inicial.
+
+### 8.2 Hallazgo: siglas del dominio con un significado equivocado
+
+Una cobertura alta no garantiza que los vectores signifiquen lo correcto. Con `notebooks/diagnostico_terminos_w2v.py` se revisaron las palabras más cercanas a cada sigla del dominio en el modelo. La función `most_similar` de gensim se usó solo como herramienta de diagnóstico, no para calcular similitudes del proyecto:
+
+| Término del corpus | Apariciones | Forma encontrada | Palabras más cercanas en el modelo | Significado real en el modelo |
+|---|---|---|---|---|
+| `ai` | 86 | `ai` | `che`, `te`, `essere`, `tutto` | Palabra del italiano |
+| `aied` | 38 | `Aied` | `army_Capt._Fatik`, `Ali_Farhood`, `Suq_al_Shiyoukh` | Nombres propios de noticias de Irak |
+| `gai` | 11 | `gai` | `banh`, `khao`, `nuong`, `hoa` | Cocina vietnamita |
+| `genai` | 5 | `Genai` | `Breona`, `Shundra`, `Marquisha` | Nombres propios de persona |
+| *(referencia)* | — | `AI` | `Enemy_AI`, `mechs`, `Steven_Spielberg_Artificial_Intelligence` | Videojuegos y cine |
+
+Como control, los términos generales sí tienen el significado esperado: `assessment` queda cerca de `evaluation` y `appraisal`, `education` cerca de `educational`, y `chatbot` cerca de `chatbots` y `artificial_intelligence`.
+
+El problema es grave porque `ai` es el término más frecuente del corpus y aparece en casi todos los artículos. Sin corrección, el promedio de cada abstract incorporaría un vector de "gramática italiana" en proporción a la frecuencia de `ai`. Eso desviaría todos los embeddings en la misma dirección, sin relación con el tema, y podría inflar la similitud entre artículos por una causa artificial.
+
+Este comportamiento ilustra dos limitaciones de los embeddings estáticos que no se ven en la cobertura: la **polisemia**, porque una sola forma escrita recibe un único vector, el de su uso más frecuente en el corpus de entrenamiento, y la **desactualización**, porque el modelo es de 2013 y no conoce los sentidos que estas siglas adquirieron después.
+
+### 8.3 Corrección: expansión explícita de siglas
+
+Antes de buscar un token en el modelo, se consulta una tabla de expansiones (`EXPANSIONES` en `embeddings_w2v.py`). Si el token está en la tabla, su vector es el promedio de los vectores de las palabras de su expansión. Cada aparición sigue contando como **un** token dentro del promedio del documento, así que el peso relativo de la sigla no cambia.
+
+| Token | Expansión | Motivo |
+|---|---|---|
+| `ai` | `artificial_intelligence` | Vector equivocado (italiano) |
+| `aied` | `artificial_intelligence` + `education` | Vector equivocado (nombres propios) |
+| `genai` | `artificial_intelligence` | Vector equivocado (nombres propios) |
+| `gai` | `artificial_intelligence` | Vector equivocado (cocina vietnamita) |
+| `aihed` | `artificial_intelligence` + `education` | No existe en el modelo; es la sigla de AI in Higher Education en el art. 12 |
+| `chatgpt` | `artificial_intelligence` + `chatbot` | No existe en el modelo (es posterior); aparece 5 veces en el art. 19 |
+
+`artificial_intelligence` es una frase que el modelo de Google News guarda como un solo token. Las palabras de las expansiones pasaron el mismo diagnóstico que las siglas: los vecinos de `artificial_intelligence` son `robots`, `algorithms`, `Marvin_Minsky` y `Hans_Moravec`, y `chatbot` queda cerca de `chatbots` y `artificial_intelligence`.
+
+Dos palabras candidatas no pasaron el diagnóstico. `generative`, que se consideró para `genai`, `gai` y `chatgpt`, pertenece en el modelo a la exploración minera (`hydrothermal`, `gold_copper_porphyry`), el uso más común en noticias de 2013. `higher`, que se consideró para `aihed`, significa "más alto" (`lower`, `greater`, `increased`), y la frase `higher_education` no existe en el modelo, así que `aihed` se expandió igual que `aied`. En consecuencia, el embedding no distingue entre IA generativa e IA en general, ni entre educación superior y educación en general, lo cual es una limitación adicional del modelo estático frente al modelo contextual de IA-3.
+
+La corrección se aplica solo en la búsqueda de vectores de Word2Vec. No modifica el corpus preprocesado, así que los algoritmos clásicos siguen trabajando exactamente sobre los mismos tokens. Para poder medir el efecto de la corrección en el análisis comparativo (CMP-2), el script admite la opción `--sin-expansiones`, que reproduce la versión sin corregir.
+
+## 9. Referencias
 
 - Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). *Efficient Estimation of Word Representations in Vector Space*. arXiv:1301.3781.
 - Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2017). *Enriching Word Vectors with Subword Information*. Transactions of the ACL, 5, 135–146.
