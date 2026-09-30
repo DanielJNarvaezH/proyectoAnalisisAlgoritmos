@@ -235,7 +235,34 @@ Dos palabras candidatas no pasaron el diagnóstico. `generative`, que se conside
 
 La corrección se aplica solo en la búsqueda de vectores de Word2Vec. No modifica el corpus preprocesado, así que los algoritmos clásicos siguen trabajando exactamente sobre los mismos tokens. Para poder medir el efecto de la corrección en el análisis comparativo (CMP-2), el script admite la opción `--sin-expansiones`, que reproduce la versión sin corregir.
 
-## 9. Referencias
+## 9. Resultados de la implementación (IA-3)
+
+**Implementación:** `src/ia/embeddings_llm.py` · **Pruebas:** `tests/ia/test_embeddings_llm.py` · **Resultado:** `data/embeddings/mpnet.json` (20 vectores de 768 dimensiones).
+
+La tarea partió de una versión inicial de Camilo Ospina que validó el uso de la librería `sentence-transformers`. Sobre ella se aplicaron las decisiones de la sección 6: se cambió el modelo a `all-mpnet-base-v2`, se vectorizó el campo `abstract` original del corpus, el modelo se carga una sola vez, los resultados se guardan en el formato común del proyecto (reutilizando `guardar_embeddings()` de IA-2) y se agregó la verificación de truncamiento.
+
+### 9.1 Verificación de truncamiento
+
+Se contaron las sub-palabras de cada abstract con el tokenizador del propio modelo, incluyendo los tokens especiales de inicio y fin, que también cuentan para el límite:
+
+| Medida | Valor |
+|---|---|
+| Límite del modelo (`max_seq_length`) | 384 sub-palabras |
+| Rango en el corpus | 166 (art. 2) a 383 (art. 12) |
+| Promedio | 266,1 sub-palabras |
+| Abstracts truncados | Ninguno |
+
+Todos los abstracts se procesan completos, así que el plan B (`allenai-specter`) no fue necesario. El art. 12 queda a una sola sub-palabra del límite. Si en el futuro cambia la extracción del texto, este artículo es el primero que habría que volver a verificar.
+
+El resultado confirma la decisión de la sección 6: con `all-MiniLM-L6-v2` (límite de 256 sub-palabras), 13 de los 20 abstracts habrían perdido su parte final, que suele contener las conclusiones del artículo.
+
+### 9.2 Diferencias de entrada respecto a los demás algoritmos
+
+Este es el único de los seis algoritmos del Requerimiento 1 que recibe el abstract original (con *stopwords*, puntuación, mayúsculas y siglas sin expandir). Los cuatro algoritmos clásicos y Word2Vec trabajan sobre `abstract_preprocesado`. La diferencia es intencional (sección 6), pero debe tenerse en cuenta en el análisis comparativo (CMP-2): parte de la diferencia entre este modelo y los demás se debe a que ve más información del texto, no solo a que sea un modelo distinto.
+
+Además, a diferencia de Word2Vec, este modelo no necesitó expansión de siglas: recibe `Artificial Intelligence in Education (AIEd)` tal como aparece en el abstract, así que puede relacionar la sigla con su significado por el contexto en que aparece.
+
+## 10. Referencias
 
 - Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). *Efficient Estimation of Word Representations in Vector Space*. arXiv:1301.3781.
 - Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2017). *Enriching Word Vectors with Subword Information*. Transactions of the ACL, 5, 135–146.
