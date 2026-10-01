@@ -41,6 +41,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ia.embeddings_w2v import RAIZ, cargar_corpus, guardar_embeddings  # noqa: E402
+from ia.metricas import norma  # noqa: E402
 
 NOMBRE_MODELO = "sentence-transformers/all-mpnet-base-v2"
 RUTA_SALIDA = os.path.join(RAIZ, "data", "embeddings", "mpnet.json")
@@ -162,6 +163,12 @@ def main():
     articulos = generar_embeddings_corpus(corpus, modelo)
     imprimir_reporte(articulos, modelo.max_seq_length)
 
+    # El modelo puede incluir una capa que normaliza los vectores a norma 1;
+    # se mide en vez de suponerlo, porque cambia la interpretacion de la
+    # distancia euclidiana (con norma 1, d^2 = 2 - 2*coseno).
+    normas = [norma(art["vector"]) for art in articulos]
+    print(f"\nNorma de los vectores: {min(normas):.6f} a {max(normas):.6f}")
+
     guardar_embeddings(
         RUTA_SALIDA,
         modelo=NOMBRE_MODELO,
@@ -172,7 +179,8 @@ def main():
             "metodo": "embedding de documento producido por el modelo "
                       "(mean pooling de all-mpnet-base-v2)",
             "max_seq_length": modelo.max_seq_length,
-            "normalizado": False,
+            "norma_minima": min(normas),
+            "norma_maxima": max(normas),
         },
     )
     print(f"\nEmbeddings guardados en: {RUTA_SALIDA}")

@@ -2,10 +2,11 @@
   "modelo": "sentence-transformers/all-mpnet-base-v2",
   "dimension": 768,
   "entrada": "abstract",
-  "fecha": "2026-09-29",
+  "fecha": "2026-09-30",
   "metodo": "embedding de documento producido por el modelo (mean pooling de all-mpnet-base-v2)",
   "max_seq_length": 384,
-  "normalizado": false,
+  "norma_minima": 0.9999998628694108,
+  "norma_maxima": 1.0000001147088549,
   "articulos": [
     {
       "numero": 1,

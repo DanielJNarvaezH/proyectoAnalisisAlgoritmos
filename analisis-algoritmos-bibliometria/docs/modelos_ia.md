@@ -262,7 +262,50 @@ Este es el único de los seis algoritmos del Requerimiento 1 que recibe el abstr
 
 Además, a diferencia de Word2Vec, este modelo no necesitó expansión de siglas: recibe `Artificial Intelligence in Education (AIEd)` tal como aparece en el abstract, así que puede relacionar la sigla con su significado por el contexto en que aparece.
 
-## 10. Referencias
+## 10. Métricas de similitud sobre embeddings (IA-4)
+
+**Implementación:** `src/ia/metricas.py` (métricas) y `src/comparador.py` (integración con la selección dinámica de artículos) · **Pruebas:** `tests/ia/test_metricas.py` y `tests/test_comparador.py`.
+
+La tarea partió de una versión inicial de Camilo Ospina (`metrics.py` y `comparador.py`) que planteaba la estructura correcta: extender el comparador de CLA-5 con las métricas de embeddings y convertir la distancia en similitud con 1/(1+d). Sobre ella se hicieron tres cambios. Primero, las métricas se reimplementaron sin `numpy.dot` ni `numpy.linalg.norm`, porque el coseno y la distancia euclidiana son los algoritmos que pide el requerimiento. Segundo, los vectores se leen de `data/embeddings/`, donde los dejaron IA-2 e IA-3. Tercero, se integraron los dos modelos de IA.
+
+### 10.1 Métricas implementadas
+
+Para dos vectores a y b de dimensión n, todas calculadas con ciclos y `math.sqrt`:
+
+| Métrica | Fórmula | Rango | Valor para textos idénticos |
+|---|---|---|---|
+| Similitud coseno | (a · b) / (‖a‖ · ‖b‖) | [−1, 1] | 1 |
+| Distancia euclidiana | √(Σ (aᵢ − bᵢ)²) | [0, ∞) | 0 |
+| Similitud euclidiana | 1 / (1 + d) | (0, 1] | 1 |
+
+La similitud euclidiana es una transformación de la distancia que permite ponerla al lado de las demás similitudes. Su escala depende de la magnitud de los vectores de cada modelo, así que solo es comparable entre artículos de un mismo modelo.
+
+### 10.2 Comparador integrado
+
+`src/comparador.py` permite elegir dos o más artículos del corpus, por consola o como argumentos (`python src/comparador.py 2 9`), y calcula las matrices de los 6 algoritmos. Para los algoritmos de IA calcula las tres métricas de la sección 10.1. Cuando se comparan exactamente dos artículos, imprime además una tabla resumen. El cálculo está en la función `comparar_articulos()`, separado de la entrada y salida por consola, para que el backend del Sprint 5 pueda reutilizarlo. `src/classic/classics.py` (CLA-5) se conserva como el comparador de solo algoritmos clásicos.
+
+### 10.3 Resultado para el caso de estudio (artículos 2 y 9)
+
+| Algoritmo | Tipo | Similitud | Distancia euclidiana |
+|---|---|---|---|
+| Levenshtein | Clásico | 0,0901 | — |
+| Needleman-Wunsch | Clásico | 0,0901 | — |
+| Coseno TF-IDF | Clásico | 0,2553 | — |
+| Jaccard | Clásico | 0,1583 | — |
+| Word2Vec (coseno) | IA | 0,9318 | 0,3806 |
+| Word2Vec (euclidiana 1/(1+d)) | IA | 0,7243 | 0,3806 |
+| MPNet (coseno) | IA | 0,8376 | 0,5698 |
+| MPNet (euclidiana 1/(1+d)) | IA | 0,6370 | 0,5698 |
+
+Los valores de los algoritmos clásicos coinciden con los del caso de estudio del Sprint 2.
+
+### 10.4 Observaciones para el análisis comparativo (CMP-2)
+
+**Los vectores de MPNet tienen norma 1.** El modelo `all-mpnet-base-v2` incluye una capa final que normaliza los vectores, y la generación de IA-3 lo confirmó: la norma es 1,000000 en los 20 artículos. Con vectores de norma 1 se cumple d² = 2 − 2·cos, así que en este modelo la distancia euclidiana es una función directa del coseno y no aporta información nueva. Para el caso de estudio: √(2 − 2 · 0,8376) = 0,5699, que coincide con la distancia calculada. En Word2Vec los vectores no están normalizados, de modo que ahí las dos métricas sí pueden ordenar los pares de forma distinta.
+
+**Los valores absolutos no son comparables entre algoritmos.** Cada algoritmo tiene su propia escala. En particular, el promedio de los vectores de más de cien palabras tiende a producir cosenos altos entre cualquier par de abstracts de un mismo dominio. Por eso un 0,93 en Word2Vec frente a un 0,26 en TF-IDF no indica que Word2Vec considere los artículos "más parecidos". Para comparar algoritmos hay que ubicar el par 2–9 dentro de la distribución de los demás pares del corpus de cada algoritmo, lo cual corresponde a CMP-2.
+
+## 11. Referencias
 
 - Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). *Efficient Estimation of Word Representations in Vector Space*. arXiv:1301.3781.
 - Bojanowski, P., Grave, E., Joulin, A., & Mikolov, T. (2017). *Enriching Word Vectors with Subword Information*. Transactions of the ACL, 5, 135–146.
