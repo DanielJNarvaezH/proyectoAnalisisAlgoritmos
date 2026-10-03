@@ -26,7 +26,7 @@ La siguiente tabla unifica las métricas obtenidas por cada uno de los enfoques 
 ### 1. Algoritmos Clásicos
 
 #### Similitud Levenshtein / Needleman-Wunsch
-*Miden la edición de caracteres y alineamiento de secuencias.*
+*Miden la distancia de edición y el alineamiento entre las secuencias de **tokens** (palabras) de los abstracts preprocesados, no entre caracteres. Ambos usan programación dinámica; por qué coinciden en este caso se analiza en `docs/analisis_comparativo.md`.*
 
 | Art. ID | [2] | [9] |
 | :--- | :---: | :---: |
@@ -58,21 +58,21 @@ La siguiente tabla unifica las métricas obtenidas por cada uno de los enfoques 
 * **Similitud Coseno:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 1.0000 | 0.9318 |
   | **[9]** | 0.9318 | 1.0000 |
 
 * **Distancia Euclidiana:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 0.0000 | 0.3806 |
   | **[9]** | 0.3806 | 0.0000 |
 
 * **Similitud Euclidiana $1/(1+d)$:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 1.0000 | 0.7243 |
   | **[9]** | 0.7243 | 1.0000 |
 
@@ -81,20 +81,20 @@ La siguiente tabla unifica las métricas obtenidas por cada uno de los enfoques 
 * **Similitud Coseno:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 1.0000 | 0.8376 |
   | **[9]** | 0.8376 | 1.0000 |
 
 * **Distancia Euclidiana:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 0.0000 | 0.5698 |
   | **[9]** | 0.5698 | 0.0000 |
 
 * **Similitud Euclidiana $1/(1+d)$:**
 
   | Art. ID | [2] | [9] |
-    | :--- | :---: | :---: |
+  | :--- | :---: | :---: |
   | **[2]** | 1.0000 | 0.6370 |
   | **[9]** | 0.6370 | 1.0000 |

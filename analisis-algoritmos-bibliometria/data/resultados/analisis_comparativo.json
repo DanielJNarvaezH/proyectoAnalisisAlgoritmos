@@ -1,0 +1,556 @@
+{
+  "caso": [
+    2,
+    9
+  ],
+  "distribuciones": {
+    "Levenshtein": {
+      "minimo": 0.008064516129032251,
+      "maximo": 0.11764705882352944,
+      "media": 0.04513195729755479,
+      "desviacion": 0.020168845156524038,
+      "valor_caso": 0.09009009009009006,
+      "posicion_caso": 4,
+      "total_pares": 190,
+      "percentil_caso": 97.89473684210526,
+      "z_caso": 2.2290881031427134,
+      "top": [
+        {
+          "par": [
+            2,
+            20
+          ],
+          "valor": 0.11764705882352944
+        },
+        {
+          "par": [
+            2,
+            15
+          ],
+          "valor": 0.09677419354838712
+        },
+        {
+          "par": [
+            12,
+            20
+          ],
+          "valor": 0.09433962264150941
+        },
+        {
+          "par": [
+            2,
+            9
+          ],
+          "valor": 0.09009009009009006
+        },
+        {
+          "par": [
+            2,
+            12
+          ],
+          "valor": 0.08805031446540879
+        }
+      ]
+    },
+    "Needleman-Wunsch": {
+      "minimo": 0.0,
+      "maximo": 0.11764705882352941,
+      "media": 0.04575739908998059,
+      "desviacion": 0.021089722152969354,
+      "valor_caso": 0.09009009009009009,
+      "posicion_caso": 7,
+      "total_pares": 190,
+      "percentil_caso": 96.3157894736842,
+      "z_caso": 2.1020993391260783,
+      "top": [
+        {
+          "par": [
+            2,
+            20
+          ],
+          "valor": 0.11764705882352941
+        },
+        {
+          "par": [
+            12,
+            20
+          ],
+          "valor": 0.1111111111111111
+        },
+        {
+          "par": [
+            2,
+            15
+          ],
+          "valor": 0.0967741935483871
+        },
+        {
+          "par": [
+            2,
+            17
+          ],
+          "valor": 0.09219858156028368
+        },
+        {
+          "par": [
+            11,
+            17
+          ],
+          "valor": 0.09219858156028368
+        }
+      ]
+    },
+    "Coseno TF-IDF": {
+      "minimo": 0.023985164284902535,
+      "maximo": 0.3387018811159296,
+      "media": 0.11560798317092118,
+      "desviacion": 0.05686356770757582,
+      "valor_caso": 0.2822701888163496,
+      "posicion_caso": 3,
+      "total_pares": 190,
+      "percentil_caso": 98.42105263157895,
+      "z_caso": 2.9309136300152394,
+      "top": [
+        {
+          "par": [
+            2,
+            6
+          ],
+          "valor": 0.3387018811159296
+        },
+        {
+          "par": [
+            6,
+            9
+          ],
+          "valor": 0.3121798389754532
+        },
+        {
+          "par": [
+            2,
+            9
+          ],
+          "valor": 0.2822701888163496
+        },
+        {
+          "par": [
+            2,
+            20
+          ],
+          "valor": 0.267258595048047
+        },
+        {
+          "par": [
+            8,
+            10
+          ],
+          "valor": 0.2631862577682671
+        }
+      ]
+    },
+    "Jaccard": {
+      "minimo": 0.0375,
+      "maximo": 0.19626168224299065,
+      "media": 0.11190542669482932,
+      "desviacion": 0.031448285411679586,
+      "valor_caso": 0.15833333333333333,
+      "posicion_caso": 15,
+      "total_pares": 190,
+      "percentil_caso": 92.10526315789474,
+      "z_caso": 1.4763255303343543,
+      "top": [
+        {
+          "par": [
+            2,
+            6
+          ],
+          "valor": 0.19626168224299065
+        },
+        {
+          "par": [
+            2,
+            10
+          ],
+          "valor": 0.192
+        },
+        {
+          "par": [
+            2,
+            18
+          ],
+          "valor": 0.1897810218978102
+        },
+        {
+          "par": [
+            2,
+            11
+          ],
+          "valor": 0.1875
+        },
+        {
+          "par": [
+            2,
+            13
+          ],
+          "valor": 0.18382352941176472
+        }
+      ]
+    },
+    "Word2Vec coseno": {
+      "minimo": 0.8083865864736738,
+      "maximo": 0.9518366357324628,
+      "media": 0.891573602980024,
+      "desviacion": 0.029927023313518184,
+      "valor_caso": 0.9317699995655366,
+      "posicion_caso": 18,
+      "total_pares": 190,
+      "percentil_caso": 90.52631578947368,
+      "z_caso": 1.3431471671743493,
+      "top": [
+        {
+          "par": [
+            9,
+            18
+          ],
+          "valor": 0.9518366357324628
+        },
+        {
+          "par": [
+            2,
+            5
+          ],
+          "valor": 0.9438521567336616
+        },
+        {
+          "par": [
+            2,
+            18
+          ],
+          "valor": 0.9433202046027869
+        },
+        {
+          "par": [
+            12,
+            20
+          ],
+          "valor": 0.9414039481580457
+        },
+        {
+          "par": [
+            9,
+            12
+          ],
+          "valor": 0.9397434019611579
+        }
+      ]
+    },
+    "Word2Vec euclidiana": {
+      "minimo": 0.6185310181586339,
+      "maximo": 0.760166465396746,
+      "media": 0.6862831508286351,
+      "desviacion": 0.030119771729924638,
+      "valor_caso": 0.7243470151342248,
+      "posicion_caso": 28,
+      "total_pares": 190,
+      "percentil_caso": 85.26315789473684,
+      "z_caso": 1.2637500923611735,
+      "top": [
+        {
+          "par": [
+            12,
+            20
+          ],
+          "valor": 0.760166465396746
+        },
+        {
+          "par": [
+            9,
+            18
+          ],
+          "valor": 0.7501420050005825
+        },
+        {
+          "par": [
+            5,
+            20
+          ],
+          "valor": 0.749596354593107
+        },
+        {
+          "par": [
+            2,
+            5
+          ],
+          "valor": 0.74948361028959
+        },
+        {
+          "par": [
+            5,
+            15
+          ],
+          "valor": 0.744842363092485
+        }
+      ]
+    },
+    "MPNet coseno": {
+      "minimo": 0.34562662717560017,
+      "maximo": 0.8882374992007795,
+      "media": 0.644519129022045,
+      "desviacion": 0.0968526188491383,
+      "valor_caso": 0.8376357562216007,
+      "posicion_caso": 5,
+      "total_pares": 190,
+      "percentil_caso": 97.36842105263158,
+      "z_caso": 1.9939226165929724,
+      "top": [
+        {
+          "par": [
+            12,
+            20
+          ],
+          "valor": 0.8882374992007795
+        },
+        {
+          "par": [
+            6,
+            9
+          ],
+          "valor": 0.8735867481614262
+        },
+        {
+          "par": [
+            5,
+            9
+          ],
+          "valor": 0.8483588550964485
+        },
+        {
+          "par": [
+            9,
+            20
+          ],
+          "valor": 0.8392956537219756
+        },
+        {
+          "par": [
+            2,
+            9
+          ],
+          "valor": 0.8376357562216007
+        }
+      ]
+    }
+  },
+  "spearman": {
+    "Levenshtein": {
+      "Levenshtein": 1.0,
+      "Needleman-Wunsch": 0.9784692816931931,
+      "Coseno TF-IDF": 0.49126729554575305,
+      "Jaccard": 0.34374312763361015,
+      "Word2Vec coseno": 0.2569067286761488,
+      "Word2Vec euclidiana": 0.2280295479386346,
+      "MPNet coseno": 0.2664163810753623
+    },
+    "Needleman-Wunsch": {
+      "Levenshtein": 0.9784692816931931,
+      "Needleman-Wunsch": 1.0,
+      "Coseno TF-IDF": 0.48837445659976947,
+      "Jaccard": 0.3450167628646823,
+      "Word2Vec coseno": 0.2594181995347299,
+      "Word2Vec euclidiana": 0.23107611709732345,
+      "MPNet coseno": 0.26353193534645036
+    },
+    "Coseno TF-IDF": {
+      "Levenshtein": 0.49126729554575305,
+      "Needleman-Wunsch": 0.48837445659976947,
+      "Coseno TF-IDF": 1.0,
+      "Jaccard": 0.6007235451768576,
+      "Word2Vec coseno": 0.5693649481469818,
+      "Word2Vec euclidiana": 0.533453179195808,
+      "MPNet coseno": 0.5915757981340787
+    },
+    "Jaccard": {
+      "Levenshtein": 0.34374312763361015,
+      "Needleman-Wunsch": 0.3450167628646823,
+      "Coseno TF-IDF": 0.6007235451768576,
+      "Jaccard": 1.0,
+      "Word2Vec coseno": 0.4485078795523951,
+      "Word2Vec euclidiana": 0.3920886800145529,
+      "MPNet coseno": 0.41901845082382094
+    },
+    "Word2Vec coseno": {
+      "Levenshtein": 0.2569067286761488,
+      "Needleman-Wunsch": 0.2594181995347299,
+      "Coseno TF-IDF": 0.5693649481469818,
+      "Jaccard": 0.4485078795523951,
+      "Word2Vec coseno": 1.0,
+      "Word2Vec euclidiana": 0.968418428269627,
+      "MPNet coseno": 0.5617560480608152
+    },
+    "Word2Vec euclidiana": {
+      "Levenshtein": 0.2280295479386346,
+      "Needleman-Wunsch": 0.23107611709732345,
+      "Coseno TF-IDF": 0.533453179195808,
+      "Jaccard": 0.3920886800145529,
+      "Word2Vec coseno": 0.968418428269627,
+      "Word2Vec euclidiana": 1.0,
+      "MPNet coseno": 0.4930677479037909
+    },
+    "MPNet coseno": {
+      "Levenshtein": 0.2664163810753623,
+      "Needleman-Wunsch": 0.26353193534645036,
+      "Coseno TF-IDF": 0.5915757981340787,
+      "Jaccard": 0.41901845082382094,
+      "Word2Vec coseno": 0.5617560480608152,
+      "Word2Vec euclidiana": 0.4930677479037909,
+      "MPNet coseno": 1.0
+    }
+  },
+  "tiempos_similitud": {
+    "Levenshtein": {
+      "matriz_20x20_s": 1.535973600000034,
+      "par_ms": 4.952459999958592
+    },
+    "Needleman-Wunsch": {
+      "matriz_20x20_s": 2.0143291000003956,
+      "par_ms": 6.924329999992551
+    },
+    "Coseno TF-IDF": {
+      "matriz_20x20_s": 0.14301419999992504,
+      "par_ms": 0.44329500001367705
+    },
+    "Jaccard": {
+      "matriz_20x20_s": 0.006617000000005646,
+      "par_ms": 0.12110500001654145
+    },
+    "Word2Vec coseno": {
+      "matriz_20x20_s": 0.011700699999892095,
+      "par_ms": 0.05635000002257584
+    },
+    "Word2Vec euclidiana": {
+      "matriz_20x20_s": 0.006712500000503496,
+      "par_ms": null
+    },
+    "MPNet coseno": {
+      "matriz_20x20_s": 0.03207090000069002,
+      "par_ms": 0.14243999999052903
+    }
+  },
+  "tiempos_generacion": {
+    "Word2Vec: carga del modelo": 72.98322720000033,
+    "Word2Vec: vectorizar 20 abstracts": 0.09800839999934396,
+    "MPNet: carga del modelo": 177.73783059999914,
+    "MPNet: vectorizar 20 abstracts": 16.751246799999535
+  },
+  "experimento": [
+    {
+      "caso": "Sinonimos (parafrasis)",
+      "texto_a": "Students use chatbots to improve their writing skills.",
+      "texto_b": "Learners employ conversational agents to enhance their essay composition.",
+      "tokens_a": [
+        "student",
+        "use",
+        "chatbots",
+        "improve",
+        "write",
+        "skill"
+      ],
+      "tokens_b": [
+        "learner",
+        "employ",
+        "conversational",
+        "agent",
+        "enhance",
+        "essay",
+        "composition"
+      ],
+      "Levenshtein": 0.0,
+      "Needleman-Wunsch": 0.0,
+      "Coseno TF-IDF": 0.0,
+      "Jaccard": 0.0,
+      "Word2Vec coseno": 0.6932620163846434,
+      "MPNet coseno": 0.7451769267322907
+    },
+    {
+      "caso": "Orden invertido",
+      "texto_a": "The teacher evaluates the artificial intelligence system.",
+      "texto_b": "The artificial intelligence system evaluates the teacher.",
+      "tokens_a": [
+        "teacher",
+        "evaluate",
+        "artificial",
+        "intelligence",
+        "system"
+      ],
+      "tokens_b": [
+        "artificial",
+        "intelligence",
+        "system",
+        "evaluate",
+        "teacher"
+      ],
+      "Levenshtein": 0.19999999999999996,
+      "Needleman-Wunsch": 0.0,
+      "Coseno TF-IDF": 0.9999999999999998,
+      "Jaccard": 1.0,
+      "Word2Vec coseno": 1.0000000000000002,
+      "MPNet coseno": 0.9240918488522757
+    },
+    {
+      "caso": "Negacion",
+      "texto_a": "Generative AI improves student learning outcomes.",
+      "texto_b": "Generative AI does not improve student learning outcomes.",
+      "tokens_a": [
+        "generative",
+        "ai",
+        "improve",
+        "student",
+        "learn",
+        "outcome"
+      ],
+      "tokens_b": [
+        "generative",
+        "ai",
+        "improve",
+        "student",
+        "learn",
+        "outcome"
+      ],
+      "Levenshtein": 1.0,
+      "Needleman-Wunsch": 1.0,
+      "Coseno TF-IDF": 1.0,
+      "Jaccard": 1.0,
+      "Word2Vec coseno": 1.0,
+      "MPNet coseno": 0.9273766133999561
+    },
+    {
+      "caso": "Temas distintos",
+      "texto_a": "Generative AI tools support assessment in higher education.",
+      "texto_b": "Soil erosion reduces crop yields in tropical regions.",
+      "tokens_a": [
+        "generative",
+        "ai",
+        "tool",
+        "support",
+        "assessment",
+        "high",
+        "education"
+      ],
+      "tokens_b": [
+        "soil",
+        "erosion",
+        "reduce",
+        "crop",
+        "yield",
+        "tropical",
+        "region"
+      ],
+      "Levenshtein": 0.0,
+      "Needleman-Wunsch": 0.0,
+      "Coseno TF-IDF": 0.0,
+      "Jaccard": 0.0,
+      "Word2Vec coseno": 0.26343199250109767,
+      "MPNet coseno": -0.04427722919313708
+    }
+  ]
+}
