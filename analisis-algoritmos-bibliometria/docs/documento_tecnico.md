@@ -212,3 +212,41 @@ Los cuatro algoritmos se ejecutaron sobre el mismo par de artículos, selecciona
 | 7. Despliegue | Arquitectura de despliegue y guía de uso | ⬜ Pendiente | Sprint 5 |
 | 8. Declaración de uso de IA generativa | Herramientas usadas como apoyo al desarrollo | ⬜ Pendiente | Sprint 5 |
 | 9. Conclusiones | Cierre general del proyecto | ⬜ Pendiente | Sprint 6 |
+
+## 5. Modelos de Inteligencia Artificial y Embeddings
+
+### 5.1. Fundamentos Teóricos de los Embeddings y Justificación del Uso de IA
+
+El paso de los modelos de espacio vectorial clásicos (como TF-IDF) a los enfoques basados en Inteligencia Artificial responde a la necesidad de superar la **limitación de la ortogonalidad espacial**. En representaciones tradicionales, las palabras `AI` y `artificial intelligence` se tratan como dimensiones independientes; el sistema no posee noción intrínseca de su equivalencia semántica. Los **embeddings** resuelven este problema proyectando el texto en espacios vectoriales continuos de baja dimensionalidad (densos), donde la cercanía geométrica captura la similitud conceptual latente.
+
+#### A. Modelos Utilizados y Mecanismos de Proyección
+
+Para la evaluación del **Requerimiento 1**, el Motor de Algoritmos implementa dos enfoques distintos basados en representaciones densas distribuidas:
+
+1. **Embeddings Estáticos basados en Predicción (Word2Vec / Tarea IA-2):**
+    - **Mecanismo:** Basado en la *hipótesis distributiva* (las palabras en contextos similares comparten significados). El vector de cada término se extrae de un espacio preentrenado de **300 dimensiones** (`word2vec-google-news-300`).
+    - **Entrada y Agregación:** Recibe como entrada el texto limpio del corpus preprocesado (`abstract_preprocesado`). Dado que el modelo genera un vector por palabra individual, el embedding representativo del abstract completo (\(V_{doc}\)) se calcula explícitamente en el sistema mediante el promedio aritmético de los vectores de sus tokens válidos:
+      \[V_{doc} = \frac{1}{N} \sum_{i=1}^{N} \vec{w}_i\]
+      Donde \(\vec{w}_i\) es el embedding del token i, y N es la cantidad total de tokens en el abstract preprocesado.
+
+2. **Embeddings Contextuales de Documento mediante Transformers (all-mpnet-base-v2 / Tarea IA-3):**
+    - **Mecanismo:** Utiliza la arquitectura Transformer basada en mecanismos de **auto-atención bidireccional (Self-Attention)**. Las representaciones vectoriales capturan el contexto dinámico y el orden secuencial de la estructura lingüística completa.
+    - **Entrada:** A diferencia de Word2Vec, este modelo se alimenta estrictamente con el **campo `abstract` original sin preprocesar**. Conservar las *stopwords*, la puntuación y el orden sintáctico exacto es indispensable para que las capas de atención del Transformer interpreten correctamente el contexto semántico profundo.
+    - **Agregación y Dimensión:** Genera un vector denso unificado de **768 dimensiones** por abstract. No requiere agregación manual en el script; el vector final del documento es producido directamente por la arquitectura interna del modelo mediante su propia capa de *pooling* (Mean Pooling integrado), optimizado para representar textos completos.
+
+#### B. Gestión de Restricciones del Modelo y Truncamiento (Tarea IA-1)
+
+Los modelos basados en Transformers poseen un límite estricto en su ventana de contexto. El modelo `all-mpnet-base-v2` cuenta con un parámetro `max_seq_length = 384` sub-palabras (*tokens/subwords*).
+
+Para evitar la pérdida silenciosa de información, el sistema implementa en el módulo `embeddings_llm.py` una rutina obligatoria de **verificación de truncamiento**:
+- Utiliza el tokenizador nativo del modelo (`SentenceTransformer.tokenizer`) para contar las sub-palabras de cada abstract, incluyendo los tokens especiales de control (`input_ids` con `add_special_tokens=True`).
+- Evalúa la condición lógica subpalabras > max\_seq\_length para marcar cada artículo de forma booleana (`truncado: true/false`). Si algún abstract excede el límite de 384, el sistema activa un reporte en consola para dar paso al protocolo de contingencia documentado.
+- Adicionalmente, el script mide dinámicamente la **norma euclidiana** de los vectores resultantes para validar si se encuentran normalizados a la unidad (norma 1), factor crítico que altera directamente la interpretación geométrica de la distancia euclidiana en tareas posteriores (d² = 2 - 2 ⋅ coseno).
+
+#### C. Justificación Explícita y Declaración de Uso de IA Generativa
+
+En concordancia con las pautas de honestidad académica establecidas para el proyecto, el equipo declara que:
+
+- **La IA Generativa actúa estrictamente como soporte de codificación y documentación:** Se han empleado modelos de lenguaje externos para refinar la sintaxis del procesamiento de tensores, estructurar la modularidad de las pruebas unitarias y dar formato técnico al presente archivo Markdown.
+- **No hay reemplazo del diseño algorítmico ni del cálculo formal:** Toda la lógica de control del flujo (carga modular diferida de librerías pesadas como `sentence-transformers` y `torch` dentro de funciones para optimizar tests, el análisis estadístico de sub-palabras y el almacenamiento estructurado en `data/embeddings/mpnet.json`) fue diseñada e implementada directamente por el equipo.
+- **Cálculo de métricas sin dependencias externas (Tarea IA-4):** El script de generación de embeddings *no calcula* distancias ni similitudes. El procesamiento geométrico posterior (similitud coseno e hiperplanos) se ejecuta en un módulo independiente (`ia.metricas`), programado explícitamente a mano y sin el uso de funciones de caja negra como `util.cos_sim` de Hugging Face.
