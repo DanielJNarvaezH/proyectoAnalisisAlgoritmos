@@ -5,7 +5,7 @@ Universidad del Quindío · Programa de Ingeniería de Sistemas y Computación �
 
 **Equipo:** Daniel Josué Narváez Hincapié · Camilo Alberto Ospina
 
-> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1), con la sección 2 actualizada en el Sprint 3 con el proceso real de extracción y validación del corpus; la sección 4 se completó en el Sprint 2 (tarea DOC-A1). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen los modelos de IA, el análisis comparativo, el clustering, el despliegue y el uso de IA generativa (ver tabla de estado al final).
+> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1), con la sección 2 actualizada en el Sprint 3 con el proceso real de extracción y validación del corpus; la sección 4 se completó en el Sprint 2 (tarea DOC-A1) y la sección 5 en el Sprint 3 (tarea DOC-A2). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen el clustering, el despliegue y la declaración de uso de IA generativa (ver tabla de estado al final).
 
 ---
 
@@ -199,6 +199,108 @@ Los cuatro algoritmos se ejecutaron sobre el mismo par de artículos, selecciona
 
 **Análisis crítico:** ninguno de los cuatro algoritmos reporta una similitud alta entre estos dos artículos (todos por debajo de 0.30), pero se observa un patrón consistente: los algoritmos sensibles al orden posicional (Levenshtein y Needleman-Wunsch, ambos ≈0.09) dan una similitud notablemente más baja que los que ignoran el orden (Jaccard 0.16, TF-IDF+Coseno 0.26). Esto ocurre pese a que ambos abstracts comparten vocabulario temático directamente relevante (`artificial`, `intelligence`, `education`, `aied`), lo cual confirma que la elección del algoritmo no es neutral: Levenshtein/Needleman-Wunsch son apropiados cuando importa la estructura/secuencia exacta del texto, mientras que Jaccard y TF-IDF+Coseno son más apropiados para capturar cercanía temática independientemente de cómo esté redactada cada oración. Esta misma tensión (orden vs. contenido) es el punto de partida para el análisis comparativo frente a los modelos de IA (embeddings) que se documentará en el Sprint 3.
 
+## 5. Modelos de Inteligencia Artificial y Embeddings (Requerimiento 1, parte 2)
+
+Esta sección documenta los dos enfoques de similitud basados en IA exigidos por el Requerimiento 1, las métricas con las que se comparan sus vectores y el análisis comparativo frente a los algoritmos clásicos. El detalle completo está en `docs/modelos_ia.md` (selección, implementación y resultados de los modelos) y en `docs/analisis_comparativo.md` (análisis crítico).
+
+### 5.1 Fundamentos: de la representación léxica a la representación densa
+
+Los modelos de espacio vectorial clásicos, como TF-IDF, asignan una dimensión independiente a cada término del vocabulario. En esa representación, `AI` y `artificial intelligence`, o `students` y `learners`, ocupan dimensiones distintas y ortogonales, así que el modelo no tiene ninguna noción de que significan lo mismo: dos textos que expresan la misma idea con palabras diferentes obtienen similitud 0.
+
+Los **embeddings** resuelven esa limitación representando el texto en un espacio vectorial continuo y denso, de unos cientos de dimensiones, donde la cercanía geométrica refleja similitud de significado. Se apoyan en la **hipótesis distribucional**: las palabras que aparecen en contextos parecidos tienden a tener significados parecidos. Un modelo preentrenado aprende esos vectores a partir de un corpus muy grande y luego se puede usar para representar textos nuevos.
+
+El proyecto usa dos generaciones de embeddings, elegidas para que la comparación sea informativa (ver `docs/modelos_ia.md`, secciones 4 a 6):
+
+| | Word2Vec (IA-2) | all-mpnet-base-v2 (IA-3) |
+|---|---|---|
+| Tipo de vector | Estático, uno por palabra | Contextual, uno por texto |
+| Dimensión | 300 | 768 |
+| ¿Considera el orden? | No | Sí |
+| Entrada | `abstract_preprocesado` | `abstract` original |
+| Vector del abstract | Promedio calculado por el equipo | Producido por el modelo |
+
+Se descartaron entrenar un Word2Vec propio (el corpus tiene apenas 2.532 tokens y más de la mitad de su vocabulario aparece una sola vez), FastText (su ventaja con palabras desconocidas exige un modelo de unos 7 GB) y las APIs comerciales de embeddings (no son reproducibles ni inspeccionables).
+
+### 5.2 Word2Vec preentrenado: vector del documento por promedio (IA-2)
+
+**Implementación:** `src/ia/embeddings_w2v.py` · **Resultado:** `data/embeddings/word2vec.json`
+
+Se usa el modelo `word2vec-google-news-300` (Mikolov et al., 2013), entrenado con la arquitectura *skip-gram* sobre unos 100 mil millones de palabras de noticias. Asigna un vector de 300 dimensiones a cada una de sus 3 millones de palabras y frases.
+
+Como el modelo produce vectores de **palabras**, el vector del abstract se calcula en el sistema como el promedio aritmético de los vectores de sus tokens:
+
+$$\vec{v}(d) = \frac{1}{|T|} \sum_{t \in T} \vec{w}(t)$$
+
+donde $T$ es el conjunto de tokens del abstract (con repeticiones) **que existen en el modelo**. Los tokens que no existen se excluyen del promedio y se registran. Como el modelo distingue mayúsculas y los tokens del corpus están en minúscula, cada token se busca también en su forma capitalizada y en mayúsculas (por ejemplo, `nlp` → `NLP`).
+
+**Hallazgo y corrección: siglas con un significado equivocado.** El 99,3 % de los tokens del corpus existe en el modelo, pero existir no garantiza tener el significado correcto. Al revisar las palabras más cercanas a cada sigla del dominio se encontró que en el modelo `ai` es una palabra del italiano (vecinos: `che`, `essere`, `tutto`), `Aied` y `Genai` son nombres propios, y `gai` pertenece a la cocina vietnamita. Esto es grave porque `ai` es el término más frecuente del corpus. Por eso, antes de buscar estas siglas, el sistema las reemplaza por su forma expandida (`ai` → `artificial_intelligence`, `aied` → `artificial_intelligence` + `education`, entre otras), usando solo palabras cuyo significado en el modelo también se verificó. La tabla completa y su justificación están en `docs/modelos_ia.md`, sección 8.
+
+**Resultado:** cobertura final del 99,7 % (2.525 de 2.532 tokens); los 7 tokens sin vector son en su mayoría nombres de bases de datos (`openalex`, `ebscohost`, `sciencedirect`).
+
+### 5.3 all-mpnet-base-v2: embedding contextual de documento (IA-3)
+
+**Implementación:** `src/ia/embeddings_llm.py` · **Resultado:** `data/embeddings/mpnet.json`
+
+Este modelo usa la arquitectura **Transformer**, basada en **auto-atención**: para representar cada sub-palabra, el modelo pondera todas las demás sub-palabras del texto, de modo que el vector de una palabra depende de su contexto y del orden en que aparece. A diferencia de Word2Vec, la misma palabra recibe vectores distintos en contextos distintos.
+
+- **Entrada:** el campo `abstract` original, sin preprocesar. Las *stopwords*, la puntuación y el orden son justamente la información que el Transformer usa para interpretar el contexto; eliminarlas le quitaría lo que lo diferencia de Word2Vec. Por la misma razón no necesita expansión de siglas: el abstract define `Artificial Intelligence in Education (AIEd)` y el modelo lo interpreta en contexto.
+- **Vector del documento:** el modelo lo produce directamente, mediante una capa de *mean pooling* sobre las sub-palabras seguida de una capa de normalización. El sistema verificó que los 20 vectores tienen norma exactamente 1.
+- **Verificación de truncamiento:** el modelo solo lee las primeras 384 sub-palabras (`max_seq_length`) y descarta el resto sin avisar. El sistema cuenta las sub-palabras de cada abstract con el tokenizador del propio modelo, incluyendo los tokens especiales de inicio y fin. **Resultado:** los abstracts ocupan entre 166 y 383 sub-palabras (promedio 266,1), así que todos se procesan completos. Con el modelo más liviano `all-MiniLM-L6-v2` (límite de 256), 13 de los 20 abstracts habrían perdido su parte final.
+
+### 5.4 Métricas de similitud sobre embeddings (IA-4)
+
+**Implementación:** `src/ia/metricas.py` · **Integración:** `src/comparador.py`
+
+Para dos vectores $\vec{a}$ y $\vec{b}$ de dimensión $n$, el sistema calcula:
+
+$$\cos(\vec{a}, \vec{b}) = \frac{\sum_{i=1}^{n} a_i b_i}{\sqrt{\sum_{i=1}^{n} a_i^2} \cdot \sqrt{\sum_{i=1}^{n} b_i^2}} \qquad d(\vec{a}, \vec{b}) = \sqrt{\sum_{i=1}^{n} (a_i - b_i)^2} \qquad s(\vec{a}, \vec{b}) = \frac{1}{1 + d(\vec{a}, \vec{b})}$$
+
+La similitud coseno mide el ángulo entre los vectores (1 = misma dirección), la distancia euclidiana mide qué tan lejos quedan sus extremos, y $s$ convierte esa distancia en una similitud en el intervalo (0, 1]. Las tres se implementan con ciclos y `math.sqrt`, sin `numpy` ni las funciones de similitud de las librerías de los modelos. El costo de cada una es $O(n)$.
+
+Como los vectores de MPNet tienen norma 1, en ese modelo se cumple $d^2 = 2 - 2\cos$: la distancia euclidiana es una función exacta del coseno y no aporta información adicional. En Word2Vec los vectores no están normalizados, así que las dos métricas pueden ordenar los pares de forma distinta.
+
+`src/comparador.py` integra los seis algoritmos con la selección dinámica de artículos de CLA-5: permite elegir dos o más artículos y calcula sus matrices de similitud. Los embeddings se leen de los archivos JSON, de modo que la comparación no necesita cargar los modelos.
+
+### 5.5 Justificación del uso de IA como apoyo al diseño algorítmico
+
+El enunciado permite usar modelos preentrenados para vectorizar los abstracts y exige que los algoritmos solicitados se implementen de forma explícita. El proyecto separa esas dos responsabilidades:
+
+| Lo aporta el modelo preentrenado | Lo diseñó e implementó el equipo |
+|---|---|
+| El vector de cada palabra (Word2Vec) | El promedio que produce el vector del documento |
+| El vector de cada texto (MPNet) | La búsqueda por variantes de mayúsculas y la exclusión de palabras desconocidas |
+| | La tabla de expansión de siglas y su verificación |
+| | La similitud coseno, la distancia euclidiana y las matrices de similitud |
+| | La verificación de truncamiento y de normalización |
+| | El análisis comparativo y sus herramientas estadísticas |
+
+Los modelos de IA son, por lo tanto, una fuente de **representaciones**: no calculan ninguna similitud del proyecto. Entrenar representaciones propias no era viable con un corpus de 20 abstracts, y los modelos se trataron como componentes que hay que evaluar, no como cajas negras confiables. Esa evaluación es la que detectó que Word2Vec interpretaba mal las siglas del dominio y que los valores absolutos de similitud no son comparables entre algoritmos, y llevó a decisiones de diseño explícitas para corregirlo.
+
+*La declaración de las herramientas de IA generativa usadas como apoyo en el desarrollo del proyecto se presenta en la sección 8.*
+
+### 5.6 Resultados y análisis comparativo: clásicos vs. IA
+
+El análisis completo está en `docs/analisis_comparativo.md` (tarea CMP-2). Para el caso de estudio (artículos 2 y 9):
+
+| Algoritmo | Tipo | Similitud 2–9 | Posición entre los 190 pares del corpus |
+|---|---|---|---|
+| Levenshtein | Clásico | 0,0901 | 4 (percentil 97,9) |
+| Needleman-Wunsch | Clásico | 0,0901 | 7 (percentil 96,3) |
+| Coseno TF-IDF | Clásico | 0,2553* | 3 (percentil 98,4) |
+| Jaccard | Clásico | 0,1583 | 15 (percentil 92,1) |
+| Word2Vec (coseno) | IA | 0,9318 | 18 (percentil 90,5) |
+| MPNet (coseno) | IA | 0,8376 | 5 (percentil 97,4) |
+
+\* *Con el IDF calculado sobre los 2 artículos. Con el IDF de los 20 artículos el valor es 0,2823, que es el usado para la posición.*
+
+Conclusiones principales:
+
+1. **Los valores absolutos no son comparables entre algoritmos.** Medidos por su posición en el corpus, los seis coinciden en que el par 2–9 está entre los más parecidos (percentil 90 o superior). La diferencia entre 0,09 y 0,93 es de escala, no de criterio.
+2. **Los clásicos miden coincidencia léxica y la IA, cercanía semántica.** En un experimento con dos frases sinónimas sin palabras en común, los cuatro clásicos dan 0 y los modelos de IA alrededor de 0,7.
+3. **El preprocesamiento también tiene consecuencias.** Al eliminar *stopwords*, "*AI improves learning*" y "*AI does not improve learning*" quedan idénticas, y todos los algoritmos que trabajan sobre tokens les asignan similitud 1. Solo MPNet, que recibe el texto original, nota la diferencia.
+4. **Levenshtein y Needleman-Wunsch son casi equivalentes en este corpus** (correlación de Spearman 0,978). Cuando la alineación óptima no usa huecos extra, ambas similitudes se reducen a $k/m$, lo que explica el 10/111 = 0,0901 del caso de estudio.
+5. **Para medir cercanía temática, MPNet es el enfoque más adecuado y TF-IDF el mejor de los clásicos.** MPNet es el que mejor discrimina entre pares; TF-IDF es el clásico cuyo ordenamiento se parece más al de los modelos de IA. Los algoritmos de edición reflejan sobre todo el tipo de estudio (revisión sistemática) más que el tema, y son entre 35 y 130 veces más lentos que el coseno sobre embeddings.
+
 ## Estado del documento
 
 | Sección | Contenido | Estado | Sprint |
@@ -207,46 +309,8 @@ Los cuatro algoritmos se ejecutaron sobre el mismo par de artículos, selecciona
 | 2. Fuentes de información | Corpus, proceso de obtención y validación | ✅ Completa | Sprint 1 (actualizada en Sprint 3) |
 | 3. Arquitectura | Módulos y stack tecnológico | ✅ Completa | Sprint 1 |
 | 4. Algoritmos clásicos | Implementación, complejidad y caso de estudio | ✅ Completa | Sprint 2 |
-| 5. Modelos de IA | Embeddings y análisis comparativo clásicos vs. IA | ⬜ Pendiente | Sprint 3 |
+| 5. Modelos de IA | Embeddings, métricas y análisis comparativo clásicos vs. IA | ✅ Completa | Sprint 3 |
 | 6. Clustering jerárquico | Implementación, dendrogramas y métrica de evaluación | ⬜ Pendiente | Sprint 4 |
 | 7. Despliegue | Arquitectura de despliegue y guía de uso | ⬜ Pendiente | Sprint 5 |
 | 8. Declaración de uso de IA generativa | Herramientas usadas como apoyo al desarrollo | ⬜ Pendiente | Sprint 5 |
 | 9. Conclusiones | Cierre general del proyecto | ⬜ Pendiente | Sprint 6 |
-
-## 5. Modelos de Inteligencia Artificial y Embeddings
-
-### 5.1. Fundamentos Teóricos de los Embeddings y Justificación del Uso de IA
-
-El paso de los modelos de espacio vectorial clásicos (como TF-IDF) a los enfoques basados en Inteligencia Artificial responde a la necesidad de superar la **limitación de la ortogonalidad espacial**. En representaciones tradicionales, las palabras `AI` y `artificial intelligence` se tratan como dimensiones independientes; el sistema no posee noción intrínseca de su equivalencia semántica. Los **embeddings** resuelven este problema proyectando el texto en espacios vectoriales continuos de baja dimensionalidad (densos), donde la cercanía geométrica captura la similitud conceptual latente.
-
-#### A. Modelos Utilizados y Mecanismos de Proyección
-
-Para la evaluación del **Requerimiento 1**, el Motor de Algoritmos implementa dos enfoques distintos basados en representaciones densas distribuidas:
-
-1. **Embeddings Estáticos basados en Predicción (Word2Vec / Tarea IA-2):**
-    - **Mecanismo:** Basado en la *hipótesis distributiva* (las palabras en contextos similares comparten significados). El vector de cada término se extrae de un espacio preentrenado de **300 dimensiones** (`word2vec-google-news-300`).
-    - **Entrada y Agregación:** Recibe como entrada el texto limpio del corpus preprocesado (`abstract_preprocesado`). Dado que el modelo genera un vector por palabra individual, el embedding representativo del abstract completo (\(V_{doc}\)) se calcula explícitamente en el sistema mediante el promedio aritmético de los vectores de sus tokens válidos:
-      \[V_{doc} = \frac{1}{N} \sum_{i=1}^{N} \vec{w}_i\]
-      Donde \(\vec{w}_i\) es el embedding del token i, y N es la cantidad total de tokens en el abstract preprocesado.
-
-2. **Embeddings Contextuales de Documento mediante Transformers (all-mpnet-base-v2 / Tarea IA-3):**
-    - **Mecanismo:** Utiliza la arquitectura Transformer basada en mecanismos de **auto-atención bidireccional (Self-Attention)**. Las representaciones vectoriales capturan el contexto dinámico y el orden secuencial de la estructura lingüística completa.
-    - **Entrada:** A diferencia de Word2Vec, este modelo se alimenta estrictamente con el **campo `abstract` original sin preprocesar**. Conservar las *stopwords*, la puntuación y el orden sintáctico exacto es indispensable para que las capas de atención del Transformer interpreten correctamente el contexto semántico profundo.
-    - **Agregación y Dimensión:** Genera un vector denso unificado de **768 dimensiones** por abstract. No requiere agregación manual en el script; el vector final del documento es producido directamente por la arquitectura interna del modelo mediante su propia capa de *pooling* (Mean Pooling integrado), optimizado para representar textos completos.
-
-#### B. Gestión de Restricciones del Modelo y Truncamiento (Tarea IA-1)
-
-Los modelos basados en Transformers poseen un límite estricto en su ventana de contexto. El modelo `all-mpnet-base-v2` cuenta con un parámetro `max_seq_length = 384` sub-palabras (*tokens/subwords*).
-
-Para evitar la pérdida silenciosa de información, el sistema implementa en el módulo `embeddings_llm.py` una rutina obligatoria de **verificación de truncamiento**:
-- Utiliza el tokenizador nativo del modelo (`SentenceTransformer.tokenizer`) para contar las sub-palabras de cada abstract, incluyendo los tokens especiales de control (`input_ids` con `add_special_tokens=True`).
-- Evalúa la condición lógica subpalabras > max\_seq\_length para marcar cada artículo de forma booleana (`truncado: true/false`). Si algún abstract excede el límite de 384, el sistema activa un reporte en consola para dar paso al protocolo de contingencia documentado.
-- Adicionalmente, el script mide dinámicamente la **norma euclidiana** de los vectores resultantes para validar si se encuentran normalizados a la unidad (norma 1), factor crítico que altera directamente la interpretación geométrica de la distancia euclidiana en tareas posteriores (d² = 2 - 2 ⋅ coseno).
-
-#### C. Justificación Explícita y Declaración de Uso de IA Generativa
-
-En concordancia con las pautas de honestidad académica establecidas para el proyecto, el equipo declara que:
-
-- **La IA Generativa actúa estrictamente como soporte de codificación y documentación:** Se han empleado modelos de lenguaje externos para refinar la sintaxis del procesamiento de tensores, estructurar la modularidad de las pruebas unitarias y dar formato técnico al presente archivo Markdown.
-- **No hay reemplazo del diseño algorítmico ni del cálculo formal:** Toda la lógica de control del flujo (carga modular diferida de librerías pesadas como `sentence-transformers` y `torch` dentro de funciones para optimizar tests, el análisis estadístico de sub-palabras y el almacenamiento estructurado en `data/embeddings/mpnet.json`) fue diseñada e implementada directamente por el equipo.
-- **Cálculo de métricas sin dependencias externas (Tarea IA-4):** El script de generación de embeddings *no calcula* distancias ni similitudes. El procesamiento geométrico posterior (similitud coseno e hiperplanos) se ejecuta en un módulo independiente (`ia.metricas`), programado explícitamente a mano y sin el uso de funciones de caja negra como `util.cos_sim` de Hugging Face.
