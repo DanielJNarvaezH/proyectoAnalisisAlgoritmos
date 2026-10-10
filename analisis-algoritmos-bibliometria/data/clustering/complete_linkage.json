@@ -1,0 +1,317 @@
+{
+  "criterio": "complete linkage",
+  "metrica": "1 - similitud coseno TF-IDF (CLU-1)",
+  "indices_articulos": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "historial": [
+    {
+      "paso": 1,
+      "grupo_a": 1,
+      "grupo_b": 5,
+      "distancia": 0.6612981188840704,
+      "nuevo_grupo": 20,
+      "miembros": [
+        1,
+        5
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 2,
+      "grupo_a": 8,
+      "grupo_b": 20,
+      "distancia": 0.7177298111836504,
+      "nuevo_grupo": 21,
+      "miembros": [
+        1,
+        5,
+        8
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 3,
+      "grupo_a": 7,
+      "grupo_b": 9,
+      "distancia": 0.7368137422317329,
+      "nuevo_grupo": 22,
+      "miembros": [
+        7,
+        9
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 4,
+      "grupo_a": 11,
+      "grupo_b": 19,
+      "distancia": 0.7427035045800188,
+      "nuevo_grupo": 23,
+      "miembros": [
+        11,
+        19
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 5,
+      "grupo_a": 10,
+      "grupo_b": 16,
+      "distancia": 0.765455087461351,
+      "nuevo_grupo": 24,
+      "miembros": [
+        10,
+        16
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 6,
+      "grupo_a": 4,
+      "grupo_b": 21,
+      "distancia": 0.7906244293381757,
+      "nuevo_grupo": 25,
+      "miembros": [
+        1,
+        4,
+        5,
+        8
+      ],
+      "tamano": 4
+    },
+    {
+      "paso": 7,
+      "grupo_a": 0,
+      "grupo_b": 2,
+      "distancia": 0.8332214164342084,
+      "nuevo_grupo": 26,
+      "miembros": [
+        0,
+        2
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 8,
+      "grupo_a": 15,
+      "grupo_b": 24,
+      "distancia": 0.8337908310688447,
+      "nuevo_grupo": 27,
+      "miembros": [
+        10,
+        15,
+        16
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 9,
+      "grupo_a": 14,
+      "grupo_b": 23,
+      "distancia": 0.8595900721067891,
+      "nuevo_grupo": 28,
+      "miembros": [
+        11,
+        14,
+        19
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 10,
+      "grupo_a": 12,
+      "grupo_b": 26,
+      "distancia": 0.8651729423368234,
+      "nuevo_grupo": 29,
+      "miembros": [
+        0,
+        2,
+        12
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 11,
+      "grupo_a": 6,
+      "grupo_b": 25,
+      "distancia": 0.8803041962970029,
+      "nuevo_grupo": 30,
+      "miembros": [
+        1,
+        4,
+        5,
+        6,
+        8
+      ],
+      "tamano": 5
+    },
+    {
+      "paso": 12,
+      "grupo_a": 22,
+      "grupo_b": 29,
+      "distancia": 0.893656986305987,
+      "nuevo_grupo": 31,
+      "miembros": [
+        0,
+        2,
+        7,
+        9,
+        12
+      ],
+      "tamano": 5
+    },
+    {
+      "paso": 13,
+      "grupo_a": 17,
+      "grupo_b": 28,
+      "distancia": 0.896476657182829,
+      "nuevo_grupo": 32,
+      "miembros": [
+        11,
+        14,
+        17,
+        19
+      ],
+      "tamano": 4
+    },
+    {
+      "paso": 14,
+      "grupo_a": 13,
+      "grupo_b": 27,
+      "distancia": 0.9029704122745974,
+      "nuevo_grupo": 33,
+      "miembros": [
+        10,
+        13,
+        15,
+        16
+      ],
+      "tamano": 4
+    },
+    {
+      "paso": 15,
+      "grupo_a": 30,
+      "grupo_b": 32,
+      "distancia": 0.9352402115681925,
+      "nuevo_grupo": 34,
+      "miembros": [
+        1,
+        4,
+        5,
+        6,
+        8,
+        11,
+        14,
+        17,
+        19
+      ],
+      "tamano": 9
+    },
+    {
+      "paso": 16,
+      "grupo_a": 3,
+      "grupo_b": 31,
+      "distancia": 0.9375126916389536,
+      "nuevo_grupo": 35,
+      "miembros": [
+        0,
+        2,
+        3,
+        7,
+        9,
+        12
+      ],
+      "tamano": 6
+    },
+    {
+      "paso": 17,
+      "grupo_a": 18,
+      "grupo_b": 35,
+      "distancia": 0.9582850823884103,
+      "nuevo_grupo": 36,
+      "miembros": [
+        0,
+        2,
+        3,
+        7,
+        9,
+        12,
+        18
+      ],
+      "tamano": 7
+    },
+    {
+      "paso": 18,
+      "grupo_a": 33,
+      "grupo_b": 34,
+      "distancia": 0.9733337112826991,
+      "nuevo_grupo": 37,
+      "miembros": [
+        1,
+        4,
+        5,
+        6,
+        8,
+        10,
+        11,
+        13,
+        14,
+        15,
+        16,
+        17,
+        19
+      ],
+      "tamano": 13
+    },
+    {
+      "paso": 19,
+      "grupo_a": 36,
+      "grupo_b": 37,
+      "distancia": 0.9760148357150975,
+      "nuevo_grupo": 38,
+      "miembros": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "tamano": 20
+    }
+  ]
+}
