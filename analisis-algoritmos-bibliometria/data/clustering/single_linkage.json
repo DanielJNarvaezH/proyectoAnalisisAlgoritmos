@@ -1,0 +1,408 @@
+{
+  "criterio": "single linkage",
+  "metrica": "1 - similitud coseno TF-IDF (CLU-1)",
+  "indices_articulos": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "historial": [
+    {
+      "paso": 1,
+      "grupo_a": 1,
+      "grupo_b": 5,
+      "distancia": 0.6612981188840704,
+      "nuevo_grupo": 20,
+      "miembros": [
+        1,
+        5
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 2,
+      "grupo_a": 8,
+      "grupo_b": 20,
+      "distancia": 0.6878201610245468,
+      "nuevo_grupo": 21,
+      "miembros": [
+        1,
+        5,
+        8
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 3,
+      "grupo_a": 19,
+      "grupo_b": 21,
+      "distancia": 0.732741404951953,
+      "nuevo_grupo": 22,
+      "miembros": [
+        1,
+        5,
+        8,
+        19
+      ],
+      "tamano": 4
+    },
+    {
+      "paso": 4,
+      "grupo_a": 7,
+      "grupo_b": 9,
+      "distancia": 0.7368137422317329,
+      "nuevo_grupo": 23,
+      "miembros": [
+        7,
+        9
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 5,
+      "grupo_a": 11,
+      "grupo_b": 22,
+      "distancia": 0.7427035045800188,
+      "nuevo_grupo": 24,
+      "miembros": [
+        1,
+        5,
+        8,
+        11,
+        19
+      ],
+      "tamano": 5
+    },
+    {
+      "paso": 6,
+      "grupo_a": 4,
+      "grupo_b": 24,
+      "distancia": 0.7479061166572982,
+      "nuevo_grupo": 25,
+      "miembros": [
+        1,
+        4,
+        5,
+        8,
+        11,
+        19
+      ],
+      "tamano": 6
+    },
+    {
+      "paso": 7,
+      "grupo_a": 10,
+      "grupo_b": 16,
+      "distancia": 0.765455087461351,
+      "nuevo_grupo": 26,
+      "miembros": [
+        10,
+        16
+      ],
+      "tamano": 2
+    },
+    {
+      "paso": 8,
+      "grupo_a": 15,
+      "grupo_b": 26,
+      "distancia": 0.7656302428341301,
+      "nuevo_grupo": 27,
+      "miembros": [
+        10,
+        15,
+        16
+      ],
+      "tamano": 3
+    },
+    {
+      "paso": 9,
+      "grupo_a": 23,
+      "grupo_b": 25,
+      "distancia": 0.8025279191423356,
+      "nuevo_grupo": 28,
+      "miembros": [
+        1,
+        4,
+        5,
+        7,
+        8,
+        9,
+        11,
+        19
+      ],
+      "tamano": 8
+    },
+    {
+      "paso": 10,
+      "grupo_a": 27,
+      "grupo_b": 28,
+      "distancia": 0.8072936435050656,
+      "nuevo_grupo": 29,
+      "miembros": [
+        1,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        15,
+        16,
+        19
+      ],
+      "tamano": 11
+    },
+    {
+      "paso": 11,
+      "grupo_a": 2,
+      "grupo_b": 29,
+      "distancia": 0.8164936729698584,
+      "nuevo_grupo": 30,
+      "miembros": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        15,
+        16,
+        19
+      ],
+      "tamano": 12
+    },
+    {
+      "paso": 12,
+      "grupo_a": 12,
+      "grupo_b": 30,
+      "distancia": 0.8185913067708802,
+      "nuevo_grupo": 31,
+      "miembros": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        15,
+        16,
+        19
+      ],
+      "tamano": 13
+    },
+    {
+      "paso": 13,
+      "grupo_a": 13,
+      "grupo_b": 31,
+      "distancia": 0.8305835033849447,
+      "nuevo_grupo": 32,
+      "miembros": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        15,
+        16,
+        19
+      ],
+      "tamano": 14
+    },
+    {
+      "paso": 14,
+      "grupo_a": 0,
+      "grupo_b": 32,
+      "distancia": 0.8332214164342084,
+      "nuevo_grupo": 33,
+      "miembros": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        15,
+        16,
+        19
+      ],
+      "tamano": 15
+    },
+    {
+      "paso": 15,
+      "grupo_a": 14,
+      "grupo_b": 33,
+      "distancia": 0.8471728473112271,
+      "nuevo_grupo": 34,
+      "miembros": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19
+      ],
+      "tamano": 16
+    },
+    {
+      "paso": 16,
+      "grupo_a": 6,
+      "grupo_b": 34,
+      "distancia": 0.848188853870207,
+      "nuevo_grupo": 35,
+      "miembros": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19
+      ],
+      "tamano": 17
+    },
+    {
+      "paso": 17,
+      "grupo_a": 17,
+      "grupo_b": 35,
+      "distancia": 0.8575418793851008,
+      "nuevo_grupo": 36,
+      "miembros": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        19
+      ],
+      "tamano": 18
+    },
+    {
+      "paso": 18,
+      "grupo_a": 18,
+      "grupo_b": 36,
+      "distancia": 0.8624429332926521,
+      "nuevo_grupo": 37,
+      "miembros": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "tamano": 19
+    },
+    {
+      "paso": 19,
+      "grupo_a": 3,
+      "grupo_b": 37,
+      "distancia": 0.9041270056608168,
+      "nuevo_grupo": 38,
+      "miembros": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "tamano": 20
+    }
+  ]
+}
