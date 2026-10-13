@@ -29,6 +29,8 @@ Uso (desde la raiz del proyecto):
 import json
 import os
 import sys
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram
 
 RAIZ_SRC = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if RAIZ_SRC not in sys.path:
@@ -149,7 +151,44 @@ def altura_de_union(z, n, i, j):
 
 
 # ---------------------------------------------------------------------------
-# 3. Ejecucion sobre el corpus
+# AGREGADO: 3. Visualización y guardado de dendrogramas (VIS-1)
+# ---------------------------------------------------------------------------
+
+def generar_y_guardar_grafico(z, etiquetas, nombre_algoritmo):
+    """
+    Dibuja el dendrograma usando Scipy y lo guarda en /docs/dendrogramas/
+    """
+    # CORREGIDO: Al estar en src/clustering/dendrograma.py, retroceder dos niveles
+    # nos sitúa en la raíz, permitiendo ingresar correctamente a docs/dendrogramas
+    carpeta_dendrogramas = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..", "docs", "dendrogramas")
+    )
+    os.makedirs(carpeta_dendrogramas, exist_ok=True)
+
+    plt.figure(figsize=(10, 6))
+
+    # Scipy dibuja las uniones usando tu matriz calculada
+    dendrogram(
+        z,
+        labels=etiquetas,
+        leaf_rotation=90.,
+        leaf_font_size=10.
+    )
+
+    plt.title(f"Dendrograma Jerárquico - {nombre_algoritmo.capitalize()} Linkage", fontsize=14, fontweight='bold')
+    plt.xlabel("ID de Artículos", fontsize=12)
+    plt.ylabel("Distancia (1 - Similitud Coseno TF-IDF)", fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+    # Construcción de la ruta del archivo final (.png)
+    ruta_imagen = os.path.join(carpeta_dendrogramas, f"{nombre_algoritmo}_linkage.png")
+    plt.savefig(ruta_imagen, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"-> Gráfico guardado exitosamente en: {ruta_imagen}")
+
+
+# ----------------------------------------------------------------------------
+# 4. Ejecucion sobre el corpus
 # ---------------------------------------------------------------------------
 
 def main():
@@ -179,6 +218,8 @@ def main():
         for t, (a, b, d, tam) in enumerate(z):
             print(f"{t:>4}  {int(a):>7}  {int(b):>7}  {d:9.4f}  {int(tam):>6}")
         print(f"Orden de los articulos en el dendrograma: {salida['orden_hojas'][nombre]}")
+
+        generar_y_guardar_grafico(z, numeros, nombre)
 
     os.makedirs(CARPETA_SALIDA, exist_ok=True)
     with open(RUTA_SALIDA, "w", encoding="utf-8") as archivo:
