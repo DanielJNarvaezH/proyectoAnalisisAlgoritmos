@@ -184,7 +184,6 @@ def generar_y_guardar_grafico(z, etiquetas, nombre_algoritmo):
     ruta_imagen = os.path.join(carpeta_dendrogramas, f"{nombre_algoritmo}_linkage.png")
     plt.savefig(ruta_imagen, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"-> Gráfico guardado exitosamente en: {ruta_imagen}")
 
 
 # ----------------------------------------------------------------------------
@@ -224,7 +223,6 @@ def main():
     os.makedirs(CARPETA_SALIDA, exist_ok=True)
     with open(RUTA_SALIDA, "w", encoding="utf-8") as archivo:
         json.dump(salida, archivo, ensure_ascii=False, indent=2)
-    print(f"\nMatrices guardadas en: {RUTA_SALIDA}")
 
 
 if __name__ == "__main__":
