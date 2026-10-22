@@ -1,0 +1,169 @@
+{
+  "n": 868,
+  "k": 86,
+  "repeticiones": 100,
+  "calentamiento": 5,
+  "rankings_identicos": true,
+  "top": [
+    {
+      "posicion": 1,
+      "termino": "ai",
+      "frecuencia": 86
+    },
+    {
+      "posicion": 2,
+      "termino": "education",
+      "frecuencia": 57
+    },
+    {
+      "posicion": 3,
+      "termino": "review",
+      "frecuencia": 48
+    },
+    {
+      "posicion": 4,
+      "termino": "research",
+      "frecuencia": 46
+    },
+    {
+      "posicion": 5,
+      "termino": "aied",
+      "frecuencia": 38
+    },
+    {
+      "posicion": 6,
+      "termino": "assessment",
+      "frecuencia": 37
+    },
+    {
+      "posicion": 7,
+      "termino": "study",
+      "frecuencia": 36
+    },
+    {
+      "posicion": 8,
+      "termino": "educational",
+      "frecuencia": 33
+    },
+    {
+      "posicion": 9,
+      "termino": "learn",
+      "frecuencia": 31
+    },
+    {
+      "posicion": 10,
+      "termino": "use",
+      "frecuencia": 25
+    },
+    {
+      "posicion": 11,
+      "termino": "intelligence",
+      "frecuencia": 23
+    },
+    {
+      "posicion": 12,
+      "termino": "artificial",
+      "frecuencia": 22
+    },
+    {
+      "posicion": 13,
+      "termino": "technology",
+      "frecuencia": 21
+    },
+    {
+      "posicion": 14,
+      "termino": "application",
+      "frecuencia": 18
+    },
+    {
+      "posicion": 15,
+      "termino": "high",
+      "frecuencia": 16
+    }
+  ],
+  "tiempos": {
+    "Counting Sort": {
+      "promedio_ms": 0.6018330000097194,
+      "desviacion_ms": 0.4314552441139505,
+      "minimo_ms": 0.3050999998777115
+    },
+    "Radix Sort": {
+      "promedio_ms": 1.8244330000288755,
+      "desviacion_ms": 1.0520710939659232,
+      "minimo_ms": 0.9416000002602232
+    },
+    "Bucket Sort": {
+      "promedio_ms": 1.1370099999703598,
+      "desviacion_ms": 0.666174181755683,
+      "minimo_ms": 0.5685999999514024
+    }
+  },
+  "escalabilidad": {
+    "Counting Sort": [
+      {
+        "n": 868,
+        "minimo_ms": 0.4524999999375723
+      },
+      {
+        "n": 1736,
+        "minimo_ms": 0.619500000084372
+      },
+      {
+        "n": 3472,
+        "minimo_ms": 1.2500000002546585
+      },
+      {
+        "n": 6944,
+        "minimo_ms": 2.45390000009138
+      },
+      {
+        "n": 13888,
+        "minimo_ms": 4.917900000236841
+      }
+    ],
+    "Radix Sort": [
+      {
+        "n": 868,
+        "minimo_ms": 1.282100000025821
+      },
+      {
+        "n": 1736,
+        "minimo_ms": 1.8989000000146916
+      },
+      {
+        "n": 3472,
+        "minimo_ms": 3.7835999996786995
+      },
+      {
+        "n": 6944,
+        "minimo_ms": 8.123600000089937
+      },
+      {
+        "n": 13888,
+        "minimo_ms": 15.492300000005343
+      }
+    ],
+    "Bucket Sort": [
+      {
+        "n": 868,
+        "minimo_ms": 0.8190000003196474
+      },
+      {
+        "n": 1736,
+        "minimo_ms": 1.1297999999442254
+      },
+      {
+        "n": 3472,
+        "minimo_ms": 2.2268000002441113
+      },
+      {
+        "n": 6944,
+        "minimo_ms": 4.3863999999302905
+      },
+      {
+        "n": 13888,
+        "minimo_ms": 8.673399999679532
+      }
+    ]
+  }
+}
