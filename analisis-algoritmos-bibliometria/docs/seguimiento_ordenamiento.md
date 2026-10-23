@@ -270,7 +270,9 @@ El ranking refleja el dominio del corpus: la inteligencia artificial (`ai`, `art
 
 ## 10. Declaración de uso de IA generativa
 
-En la elaboración de este seguimiento se usó un asistente de IA generativa (Claude, de Anthropic) como apoyo para revisar y corregir el código, proponer pruebas unitarias y redactar borradores de la documentación. El equipo definió las tareas, ejecutó el código y las pruebas en su entorno, verificó los resultados contra las fuentes citadas y tomó las decisiones de diseño. Los tiempos reportados corresponden a ejecuciones en el equipo de los integrantes.
+Durante el desarrollo del proyecto y de este seguimiento se usó un asistente de inteligencia artificial generativa (Claude, de Anthropic) como herramienta de apoyo en las siguientes actividades: la planificación del cronograma de trabajo y la división de las tareas registradas en Jira; el apoyo en la implementación de cada tarea, mediante propuestas de código y la revisión y corrección de errores, como la detección de que la versión inicial de Radix Sort realizaba 326 pasadas en lugar de 2; el diseño de pruebas unitarias y la verificación de resultados frente a implementaciones de referencia, y la redacción de borradores de la documentación.
+El equipo definió el alcance y las tareas, ejecutó todo el código y las pruebas en su propio entorno, verificó los resultados frente a las fuentes citadas, tomó las decisiones de diseño y revisó el contenido final. Los tiempos reportados corresponden a ejecuciones en el equipo de los integrantes. 
+
 
 ## 11. Referencias
 
