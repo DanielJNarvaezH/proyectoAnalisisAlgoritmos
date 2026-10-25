@@ -1,6 +1,11 @@
 import os
 import unittest
 
+"""
+Para correr python -m tests.busqueda.test_boyer_moore
+que normal no funciona
+"""
+
 RAIZ_PROYECTO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from src.busqueda.boyer_moore import buscar_con_estadisticas, buscar
