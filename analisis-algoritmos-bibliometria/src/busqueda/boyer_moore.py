@@ -1,8 +1,57 @@
+"""
+Algoritmo de Boyer-Moore (tarea BUS-2, Requerimiento 3)
+=======================================================
+
+Busqueda de todas las ocurrencias exactas de un patron en un texto,
+implementada desde cero (sin find(), index(), in ni expresiones regulares)
+segun:
+
+  - Boyer, R. S. y Moore, J. S. (1977). A fast string searching algorithm.
+    Communications of the ACM, 20(10), 762-772.
+  - Gusfield, D. (1997). Algorithms on Strings, Trees, and Sequences.
+    Cambridge University Press. Seccion 2.2 (regla del caracter malo y regla
+    fuerte del sufijo bueno).
+
+Idea: el patron se alinea con el texto y se compara DE DERECHA A IZQUIERDA.
+Cuando hay un desajuste, dos reglas indican cuanto se puede desplazar el
+patron sin saltarse ninguna ocurrencia, y se usa el mayor de los dos saltos.
+
+1. Regla del caracter malo. Si el desajuste ocurre en la posicion j del
+   patron con el caracter c del texto, se alinea c con su aparicion mas a la
+   derecha en el patron. La tabla guarda R(c) = ultima posicion de c en el
+   patron (-1 si no aparece) y el salto es j - R(c). Si c no esta en el
+   patron, el patron salta completo por encima de c.
+
+2. Regla del sufijo bueno. Si los caracteres patron[j+1 .. m-1] ya
+   coincidieron (el "sufijo bueno") y luego hay un desajuste en j, se desplaza
+   el patron hasta la siguiente aparicion de ese sufijo en el patron que NO
+   este precedida por el mismo caracter patron[j] (regla fuerte); si no existe,
+   hasta el prefijo mas largo del patron que coincida con un final del sufijo.
+   La tabla desplazamientos[j + 1] guarda ese salto. Se construye con el
+   arreglo f, donde f[i] es la posicion donde empieza el borde (prefijo que
+   tambien es sufijo) mas ancho de patron[i .. m-1]:
+     - Caso 1: el sufijo vuelve a aparecer en otra parte del patron.
+     - Caso 2: solo un prefijo del patron coincide con la cola del sufijo.
+
+   Al encontrar una ocurrencia completa, el patron avanza desplazamientos[0].
+
+Complejidad:
+  - Preprocesamiento: O(m + s) para la tabla del caracter malo (s = caracteres
+    distintos del patron) y O(m) para la del sufijo bueno.
+  - Busqueda: en el mejor caso, cerca de n/m comparaciones, porque el patron
+    salta bloques completos del texto; en texto natural tiende a ser
+    sublineal. En el peor caso, al reportar TODAS las ocurrencias, puede
+    llegar a O(n * m) (por ejemplo, texto "aaaa...a" y patron "aaa").
+  - Memoria adicional: O(m + s).
+
+Uso (desde la raiz del proyecto):
+
+    .\\venv\\Scripts\\python.exe src\\busqueda\\boyer_moore.py "learning"
+"""
+
+import json
 import os
 import sys
-import json
-
-##
 
 RAIZ_PROYECTO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RUTA_CORPUS = os.path.join(RAIZ_PROYECTO, "data", "corpus_preprocesado.json")
@@ -31,8 +80,14 @@ def construir_caracter_malo(patron):
 
 def construir_sufijo_bueno(patron):
     """
-    Regla del sufijo bueno: Calcula los desplazamientos basados en sufijos que coinciden.
-    Retorna una lista 'desplazamientos' de tamaño m + 1.
+    Regla (fuerte) del sufijo bueno: calcula los desplazamientos basados en
+    sufijos que coinciden. Retorna una lista 'desplazamientos' de tamaño m + 1:
+    desplazamientos[j + 1] es el salto cuando el desajuste ocurre en la
+    posición j (con patron[j+1..m-1] ya coincidiendo), y desplazamientos[0]
+    es el salto después de una ocurrencia completa.
+
+    f[i] es la posición donde empieza el borde más ancho de patron[i..m-1]
+    (un borde es un prefijo que también es sufijo).
     """
     m = len(patron)
     desplazamientos = [0] * (m + 1)
@@ -68,13 +123,15 @@ def construir_sufijo_bueno(patron):
 
 def buscar_con_estadisticas(texto, patron):
     """
-    Búsqueda Boyer-Moore con estadísticas para el análisis (BUS-2, CAS-2).
+    Búsqueda Boyer-Moore con estadísticas para el análisis (BUS-5, CAS-6).
 
     Retorna un diccionario con:
       - posiciones: índices donde empieza cada ocurrencia.
       - comparaciones: comparaciones de caracteres realizadas (desde el final).
       - saltos_caracter_malo: veces que se usó la regla del carácter malo.
       - saltos_sufijo_bueno: veces que se usó la regla del sufijo bueno.
+      - tabla_caracter_malo: tabla R(c) usada.
+      - tabla_sufijo_bueno: tabla de desplazamientos usada.
     """
     _validar(texto, patron)
     n, m = len(texto), len(patron)
@@ -83,15 +140,17 @@ def buscar_con_estadisticas(texto, patron):
         "posiciones": [],
         "comparaciones": 0,
         "saltos_caracter_malo": 0,
-        "saltos_sufijo_bueno": 0
+        "saltos_sufijo_bueno": 0,
     }
-
-    if m > n:
-        return resultado
 
     # Preprocesamiento explícito de tablas
     tabla_malo = construir_caracter_malo(patron)
     tabla_bueno = construir_sufijo_bueno(patron)
+    resultado["tabla_caracter_malo"] = tabla_malo
+    resultado["tabla_sufijo_bueno"] = tabla_bueno
+
+    if m > n:
+        return resultado
 
     s = 0  # Desplazamiento del patrón con respecto al texto
     while s <= n - m:
