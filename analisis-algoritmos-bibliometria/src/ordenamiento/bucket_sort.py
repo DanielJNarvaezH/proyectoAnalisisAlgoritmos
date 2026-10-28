@@ -104,7 +104,7 @@ def distribuir(elementos, clave, k, num_cubetas=None):
     Retorna (cubetas, w), donde cubetas[i] contiene, en orden de llegada,
     los elementos con clave en [i*w, i*w + w - 1].
     """
-    m, w = parametros_cubetas(k)
+    m, w = parametros_cubetas(k, num_cubetas)
     cubetas = [[] for _ in range(m)]
     for elemento in elementos:
         valor = clave(elemento)
@@ -131,7 +131,7 @@ def bucket_sort(elementos, clave, k, num_cubetas=None):
     return salida
 
 
-def ordenar_por_frecuencia(pares, k, num_cubetas=None):
+def ordenar_por_frecuencia(pares, num_cubetas=None):
     """
     Ranking de terminos: pares (termino, frecuencia) de mayor a menor
     frecuencia, estable. Usa la clave transformada k - frecuencia, igual que
@@ -139,7 +139,8 @@ def ordenar_por_frecuencia(pares, k, num_cubetas=None):
     """
     if not pares:
         return []
-    return bucket_sort(pares, lambda par: k - par[1], k)
+    k = frecuencia_maxima(pares)
+    return bucket_sort(pares, lambda par: k - par[1], k, num_cubetas)
 
 
 def ocupacion_cubetas(pares, num_cubetas=None):
@@ -161,7 +162,7 @@ def main():
     pares = obtener_lista_frecuencias()
     k = frecuencia_maxima(pares)
     m, w = parametros_cubetas(k)
-    ranking = ordenar_por_frecuencia(pares, k)
+    ranking = ordenar_por_frecuencia(pares)
 
     print("=== [ORD-4] BUCKET SORT: RANKING DE TERMINOS ===")
     print(f"n = {len(pares)} terminos | k = {k} | m = {m} cubetas de ancho w = {w}")

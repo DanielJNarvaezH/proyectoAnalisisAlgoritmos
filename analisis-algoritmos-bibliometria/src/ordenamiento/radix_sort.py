@@ -106,7 +106,7 @@ def radix_sort(elementos, clave, valor_maximo, base=BASE):
 
     resultado = list(elementos)
     # Una pasada estable de Counting Sort por cada digito, de unidades hacia arriba
-    for posicion in range(cantidad_digitos(valor_maximo)):
+    for posicion in range(cantidad_digitos(valor_maximo, base)):
         resultado = counting_sort(
             resultado,
             lambda e, p=posicion: digito(clave(e), p, base),
@@ -115,7 +115,7 @@ def radix_sort(elementos, clave, valor_maximo, base=BASE):
     return resultado
 
 
-def ordenar_por_frecuencia(pares, k):
+def ordenar_por_frecuencia(pares, base=BASE):
     """
     Ranking de terminos: pares (termino, frecuencia) de mayor a menor
     frecuencia, estable. Usa la clave transformada k - frecuencia, igual que
@@ -123,8 +123,9 @@ def ordenar_por_frecuencia(pares, k):
     """
     if not pares:
         return []
+    k = frecuencia_maxima(pares)
     # La clave transformada k - frecuencia tambien esta entre 0 y k
-    return radix_sort(pares, lambda par: k - par[1], k)
+    return radix_sort(pares, lambda par: k - par[1], k, base)
 
 
 # Nombre usado en la version inicial (y en su prueba de integracion)
@@ -135,7 +136,7 @@ def main():
     pares = obtener_lista_frecuencias()
     k = frecuencia_maxima(pares)
     d = cantidad_digitos(k)
-    ranking = ordenar_por_frecuencia(pares, k)
+    ranking = ordenar_por_frecuencia(pares)
 
     print("=== [ORD-3] RADIX SORT LSD: RANKING DE TERMINOS (BASE 10) ===")
     print(f"n = {len(pares)} terminos | k = {k} | d = {d} digitos -> {d} pasadas de Counting Sort")

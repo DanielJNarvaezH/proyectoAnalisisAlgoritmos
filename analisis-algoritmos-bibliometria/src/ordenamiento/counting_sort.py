@@ -112,7 +112,7 @@ def frecuencia_maxima(pares):
     return maxima
 
 
-def ordenar_por_frecuencia(pares, k):
+def ordenar_por_frecuencia(pares):
     """
     Ranking de terminos: pares (termino, frecuencia) de mayor a menor
     frecuencia, estable (los empates conservan el orden de entrada).
@@ -120,13 +120,14 @@ def ordenar_por_frecuencia(pares, k):
     """
     if not pares:
         return []
+    k = frecuencia_maxima(pares)
     return counting_sort(pares, lambda par: k - par[1], k)
 
 
 def main():
     pares = obtener_lista_frecuencias()
     k = frecuencia_maxima(pares)
-    ranking = ordenar_por_frecuencia(pares, k)
+    ranking = ordenar_por_frecuencia(pares)
 
     print("=== [ORD-2] COUNTING SORT: RANKING DE TERMINOS ===")
     print(f"n = {len(pares)} terminos | k = {k} (frecuencia maxima)")
