@@ -1,89 +1,123 @@
-# Importar las funciones de búsqueda de tus archivos locales
-# Asegúrate de ajustar el nombre de la función según cómo las hayas definido
-import sys
-import os
+"""
+Busqueda sobre los 20 abstracts y verificacion cruzada (tarea BUS-4, R3)
+=======================================================================
+
+Localiza todas las ocurrencias de un patron en los abstracts del corpus con
+los tres algoritmos implementados desde cero (KMP, Rabin-Karp y Boyer-Moore)
+y verifica que los tres devuelven exactamente las mismas posiciones.
+
+Criterio de busqueda (documentado en docs/caso_estudio_busqueda.md, sec. 1.1):
+  - Texto: el campo "abstract" ORIGINAL de cada articulo, no el preprocesado,
+    porque la coincidencia debe ser exacta sobre el texto que ve el usuario.
+  - Mayusculas: se distinguen por defecto (igual que los main() de los tres
+    algoritmos). Con ignorar_mayusculas=True se pasan texto y patron a
+    minusculas antes de buscar; las posiciones no cambian porque lower() no
+    altera la longitud de los caracteres del corpus (se comprueba abajo).
+  - Posiciones: indices desde 0 dentro de cada abstract.
+
+Uso (desde la raiz del proyecto):
+
+    .\\venv\\Scripts\\python.exe src\\busqueda\\verificacion_busqueda.py "education"
+    .\\venv\\Scripts\\python.exe src\\busqueda\\verificacion_busqueda.py "education" --ignorar-mayusculas
+"""
+
 import json
+import os
+import sys
 
-from kmp import buscar as kmp_buscar          # Debe retornar una lista de índices
-from rabin_karp import buscar as rk_buscar    # Debe retornar una lista de índices
-from boyer_moore import buscar as bm_buscar   # Debe retornar una lista de índices
+RAIZ_PROYECTO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+RUTA_CORPUS = os.path.join(RAIZ_PROYECTO, "data", "corpus_preprocesado.json")
 
-def buscar_y_verificar(abstracts, patron, case_sensitive=False):
+# Importaciones que funcionan igual si se ejecuta este archivo como script
+# desde cualquier carpeta o si se importa desde otro modulo (API, interfaz, pruebas).
+sys.path.insert(0, os.path.join(RAIZ_PROYECTO, "src"))
+
+from busqueda.boyer_moore import buscar as bm_buscar  # noqa: E402
+from busqueda.kmp import buscar as kmp_buscar  # noqa: E402
+from busqueda.rabin_karp import buscar as rk_buscar  # noqa: E402
+
+ALGORITMOS = {"KMP": kmp_buscar, "Rabin-Karp": rk_buscar, "Boyer-Moore": bm_buscar}
+
+
+def cargar_corpus(ruta=RUTA_CORPUS):
+    with open(ruta, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
+
+
+def buscar_en_texto(texto, patron, ignorar_mayusculas=False):
     """
-    Localiza las ocurrencias de un patrón en una lista de abstracts
-    usando 3 algoritmos y verifica que los resultados coincidan.
+    Ejecuta los tres algoritmos sobre un texto.
+    Retorna (posiciones, coinciden, por_algoritmo).
     """
-    resultados_totales = {}
-    todas_coinciden = True
-
-    print(f"--- Iniciando búsqueda del patrón: '{patron}' ---")
-    if case_sensitive:
-        print(f"Configuración: Distingue mayúsculas\n")
+    if ignorar_mayusculas:
+        texto_busqueda, patron_busqueda = texto.lower(), patron.lower()
+        if len(texto_busqueda) != len(texto) or len(patron_busqueda) != len(patron):
+            raise ValueError("lower() cambio la longitud del texto; las posiciones no serian validas")
     else:
-        print(f"Configuración: NO distingue mayúsculas\n")
+        texto_busqueda, patron_busqueda = texto, patron
 
-    for i, texto_original in enumerate(abstracts, 1):
-        # 1. Definir si se busca en el texto original o si se normaliza (mayúsculas/minúsculas)
-        if not case_sensitive:
-            texto_busqueda = texto_original.lower()
-            patron_busqueda = patron.lower()
-        else:
-            texto_busqueda = texto_original
-            patron_busqueda = patron
+    por_algoritmo = {nombre: f(texto_busqueda, patron_busqueda) for nombre, f in ALGORITMOS.items()}
+    resultados = list(por_algoritmo.values())
+    coinciden = all(r == resultados[0] for r in resultados)
+    return resultados[0], coinciden, por_algoritmo
 
-        # 2. Ejecutar los 3 algoritmos para el abstract actual
-        # (Se asume que devuelven listas de índices, ej:)
-        res_kmp = kmp_buscar(texto_busqueda, patron_busqueda)
-        res_rk = rk_buscar(texto_busqueda, patron_busqueda)
-        res_bm = bm_buscar(texto_busqueda, patron_busqueda)
 
-        # 3. Verificar que las ocurrencias coincidan exactamente
-        coinciden = (res_kmp == res_rk == res_bm)
+def buscar_y_verificar(corpus, patron, ignorar_mayusculas=False):
+    """
+    Busca el patron en el abstract original de cada articulo del corpus.
 
+    corpus: lista de diccionarios con "numero", "titulo" y "abstract".
+    Retorna un diccionario con:
+      - patron, ignorar_mayusculas
+      - articulos: lista con numero, titulo, posiciones y coinciden, solo de
+        los articulos con al menos una ocurrencia
+      - total_ocurrencias, articulos_con_ocurrencias
+      - todas_coinciden: True si los tres algoritmos coincidieron en los 20
+      - discrepancias: articulos donde no coincidieron, con el detalle por algoritmo
+    """
+    if not isinstance(patron, str) or len(patron) == 0:
+        raise ValueError("El patron no puede estar vacio")
+
+    articulos, discrepancias, total = [], [], 0
+    for articulo in corpus:
+        posiciones, coinciden, por_algoritmo = buscar_en_texto(
+            articulo["abstract"], patron, ignorar_mayusculas)
         if not coinciden:
-            todas_coinciden = False
+            discrepancias.append({"numero": articulo["numero"], "por_algoritmo": por_algoritmo})
+        if posiciones:
+            total += len(posiciones)
+            articulos.append({"numero": articulo["numero"], "titulo": articulo["titulo"],
+                              "posiciones": posiciones, "coinciden": coinciden})
 
-        # Guardar resultados del abstract para el reporte
-        resultados_totales[f"Abstract {i}"] = {
-            "coinciden": coinciden,
-            "ocurrencias_encontradas": len(res_kmp),
-            "indices": res_kmp if coinciden else {"KMP": res_kmp, "RK": res_rk, "BM": res_bm}
-        }
+    return {"patron": patron, "ignorar_mayusculas": ignorar_mayusculas,
+            "articulos": articulos, "total_ocurrencias": total,
+            "articulos_con_ocurrencias": len(articulos),
+            "todas_coinciden": not discrepancias, "discrepancias": discrepancias}
 
-        # Imprimir estatus por cada abstract
-        status = "[OK] COINCIDEN" if coinciden else "[ERROR] DISCREPANCIA"
-        print(f"Abstract {i:02d}: {status} | Ocurrencias: {len(res_kmp)}")
 
-    # 4. Verificación global del experimento
-    print("\n=========================================")
-    if todas_coinciden:
-        print("EXITO GLOBAL: los 3 algoritmos coincidieron en todos los abstracts.")
+def main():
+    argumentos = [a for a in sys.argv[1:] if not a.startswith("--")]
+    patron = argumentos[0] if argumentos else "learning"
+    ignorar = "--ignorar-mayusculas" in sys.argv
+
+    corpus = cargar_corpus()
+    reporte = buscar_y_verificar(corpus, patron, ignorar)
+
+    print("=== [BUS-4] BUSQUEDA Y VERIFICACION EN LOS 20 ABSTRACTS ===")
+    print(f"Patron: {patron!r} | "
+          f"{'NO distingue' if ignorar else 'distingue'} mayusculas | texto: abstract original\n")
+    for a in reporte["articulos"]:
+        estado = "OK" if a["coinciden"] else "DISCREPANCIA"
+        print(f"  Art. {a['numero']:>2} [{estado}]: {len(a['posiciones'])} en {a['posiciones']}")
+    print(f"\nTotal: {reporte['total_ocurrencias']} ocurrencias en "
+          f"{reporte['articulos_con_ocurrencias']} de {len(corpus)} abstracts")
+    if reporte["todas_coinciden"]:
+        print("Verificacion: KMP, Rabin-Karp y Boyer-Moore coinciden en los 20 abstracts.")
     else:
-        print("ALERTA: hubo discrepancias en las salidas de los algoritmos. Revisa el diccionario de resultados.")
-    print("=========================================")
-
-    return resultados_totales
-
-
-# --- EJEMPLO DE USO ---
-if __name__ == "__main__":
-    ruta_json = "data/corpus_preprocesado.json"
-
-    # 1. Validar que el archivo exista en la ruta
-    if not os.path.exists(ruta_json):
-        print(f"Error: no se encontro el archivo '{ruta_json}' en el directorio actual.")
+        print("ALERTA: discrepancias en los articulos "
+              f"{[d['numero'] for d in reporte['discrepancias']]}")
         sys.exit(1)
 
-    # 2. Cargar los datos desde el archivo JSON
-    with open(ruta_json, 'r', encoding='utf-8') as archivo:
-        articulos = json.load(archivo)
 
-    # 3. Extraer únicamente el campo 'abstract' de cada artículo
-    # (Soporta si el JSON es una lista de diccionarios)
-    lista_abstracts = [art["abstract"] for art in articulos if "abstract" in art]
-
-    # Patrón de búsqueda de prueba (por argumento o por defecto)
-    patron_a_buscar = sys.argv[1] if len(sys.argv) > 1 else "learning"
-
-    # Ejecución del experimento
-    reporte = buscar_y_verificar(lista_abstracts, patron_a_buscar, case_sensitive=False)
+if __name__ == "__main__":
+    main()
