@@ -51,15 +51,15 @@ def buscar_y_verificar(abstracts, patron, case_sensitive=False):
         }
 
         # Imprimir estatus por cada abstract
-        status = "✅ COINCIDEN" if coinciden else "❌ DISCREPANCIA"
+        status = "[OK] COINCIDEN" if coinciden else "[ERROR] DISCREPANCIA"
         print(f"Abstract {i:02d}: {status} | Ocurrencias: {len(res_kmp)}")
 
     # 4. Verificación global del experimento
     print("\n=========================================")
     if todas_coinciden:
-        print("🎉 ¡ÉXITO GLOBAL! Los 3 algoritmos coincidieron en todos los abstracts.")
+        print("EXITO GLOBAL: los 3 algoritmos coincidieron en todos los abstracts.")
     else:
-        print("⚠️ ALERTA: Hubo discrepancias en las salidas de los algoritmos. Revisa el diccionario de resultados.")
+        print("ALERTA: hubo discrepancias en las salidas de los algoritmos. Revisa el diccionario de resultados.")
     print("=========================================")
 
     return resultados_totales
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # 1. Validar que el archivo exista en la ruta
     if not os.path.exists(ruta_json):
-        print(f"❌ Error: No se encontró el archivo '{ruta_json}' en el directorio actual.")
+        print(f"Error: no se encontro el archivo '{ruta_json}' en el directorio actual.")
         sys.exit(1)
 
     # 2. Cargar los datos desde el archivo JSON
