@@ -5,7 +5,7 @@ Universidad del Quindío · Programa de Ingeniería de Sistemas y Computación �
 
 **Equipo:** Daniel Josué Narváez Hincapié · Camilo Alberto Ospina
 
-> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1), con la sección 2 actualizada en el Sprint 3 con el proceso real de extracción y validación del corpus; la sección 4 se completó en el Sprint 2 (tarea DOC-A1) y la sección 5 en el Sprint 3 (tarea DOC-A2). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen el clustering, el despliegue y la declaración de uso de IA generativa (ver tabla de estado al final).
+> 📌 Este documento se encuentra en construcción. Las secciones 1 a 3 corresponden al borrador inicial (tarea ARQ-3, Sprint 1), con la sección 2 actualizada en el Sprint 3 con el proceso real de extracción y validación del corpus; la sección 4 se completó en el Sprint 2 (tarea DOC-A1), la sección 5 en el Sprint 3 (tarea DOC-A2) y la sección 6 en el Sprint 5 (tarea DOC-C1). Las secciones restantes se irán completando en los sprints siguientes conforme se implementen el clustering, el despliegue y la declaración de uso de IA generativa (ver tabla de estado al final).
 
 ---
 
@@ -301,6 +301,136 @@ Conclusiones principales:
 4. **Levenshtein y Needleman-Wunsch son casi equivalentes en este corpus** (correlación de Spearman 0,978). Cuando la alineación óptima no usa huecos extra, ambas similitudes se reducen a $k/m$, lo que explica el 10/111 = 0,0901 del caso de estudio.
 5. **Para medir cercanía temática, MPNet es el enfoque más adecuado y TF-IDF el mejor de los clásicos.** MPNet es el que mejor discrimina entre pares; TF-IDF es el clásico cuyo ordenamiento se parece más al de los modelos de IA. Los algoritmos de edición reflejan sobre todo el tipo de estudio (revisión sistemática) más que el tema, y son entre 35 y 130 veces más lentos que el coseno sobre embeddings.
 
+## 6. Agrupamiento Jerárquico (Requerimiento 2)
+
+Esta sección documenta los tres algoritmos de agrupamiento jerárquico aglomerativo implementados desde cero, la construcción de sus dendrogramas y la métrica de evaluación interna con la que se determinó cuál produce el agrupamiento más coherente. El análisis completo de resultados está en `docs/analisis_clustering.md`.
+
+| Tarea | Archivo | Contenido |
+|---|---|---|
+| CLU-1 | `src/clustering/distance_matrix.py` | Matriz de distancias entre los 20 abstracts |
+| CLU-2, CLU-3, CLU-4 | `src/clustering/aglomerativo.py`, `single_linkage.py`, `complete_linkage.py`, `average_linkage.py` | Procedimiento aglomerativo y los tres criterios de enlace |
+| CLU-5 | `src/clustering/dendrograma.py` | Matriz de enlace, validación y orden de las hojas |
+| VIS-1 | `src/clustering/visualizacion.py` | Dibujo de los dendrogramas |
+| EVA-1 | `src/clustering/evaluacion.py` | Correlación cofenética e índice de silueta |
+
+### 6.1 Preprocesamiento y matriz de distancias (CLU-1)
+
+Cada abstract se representa con su vector TF-IDF, calculado sobre los 20 abstracts preprocesados (sección 4.5), y la distancia entre dos abstracts es:
+
+$$d(i, j) = 1 - \cos(\vec{v}_i, \vec{v}_j)$$
+
+Se eligió TF-IDF porque el análisis comparativo de la sección 5.6 mostró que es el algoritmo clásico cuyo ordenamiento de los pares más se parece al de los modelos de IA. El resultado es una matriz simétrica de 20 × 20 con ceros en la diagonal y distancias entre 0,66 y 0,98 fuera de ella. La matriz se guarda con precisión completa: redondearla crearía empates artificiales entre distancias distintas, y en el agrupamiento jerárquico un empate puede cambiar el orden de las fusiones.
+
+### 6.2 Procedimiento aglomerativo (CLU-2, CLU-3, CLU-4)
+
+Los tres criterios comparten el mismo procedimiento, implementado en `aglomerativo.py`:
+
+1. Cada artículo empieza como un grupo propio (*n* = 20 grupos).
+2. Se busca el par de grupos con la menor distancia y se fusiona.
+3. Se actualiza la distancia del grupo nuevo a cada grupo restante, con la regla del criterio (sección 6.3).
+4. Se repite hasta que queda un solo grupo.
+
+Cada fusión reduce en uno la cantidad de grupos, así que se necesitan exactamente *n* − 1 = 19 fusiones. Los grupos se identifican con la convención estándar de los dendrogramas: los artículos son 0 a *n* − 1 y el grupo creado en la fusión *t* recibe el identificador *n* + *t* − 1. Si dos pares de grupos están exactamente a la misma distancia, se fusiona el par con menores identificadores, de modo que el resultado es determinista.
+
+**Complejidad.** Cada una de las *n* − 1 fusiones busca el par más cercano entre los grupos activos, en O(*n*²), y actualiza las distancias del grupo nuevo, en O(*n*):
+
+$$T(n) = (n-1) \cdot \left(O(n^2) + O(n)\right) = O(n^3), \qquad \text{memoria } O(n^2)$$
+
+Para *n* = 20 son unas 2.700 comparaciones de distancias.
+
+### 6.3 Criterios de enlace y reglas de actualización
+
+Los tres criterios difieren solo en cómo definen la distancia entre dos grupos *A* y *B*. Gracias a la forma de cada definición, al fusionar *A* y *B* no hace falta recalcular las distancias desde cero: basta una regla de actualización que usa las distancias ya conocidas. Las tres reglas son casos particulares de la fórmula general de Lance y Williams (1967):
+
+$$D(A \cup B, C) = \alpha_A D(A,C) + \alpha_B D(B,C) + \beta D(A,B) + \gamma \, |D(A,C) - D(B,C)|$$
+
+| Criterio | Definición de D(A, B) | Regla de actualización | Coeficientes de Lance-Williams |
+|---|---|---|---|
+| Single Linkage (enlace simple) | Menor distancia entre un elemento de *A* y uno de *B* | mín(D(A, C), D(B, C)) | α = ½, β = 0, γ = −½ |
+| Complete Linkage (enlace completo) | Mayor distancia entre un elemento de *A* y uno de *B* | máx(D(A, C), D(B, C)) | α = ½, β = 0, γ = +½ |
+| Average Linkage (enlace promedio, UPGMA) | Promedio de las distancias entre todos los pares (*a*, *b*) | (\|A\|·D(A, C) + \|B\|·D(B, C)) / (\|A\| + \|B\|) | α_A = \|A\| / (\|A\| + \|B\|), β = 0, γ = 0 |
+
+**Por qué son correctas.** En el enlace simple, el mínimo sobre los pares de *A* ∪ *B* con *C* es el menor entre el mínimo sobre *A* y el mínimo sobre *B*; el razonamiento es análogo para el máximo. En el enlace promedio, \|A\|·\|C\|·D(A, C) es la **suma** de las distancias entre *A* y *C*, y lo mismo para *B*. La suma entre *A* ∪ *B* y *C* es la suma de ambas, y el número de pares es (\|A\| + \|B\|)·\|C\|. Al dividir, \|C\| se cancela y queda el promedio ponderado de la tabla. Con los coeficientes de Lance-Williams, por ejemplo, ½·D(A, C) + ½·D(B, C) − ½·\|D(A, C) − D(B, C)\| es exactamente el mínimo de los dos valores.
+
+Las pruebas unitarias verifican, en 30 matrices aleatorias por criterio, que la distancia usada en cada fusión coincide con la definición calculada directamente sobre los elementos de los grupos.
+
+**Comportamiento esperado de cada criterio:**
+- **Single Linkage** une dos grupos completos con que **un solo** par esté cerca. Eso produce el **efecto cadena**: grupos alargados que absorben elementos uno a uno.
+- **Complete Linkage** solo une dos grupos cuando **todos** sus elementos están relativamente cerca, porque decide el par más lejano. Forma grupos compactos, y la altura de cada fusión es el diámetro del grupo creado.
+- **Average Linkage** es un punto intermedio: considera a todos los elementos, así que no se deja arrastrar por un único par muy cercano ni por uno muy lejano.
+
+### 6.4 Ejemplo resuelto a mano
+
+Para ilustrar las tres reglas se usa una matriz de 5 elementos (A a E), la misma de las pruebas unitarias:
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **A** | 0 | 2 | 6 | 10 | 9 |
+| **B** | 2 | 0 | 5 | 9 | 8 |
+| **C** | 6 | 5 | 0 | 4 | 5 |
+| **D** | 10 | 9 | 4 | 0 | 3 |
+| **E** | 9 | 8 | 5 | 3 | 0 |
+
+Las dos primeras fusiones son iguales en los tres criterios, porque unen elementos individuales: **A + B a 2** y **D + E a 3**. A partir de ahí, cada criterio calcula distinto la distancia entre grupos:
+
+| Paso | Single Linkage | Complete Linkage | Average Linkage |
+|---|---|---|---|
+| 3. Distancia de C a {D, E} | mín(4, 5) = **4** | máx(4, 5) = **5** | (4 + 5) / 2 = **4,5** |
+| 3. Distancia de C a {A, B} | mín(6, 5) = 5 | máx(6, 5) = 6 | (6 + 5) / 2 = 5,5 |
+| 3. Fusión | C + {D, E} a 4 | C + {D, E} a 5 | C + {D, E} a 4,5 |
+| 4. Distancia de {A, B} a {C, D, E} | mín(6, 10, 9, 5, 9, 8) = **5** | máx(6, 10, 9, 5, 9, 8) = **10** | (6 + 10 + 9 + 5 + 9 + 8) / 6 = **7,83** |
+
+En el paso 4 del enlace promedio, la regla de actualización da el mismo resultado sin recorrer los seis pares: el grupo {C, D, E} se formó con C (tamaño 1, distancia 5,5 a {A, B}) y {D, E} (tamaño 2, distancia 9 a {A, B}), así que (1 · 5,5 + 2 · 9) / 3 = 23,5 / 3 = 7,83.
+
+En este ejemplo los tres criterios forman los mismos grupos, pero a **alturas distintas**: la última fusión ocurre a 5, 7,83 y 10. Esas alturas son las que dibuja el dendrograma y las que evalúa la correlación cofenética.
+
+### 6.5 Matriz de enlace y dendrogramas (CLU-5, VIS-1)
+
+El historial de fusiones de cada criterio se convierte en una **matriz de enlace**, el formato estándar para representar un árbol jerárquico. Tiene una fila por fusión:
+
+$$Z[t] = [\, \text{grupo}_a,\ \text{grupo}_b,\ \text{distancia},\ \text{tamaño} \,]$$
+
+En esta matriz los artículos aparecen como índices de 0 a 19 (índice = número de artículo − 1). Antes de usarla, `dendrograma.py` verifica que represente un árbol válido: cada grupo se usa una sola vez, los tamaños son la suma de las partes y las distancias no decrecen, es decir, no hay inversiones que impidan dibujar el árbol. También calcula el orden de las hojas (de izquierda a derecha) recorriendo el árbol desde la raíz.
+
+La función `dendrogram` de `scipy` se usa **solo para dibujar** a partir de esa matriz; el árbol se calcula y se valida con las implementaciones propias. Los tres dendrogramas se dibujan con la misma escala vertical:
+
+![Dendrogramas de los tres criterios](dendrogramas/comparativa.png)
+
+### 6.6 Métricas de evaluación interna (EVA-1)
+
+El enunciado pide sustentar con una métrica matemática de evaluación interna cuál criterio produce agrupamientos más coherentes. Se implementaron dos métricas, ambas a mano en `evaluacion.py`.
+
+**Correlación cofenética (métrica principal).** La distancia cofenética c(*i*, *j*) entre dos artículos es la altura a la que el dendrograma los une por primera vez. La correlación cofenética (CPCC) es la correlación de Pearson entre las distancias originales y las cofenéticas en los 190 pares (Sokal y Rohlf, 1962):
+
+$$\text{CPCC} = \frac{\sum_{i<j} (d_{ij} - \bar{d})(c_{ij} - \bar{c})}{\sqrt{\sum_{i<j} (d_{ij} - \bar{d})^2 \cdot \sum_{i<j} (c_{ij} - \bar{c})^2}}$$
+
+Mide qué tan fielmente el árbol completo conserva las distancias reales, sin necesidad de elegir un número de grupos; por eso es la métrica adecuada para comparar dendrogramas. La matriz cofenética se construye en O(*n*²): al fusionar *A* y *B* a altura *h*, todos los pares (*a*, *b*) quedan unidos por primera vez, así que c(*a*, *b*) = *h*.
+
+**Índice de silueta (métrica complementaria).** Evalúa una partición en *k* grupos (un corte del árbol). Para cada artículo *i*, *a*(*i*) es su distancia promedio a los demás de su grupo y *b*(*i*) la menor distancia promedio a otro grupo (Rousseeuw, 1987):
+
+$$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$$
+
+El índice es el promedio de *s*(*i*). Va de −1 a 1, y es mayor cuando los grupos son compactos y están bien separados. Un artículo solo en su grupo recibe *s*(*i*) = 0.
+
+### 6.7 Resultados y conclusión (EVA-2)
+
+| Criterio | CPCC | Partición en 4 grupos | Mejor silueta (k = 2 a 8) |
+|---|---|---|---|
+| **Average Linkage** | **0,8096** | 17, 1, 1, 1 | 0,0601 (k = 2) |
+| Single Linkage | 0,7757 | 17, 1, 1, 1 | 0,0601 (k = 2) |
+| Complete Linkage | 0,6535 | 9, 6, 4, 1 | 0,0463 (k = 4) |
+
+1. **Average Linkage produce el árbol más coherente:** tiene la mayor correlación cofenética, es decir, es el que mejor conserva las distancias reales entre los abstracts.
+2. **Single Linkage muestra el efecto cadena esperado:** de la fusión 11 a la 19 (filas 10 a 18 de la matriz de enlace), cada fusión agrega un solo artículo al grupo principal.
+3. **Complete Linkage forma la partición más equilibrada**, pero su árbol es el que más distorsiona las distancias: sus últimas fusiones ocurren a 0,9733 y 0,9760.
+4. **La silueta es baja en los tres criterios** (menor que 0,07). El corpus no tiene grupos bien separados: los 20 artículos tratan un dominio homogéneo, la inteligencia artificial en educación. Aun así, hay agrupaciones que aparecen idénticas en los tres árboles y tienen un tema común claro: {11, 16, 17}, sobre evaluación del aprendizaje con IA; {2, 6, 9}, panoramas generales de la investigación en IA educativa, y {8, 10}, IA aplicada a modalidades de aprendizaje.
+
+### 6.8 Verificación
+
+Los módulos de clustering tienen 79 pruebas unitarias: Single Linkage (20), Complete Linkage (12), Average Linkage (12), matriz de enlace (18) y evaluación (17). Incluyen el ejemplo de la sección 6.4 resuelto a mano y la verificación de las reglas de actualización contra la definición de cada criterio. Además, se contrastaron los resultados con implementaciones de referencia que no forman parte del proyecto: las 19 alturas de fusión de los tres criterios coinciden con las de `scipy`, y la CPCC y la silueta coinciden con las de `scipy` y `sklearn`.
+
+**Fuentes:** Lance y Williams (1967), para la fórmula general de actualización; Manning, Raghavan y Schütze (2008, cap. 17), para el agrupamiento jerárquico aglomerativo; Sokal y Rohlf (1962), para la correlación cofenética, y Rousseeuw (1987), para el índice de silueta.
+
 ## Estado del documento
 
 | Sección | Contenido | Estado | Sprint |
@@ -310,7 +440,9 @@ Conclusiones principales:
 | 3. Arquitectura | Módulos y stack tecnológico | ✅ Completa | Sprint 1 |
 | 4. Algoritmos clásicos | Implementación, complejidad y caso de estudio | ✅ Completa | Sprint 2 |
 | 5. Modelos de IA | Embeddings, métricas y análisis comparativo clásicos vs. IA | ✅ Completa | Sprint 3 |
-| 6. Clustering jerárquico | Implementación, dendrogramas y métrica de evaluación | ⬜ Pendiente | Sprint 4 |
-| 7. Despliegue | Arquitectura de despliegue y guía de uso | ⬜ Pendiente | Sprint 5 |
-| 8. Declaración de uso de IA generativa | Herramientas usadas como apoyo al desarrollo | ⬜ Pendiente | Sprint 5 |
-| 9. Conclusiones | Cierre general del proyecto | ⬜ Pendiente | Sprint 6 |
+| 6. Clustering jerárquico | Criterios de enlace, reglas de actualización, complejidad, dendrogramas y métricas de evaluación | ✅ Completa | Sprint 5 |
+| 7. Búsqueda de patrones (Requerimiento 3) | KMP, Boyer-Moore y Rabin-Karp, caso de estudio y análisis crítico | ⬜ Pendiente | Sprint 6 |
+| 8. Ranking de términos (seguimiento) | Counting, Radix y Bucket Sort (ver `docs/seguimiento_ordenamiento.md`) | ✅ Entregado como documento aparte | Sprint 5 |
+| 9. Despliegue | Arquitectura de despliegue y guía de uso | ⬜ Pendiente | Sprint 6 |
+| 10. Declaración de uso de IA generativa | Herramientas usadas como apoyo al desarrollo | ⬜ Pendiente | Sprint 6 |
+| 11. Conclusiones | Cierre general del proyecto | ⬜ Pendiente | Sprint 7 |

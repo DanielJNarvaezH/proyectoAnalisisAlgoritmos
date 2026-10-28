@@ -63,9 +63,9 @@ Mide qué tan fielmente el árbol completo conserva las distancias reales entre 
 
 | Criterio | CPCC |
 |---|---|
-| **Average Linkage** | **0,8097** |
+| **Average Linkage** | **0,8096** |
 | Single Linkage | 0,7757 |
-| Complete Linkage | 0,6536 |
+| Complete Linkage | 0,6535 |
 
 ### 4.2 Índice de silueta (métrica complementaria)
 
@@ -97,9 +97,9 @@ En el otro extremo, los artículos **4** (resolución de problemas complejos) y 
 
 ## 6. Conclusión: el criterio más coherente
 
-**Average Linkage produce el agrupamiento jerárquico más coherente**, sustentado en la métrica principal: tiene la mayor correlación cofenética (0,8097), es decir, es el árbol que mejor conserva las distancias reales entre los abstracts.
+**Average Linkage produce el agrupamiento jerárquico más coherente**, sustentado en la métrica principal: tiene la mayor correlación cofenética (0,8096), es decir, es el árbol que mejor conserva las distancias reales entre los abstracts.
 
-1. **Equilibrio entre los otros dos criterios.** Al promediar todas las distancias entre los miembros de dos grupos, no se deja arrastrar por un único par muy cercano, que es lo que produce el efecto cadena de Single Linkage, ni por un único par muy lejano, que es lo que lleva a Complete Linkage a unir sus bloques finales a alturas cercanas a 0,98 y a la CPCC más baja (0,6536).
+1. **Equilibrio entre los otros dos criterios.** Al promediar todas las distancias entre los miembros de dos grupos, no se deja arrastrar por un único par muy cercano, que es lo que produce el efecto cadena de Single Linkage, ni por un único par muy lejano, que es lo que lleva a Complete Linkage a unir sus bloques finales a alturas cercanas a 0,98 y a la CPCC más baja (0,6535).
 2. **Estructura intermedia coherente.** Forma bloques equilibrados en los niveles intermedios y conserva las tres agrupaciones robustas de la sección 5.
 3. **Matiz:** si el objetivo fuera obtener una partición plana en pocos grupos de tamaño parecido, Complete Linkage es mejor opción: su partición en 4 grupos es la más equilibrada (9, 6, 4 y 1) y tiene la mejor silueta para *k* = 4. Pero con siluetas tan bajas en todos los criterios, esa partición no corresponde a grupos claramente separados.
 
