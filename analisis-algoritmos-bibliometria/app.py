@@ -230,7 +230,7 @@ def seccion_busqueda(corpus):
                      column_config={"Tiempo medio (ms)": st.column_config.NumberColumn(
                          format="%.4f")})
         st.caption(f"Tiempo medio de recorrer los {total_articulos} abstracts (30 repeticiones). "
-                   "Para el analisis completo ver docs/caso_estudio_busqueda.md.")
+                   "Para el analisis completo ver docs/analisis_busqueda.md.")
 
 
 # ---------------------------------------------------------------------------
@@ -298,8 +298,8 @@ def seccion_ranking():
     st.markdown("**Consultar la posicion de un termino**")
     consulta = st.text_input("Termino (o parte de el)", key="consulta_rank",
                              placeholder="Ej.: learn, education, ethic")
-    if consulta:
-        q = consulta.strip().lower()
+    q = consulta.strip().lower()
+    if q:
         hallados = [{"Posicion": i, "Termino": t, "Frecuencia": f}
                     for i, (t, f) in enumerate(ranking, start=1) if kmp_buscar(t, q)]
         if hallados:
