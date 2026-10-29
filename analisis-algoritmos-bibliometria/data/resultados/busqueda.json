@@ -1,0 +1,980 @@
+{
+  "metodologia": {
+    "calentamiento": 3,
+    "repeticiones_corpus": 30,
+    "repeticiones_escala": 10,
+    "repeticiones_preprocesamiento": 200,
+    "rapido": false
+  },
+  "preprocesamiento": [
+    {
+      "m": 10,
+      "KMP": {
+        "promedio_ms": 0.0011145000280521344,
+        "desviacion_ms": 0.00015543671142362298,
+        "minimo_ms": 0.0009999985195463523
+      },
+      "Rabin-Karp": {
+        "promedio_ms": 0.0019090000296273502,
+        "desviacion_ms": 0.0006427945149762516,
+        "minimo_ms": 0.0016999983927235007
+      },
+      "Boyer-Moore": {
+        "promedio_ms": 0.002934499989351025,
+        "desviacion_ms": 0.00012783368906122138,
+        "minimo_ms": 0.0027999994927085936
+      }
+    },
+    {
+      "m": 100,
+      "KMP": {
+        "promedio_ms": 0.007043000086923712,
+        "desviacion_ms": 0.0012499451510858462,
+        "minimo_ms": 0.006299998858594336
+      },
+      "Rabin-Karp": {
+        "promedio_ms": 0.01434499999959371,
+        "desviacion_ms": 0.001900694140757076,
+        "minimo_ms": 0.013199998647905886
+      },
+      "Boyer-Moore": {
+        "promedio_ms": 0.022300000027826172,
+        "desviacion_ms": 0.0029371815189410543,
+        "minimo_ms": 0.02010000025620684
+      }
+    },
+    {
+      "m": 1000,
+      "KMP": {
+        "promedio_ms": 0.07990000021891319,
+        "desviacion_ms": 0.053990505980044345,
+        "minimo_ms": 0.0610999995842576
+      },
+      "Rabin-Karp": {
+        "promedio_ms": 0.15640500005247304,
+        "desviacion_ms": 0.05139736310516642,
+        "minimo_ms": 0.13240000043879263
+      },
+      "Boyer-Moore": {
+        "promedio_ms": 0.26032999994640704,
+        "desviacion_ms": 0.06944085041160565,
+        "minimo_ms": 0.22139999964565504
+      }
+    },
+    {
+      "m": 10000,
+      "KMP": {
+        "promedio_ms": 0.6383599997207057,
+        "desviacion_ms": 0.027266701711992553,
+        "minimo_ms": 0.6188000006659422
+      },
+      "Rabin-Karp": {
+        "promedio_ms": 1.5221799996652408,
+        "desviacion_ms": 0.4083984168066712,
+        "minimo_ms": 1.3300999999046326
+      },
+      "Boyer-Moore": {
+        "promedio_ms": 2.325840000048629,
+        "desviacion_ms": 0.05502561221980786,
+        "minimo_ms": 2.264400000058231
+      }
+    }
+  ],
+  "corpus": [
+    {
+      "patron": "AI",
+      "m": 2,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 28466,
+          "comparaciones_por_caracter": 1.006434733418187,
+          "total": {
+            "promedio_ms": 3.6176833333835625,
+            "desviacion_ms": 0.7722267644730445,
+            "minimo_ms": 2.5598000011086697
+          }
+        },
+        "KMP": {
+          "comparaciones": 28343,
+          "comparaciones_por_caracter": 1.0020859850091925,
+          "total": {
+            "promedio_ms": 2.619999999903181,
+            "desviacion_ms": 0.7018693084859718,
+            "minimo_ms": 1.8780000009428477
+          },
+          "preprocesamiento_ms": 0.0004999983502784744,
+          "preprocesamiento_corpus_ms": 0.009999967005569488,
+          "busqueda_estimada_ms": 1.8680000339372782,
+          "porcentaje_preprocesamiento": 0.5324796059930254
+        },
+        "Rabin-Karp": {
+          "comparaciones": 286,
+          "comparaciones_por_caracter": 0.010111723942865225,
+          "total": {
+            "promedio_ms": 9.112643333416296,
+            "desviacion_ms": 2.34189640731547,
+            "minimo_ms": 6.2605000002804445
+          },
+          "preprocesamiento_ms": 0.0006000009307172149,
+          "preprocesamiento_corpus_ms": 0.012000018614344299,
+          "busqueda_estimada_ms": 6.2484999816661,
+          "porcentaje_preprocesamiento": 0.19167827831334155
+        },
+        "Boyer-Moore": {
+          "comparaciones": 14343,
+          "comparaciones_por_caracter": 0.5071064913025032,
+          "total": {
+            "promedio_ms": 8.44400333323089,
+            "desviacion_ms": 12.538009413111546,
+            "minimo_ms": 4.135699999096687
+          },
+          "preprocesamiento_ms": 0.0011999982234556228,
+          "preprocesamiento_corpus_ms": 0.023999964469112456,
+          "busqueda_estimada_ms": 4.1117000346275745,
+          "porcentaje_preprocesamiento": 0.5803120263644483
+        }
+      },
+      "ocurrencias": 143
+    },
+    {
+      "patron": "data",
+      "m": 4,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 29248,
+          "comparaciones_por_caracter": 1.0340828737095178,
+          "total": {
+            "promedio_ms": 2.837733333277962,
+            "desviacion_ms": 0.3226021692330453,
+            "minimo_ms": 2.5730999986990355
+          }
+        },
+        "KMP": {
+          "comparaciones": 29272,
+          "comparaciones_por_caracter": 1.0349314099844436,
+          "total": {
+            "promedio_ms": 2.2187966668449612,
+            "desviacion_ms": 0.35440467373969764,
+            "minimo_ms": 1.9799000001512468
+          },
+          "preprocesamiento_ms": 0.0005999991117278114,
+          "preprocesamiento_corpus_ms": 0.011999982234556228,
+          "busqueda_estimada_ms": 1.9679000179166906,
+          "porcentaje_preprocesamiento": 0.6060903193918651
+        },
+        "Rabin-Karp": {
+          "comparaciones": 28,
+          "comparaciones_por_caracter": 0.0009899589874133787,
+          "total": {
+            "promedio_ms": 8.42490333331322,
+            "desviacion_ms": 0.894702891962936,
+            "minimo_ms": 7.608300000356394
+          },
+          "preprocesamiento_ms": 0.0008999995770864189,
+          "preprocesamiento_corpus_ms": 0.017999991541728377,
+          "busqueda_estimada_ms": 7.5903000088146655,
+          "porcentaje_preprocesamiento": 0.23658361974271794
+        },
+        "Boyer-Moore": {
+          "comparaciones": 8122,
+          "comparaciones_por_caracter": 0.2871588177061236,
+          "total": {
+            "promedio_ms": 2.4281166668515652,
+            "desviacion_ms": 0.15157321442674312,
+            "minimo_ms": 2.2586000013689045
+          },
+          "preprocesamiento_ms": 0.0017000002117129043,
+          "preprocesamiento_corpus_ms": 0.034000004234258085,
+          "busqueda_estimada_ms": 2.2245999971346464,
+          "porcentaje_preprocesamiento": 1.5053574875432205
+        }
+      },
+      "ocurrencias": 7
+    },
+    {
+      "patron": "learning",
+      "m": 8,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 29497,
+          "comparaciones_por_caracter": 1.0428864375618725,
+          "total": {
+            "promedio_ms": 2.9151166663117087,
+            "desviacion_ms": 0.704365305897249,
+            "minimo_ms": 2.6132000002689892
+          }
+        },
+        "KMP": {
+          "comparaciones": 29206,
+          "comparaciones_por_caracter": 1.0325979352283976,
+          "total": {
+            "promedio_ms": 2.1595866666151173,
+            "desviacion_ms": 0.3470937513071994,
+            "minimo_ms": 1.96469999900728
+          },
+          "preprocesamiento_ms": 0.0007999988156370819,
+          "preprocesamiento_corpus_ms": 0.015999976312741637,
+          "busqueda_estimada_ms": 1.9487000226945383,
+          "porcentaje_preprocesamiento": 0.8143724904986042
+        },
+        "Rabin-Karp": {
+          "comparaciones": 296,
+          "comparaciones_por_caracter": 0.010465280724084288,
+          "total": {
+            "promedio_ms": 9.00769000005918,
+            "desviacion_ms": 1.4754094469924297,
+            "minimo_ms": 8.132400000249618
+          },
+          "preprocesamiento_ms": 0.0013999997463542968,
+          "preprocesamiento_corpus_ms": 0.027999994927085936,
+          "busqueda_estimada_ms": 8.104400005322532,
+          "porcentaje_preprocesamiento": 0.34430174273555775
+        },
+        "Boyer-Moore": {
+          "comparaciones": 4895,
+          "comparaciones_por_caracter": 0.17306604440673173,
+          "total": {
+            "promedio_ms": 1.5497833333332285,
+            "desviacion_ms": 0.35130775780072243,
+            "minimo_ms": 1.3238000010460382
+          },
+          "preprocesamiento_ms": 0.002399998265900649,
+          "preprocesamiento_corpus_ms": 0.04799996531801298,
+          "busqueda_estimada_ms": 1.2758000357280253,
+          "porcentaje_preprocesamiento": 3.6259227436232395
+        }
+      },
+      "ocurrencias": 37
+    },
+    {
+      "patron": "education",
+      "m": 9,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 31796,
+          "comparaciones_por_caracter": 1.1241691415641353,
+          "total": {
+            "promedio_ms": 3.050736666530914,
+            "desviacion_ms": 0.3811712915637034,
+            "minimo_ms": 2.7890000001207227
+          }
+        },
+        "KMP": {
+          "comparaciones": 31107,
+          "comparaciones_por_caracter": 1.0998090793381416,
+          "total": {
+            "promedio_ms": 2.613970000008218,
+            "desviacion_ms": 0.5690710657805866,
+            "minimo_ms": 2.2396000003936933
+          },
+          "preprocesamiento_ms": 0.0008999995770864189,
+          "preprocesamiento_corpus_ms": 0.017999991541728377,
+          "busqueda_estimada_ms": 2.221600008851965,
+          "porcentaje_preprocesamiento": 0.8037145712879178
+        },
+        "Rabin-Karp": {
+          "comparaciones": 702,
+          "comparaciones_por_caracter": 0.024819686041578276,
+          "total": {
+            "promedio_ms": 8.804616666687556,
+            "desviacion_ms": 0.8029822691438304,
+            "minimo_ms": 8.21910000013304
+          },
+          "preprocesamiento_ms": 0.0014999986888142303,
+          "preprocesamiento_corpus_ms": 0.029999973776284605,
+          "busqueda_estimada_ms": 8.189100026356755,
+          "porcentaje_preprocesamiento": 0.3650031484687984
+        },
+        "Boyer-Moore": {
+          "comparaciones": 5364,
+          "comparaciones_por_caracter": 0.18964785744590582,
+          "total": {
+            "promedio_ms": 1.4606999999159598,
+            "desviacion_ms": 0.16534738133310226,
+            "minimo_ms": 1.3046000003669178
+          },
+          "preprocesamiento_ms": 0.0025000008463393897,
+          "preprocesamiento_corpus_ms": 0.050000016926787794,
+          "busqueda_estimada_ms": 1.25459998344013,
+          "porcentaje_preprocesamiento": 3.832593661867647
+        }
+      },
+      "ocurrencias": 78
+    },
+    {
+      "patron": "assessment",
+      "m": 10,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 30320,
+          "comparaciones_por_caracter": 1.0719841606562013,
+          "total": {
+            "promedio_ms": 2.7465599999535093,
+            "desviacion_ms": 0.06603475343329641,
+            "minimo_ms": 2.6723000009951647
+          }
+        },
+        "KMP": {
+          "comparaciones": 30088,
+          "comparaciones_por_caracter": 1.0637816433319192,
+          "total": {
+            "promedio_ms": 2.142429999912565,
+            "desviacion_ms": 0.040932839798211614,
+            "minimo_ms": 2.07589999990887
+          },
+          "preprocesamiento_ms": 0.0008999995770864189,
+          "preprocesamiento_corpus_ms": 0.017999991541728377,
+          "busqueda_estimada_ms": 2.0579000083671417,
+          "porcentaje_preprocesamiento": 0.8670933832322636
+        },
+        "Rabin-Karp": {
+          "comparaciones": 350,
+          "comparaciones_por_caracter": 0.012374487342667233,
+          "total": {
+            "promedio_ms": 8.39147333335859,
+            "desviacion_ms": 0.8926383274670018,
+            "minimo_ms": 8.079100000031758
+          },
+          "preprocesamiento_ms": 0.0016999983927235007,
+          "preprocesamiento_corpus_ms": 0.033999967854470015,
+          "busqueda_estimada_ms": 8.045100032177288,
+          "porcentaje_preprocesamiento": 0.42083855694738725
+        },
+        "Boyer-Moore": {
+          "comparaciones": 4165,
+          "comparaciones_por_caracter": 0.14725639937774007,
+          "total": {
+            "promedio_ms": 1.1625000001004082,
+            "desviacion_ms": 0.0420164745197172,
+            "minimo_ms": 1.1183000005985377
+          },
+          "preprocesamiento_ms": 0.0027999994927085936,
+          "preprocesamiento_corpus_ms": 0.05599998985417187,
+          "busqueda_estimada_ms": 1.0623000107443659,
+          "porcentaje_preprocesamiento": 5.007599912742511
+        }
+      },
+      "ocurrencias": 35
+    },
+    {
+      "patron": "blockchain",
+      "m": 10,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 28336,
+          "comparaciones_por_caracter": 1.0018384952623391,
+          "total": {
+            "promedio_ms": 2.6429566665077195,
+            "desviacion_ms": 0.18465083484031816,
+            "minimo_ms": 2.491699999154662
+          }
+        },
+        "KMP": {
+          "comparaciones": 28478,
+          "comparaciones_por_caracter": 1.0068590015556498,
+          "total": {
+            "promedio_ms": 1.9809466667235636,
+            "desviacion_ms": 0.09256681363708746,
+            "minimo_ms": 1.8787999997584848
+          },
+          "preprocesamiento_ms": 0.0008999995770864189,
+          "preprocesamiento_corpus_ms": 0.017999991541728377,
+          "busqueda_estimada_ms": 1.8608000082167564,
+          "porcentaje_preprocesamiento": 0.9580578850352477
+        },
+        "Rabin-Karp": {
+          "comparaciones": 0,
+          "comparaciones_por_caracter": 0.0,
+          "total": {
+            "promedio_ms": 8.413443333241352,
+            "desviacion_ms": 0.6216484354737892,
+            "minimo_ms": 8.013099999516271
+          },
+          "preprocesamiento_ms": 0.0016000012692529708,
+          "preprocesamiento_corpus_ms": 0.032000025385059416,
+          "busqueda_estimada_ms": 7.981099974131212,
+          "porcentaje_preprocesamiento": 0.39934638762764935
+        },
+        "Boyer-Moore": {
+          "comparaciones": 3833,
+          "comparaciones_por_caracter": 0.13551831424126715,
+          "total": {
+            "promedio_ms": 1.1611633333814098,
+            "desviacion_ms": 0.1661245594917616,
+            "minimo_ms": 1.0220000003755558
+          },
+          "preprocesamiento_ms": 0.00270000055024866,
+          "preprocesamiento_corpus_ms": 0.0540000110049732,
+          "busqueda_estimada_ms": 0.9679999893705826,
+          "porcentaje_preprocesamiento": 5.283758413417782
+        }
+      },
+      "ocurrencias": 0
+    },
+    {
+      "patron": "artificial intelligence",
+      "m": 23,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 30136,
+          "comparaciones_por_caracter": 1.0654787158817707,
+          "total": {
+            "promedio_ms": 2.809936666623495,
+            "desviacion_ms": 0.12185986158057313,
+            "minimo_ms": 2.6358000013715355
+          }
+        },
+        "KMP": {
+          "comparaciones": 30101,
+          "comparaciones_por_caracter": 1.0642412671475039,
+          "total": {
+            "promedio_ms": 2.32712999998815,
+            "desviacion_ms": 0.3679305154779505,
+            "minimo_ms": 2.0719000003737165
+          },
+          "preprocesamiento_ms": 0.0017999991541728377,
+          "preprocesamiento_corpus_ms": 0.035999983083456755,
+          "busqueda_estimada_ms": 2.0359000172902597,
+          "porcentaje_preprocesamiento": 1.73753477855897
+        },
+        "Rabin-Karp": {
+          "comparaciones": 253,
+          "comparaciones_por_caracter": 0.008944986564842314,
+          "total": {
+            "promedio_ms": 8.679929999986294,
+            "desviacion_ms": 0.7400765380063703,
+            "minimo_ms": 8.084499999313266
+          },
+          "preprocesamiento_ms": 0.003399998604436405,
+          "preprocesamiento_corpus_ms": 0.0679999720887281,
+          "busqueda_estimada_ms": 8.016500027224538,
+          "porcentaje_preprocesamiento": 0.8411153700847835
+        },
+        "Boyer-Moore": {
+          "comparaciones": 2460,
+          "comparaciones_por_caracter": 0.08697496817988969,
+          "total": {
+            "promedio_ms": 0.7626399998722869,
+            "desviacion_ms": 0.04517653183974743,
+            "minimo_ms": 0.6990999991103308
+          },
+          "preprocesamiento_ms": 0.005500000042957254,
+          "preprocesamiento_corpus_ms": 0.11000000085914508,
+          "busqueda_estimada_ms": 0.5890999982511858,
+          "porcentaje_preprocesamiento": 15.73451594895297
+        }
+      },
+      "ocurrencias": 11
+    },
+    {
+      "patron": "generative artificial intelligence",
+      "m": 34,
+      "n_total": 28284,
+      "algoritmos": {
+        "Ingenuo": {
+          "comparaciones": 28467,
+          "comparaciones_por_caracter": 1.006470089096309,
+          "total": {
+            "promedio_ms": 2.702596666616349,
+            "desviacion_ms": 0.2821517436554108,
+            "minimo_ms": 2.4972999999590684
+          }
+        },
+        "KMP": {
+          "comparaciones": 28804,
+          "comparaciones_por_caracter": 1.0183849526233912,
+          "total": {
+            "promedio_ms": 2.04083333331558,
+            "desviacion_ms": 0.08144037499516699,
+            "minimo_ms": 1.96460000006482
+          },
+          "preprocesamiento_ms": 0.0022999993234407157,
+          "preprocesamiento_corpus_ms": 0.04599998646881431,
+          "busqueda_estimada_ms": 1.9186000135960057,
+          "porcentaje_preprocesamiento": 2.34144286202263
+        },
+        "Rabin-Karp": {
+          "comparaciones": 102,
+          "comparaciones_por_caracter": 0.0036062791684344504,
+          "total": {
+            "promedio_ms": 8.4156800000225,
+            "desviacion_ms": 0.8079653402896345,
+            "minimo_ms": 7.9829999995126855
+          },
+          "preprocesamiento_ms": 0.004699999408330768,
+          "preprocesamiento_corpus_ms": 0.09399998816661537,
+          "busqueda_estimada_ms": 7.88900001134607,
+          "porcentaje_preprocesamiento": 1.1775020439979145
+        },
+        "Boyer-Moore": {
+          "comparaciones": 1962,
+          "comparaciones_por_caracter": 0.06936784047518031,
+          "total": {
+            "promedio_ms": 0.6890366665174952,
+            "desviacion_ms": 0.10847389478142205,
+            "minimo_ms": 0.6245000004128087
+          },
+          "preprocesamiento_ms": 0.0073999999585794285,
+          "preprocesamiento_corpus_ms": 0.14799999917158857,
+          "busqueda_estimada_ms": 0.47650000124122016,
+          "porcentaje_preprocesamiento": 23.698959019016364
+        }
+      },
+      "ocurrencias": 3
+    }
+  ],
+  "escalabilidad": [
+    {
+      "factor": 1,
+      "n": 28303,
+      "Ingenuo": {
+        "minimo_ms": 2.888400000301772,
+        "us_por_caracter": 0.10205278593441584,
+        "comparaciones": 31986,
+        "comparaciones_por_caracter": 1.1301275483164328,
+        "ocurrencias": 78
+      },
+      "KMP": {
+        "minimo_ms": 2.1863999991182936,
+        "us_por_caracter": 0.07724976147822823,
+        "comparaciones": 31126,
+        "comparaciones_por_caracter": 1.0997420768116455,
+        "ocurrencias": 78
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 8.398300000408199,
+        "us_por_caracter": 0.29672826203611624,
+        "comparaciones": 702,
+        "comparaciones_por_caracter": 0.024803024414373036,
+        "ocurrencias": 78
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 1.2669000007008435,
+        "us_por_caracter": 0.04476203938454735,
+        "comparaciones": 5378,
+        "comparaciones_por_caracter": 0.1900151927357524,
+        "ocurrencias": 78
+      }
+    },
+    {
+      "factor": 2,
+      "n": 56607,
+      "Ingenuo": {
+        "minimo_ms": 5.882900000869995,
+        "us_por_caracter": 0.1039253096060557,
+        "comparaciones": 63981,
+        "comparaciones_por_caracter": 1.130266574805236,
+        "ocurrencias": 156
+      },
+      "KMP": {
+        "minimo_ms": 4.414600000018254,
+        "us_por_caracter": 0.07798682141816832,
+        "comparaciones": 62253,
+        "comparaciones_por_caracter": 1.0997403148020564,
+        "ocurrencias": 156
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 16.70620000004419,
+        "us_por_caracter": 0.29512604448291185,
+        "comparaciones": 1404,
+        "comparaciones_por_caracter": 0.0248025862525836,
+        "ocurrencias": 156
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 2.5521000006847316,
+        "us_por_caracter": 0.04508453019387587,
+        "comparaciones": 10755,
+        "comparaciones_por_caracter": 0.18999417033229105,
+        "ocurrencias": 156
+      }
+    },
+    {
+      "factor": 4,
+      "n": 113215,
+      "Ingenuo": {
+        "minimo_ms": 11.799500000051921,
+        "us_por_caracter": 0.10422205538181267,
+        "comparaciones": 127971,
+        "comparaciones_por_caracter": 1.130336086207658,
+        "ocurrencias": 312
+      },
+      "KMP": {
+        "minimo_ms": 9.031799998410861,
+        "us_por_caracter": 0.07977564808913007,
+        "comparaciones": 124507,
+        "comparaciones_por_caracter": 1.0997394338206068,
+        "ocurrencias": 312
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 33.581499999854714,
+        "us_por_caracter": 0.2966170560425272,
+        "comparaciones": 2808,
+        "comparaciones_por_caracter": 0.024802367177494147,
+        "ocurrencias": 312
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 5.360099999961676,
+        "us_por_caracter": 0.047344433157811915,
+        "comparaciones": 21509,
+        "comparaciones_por_caracter": 0.1899836594090889,
+        "ocurrencias": 312
+      }
+    },
+    {
+      "factor": 8,
+      "n": 226431,
+      "Ingenuo": {
+        "minimo_ms": 23.758200000884244,
+        "us_por_caracter": 0.10492467904520249,
+        "comparaciones": 255951,
+        "comparaciones_por_caracter": 1.1303708414483882,
+        "ocurrencias": 624
+      },
+      "KMP": {
+        "minimo_ms": 18.06849999957194,
+        "us_por_caracter": 0.07979693593002699,
+        "comparaciones": 249015,
+        "comparaciones_por_caracter": 1.0997389933357182,
+        "ocurrencias": 624
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 67.20150000001013,
+        "us_por_caracter": 0.2967857757992948,
+        "comparaciones": 5616,
+        "comparaciones_por_caracter": 0.02480225764140069,
+        "ocurrencias": 624
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 10.719199999584816,
+        "us_por_caracter": 0.04733980771000798,
+        "comparaciones": 43017,
+        "comparaciones_por_caracter": 0.1899784040171178,
+        "ocurrencias": 624
+      }
+    },
+    {
+      "factor": 16,
+      "n": 452863,
+      "Ingenuo": {
+        "minimo_ms": 47.29290000068431,
+        "us_por_caracter": 0.10443092061105524,
+        "comparaciones": 511911,
+        "comparaciones_por_caracter": 1.130388218953635,
+        "ocurrencias": 1248
+      },
+      "KMP": {
+        "minimo_ms": 36.54149999965739,
+        "us_por_caracter": 0.080689965838802,
+        "comparaciones": 498031,
+        "comparaciones_por_caracter": 1.0997387730947328,
+        "ocurrencias": 1248
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 135.1903000013408,
+        "us_por_caracter": 0.2985236153126681,
+        "comparaciones": 11232,
+        "comparaciones_por_caracter": 0.024802202873716775,
+        "ocurrencias": 1248
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 22.1598999996786,
+        "us_por_caracter": 0.048932900236227296,
+        "comparaciones": 86033,
+        "comparaciones_por_caracter": 0.18997577633853946,
+        "ocurrencias": 1248
+      }
+    }
+  ],
+  "peores_casos": [
+    {
+      "caso": "a^m",
+      "m": 5,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 8.738200000152574,
+        "comparaciones": 99980,
+        "ocurrencias": 19996
+      },
+      "KMP": {
+        "minimo_ms": 2.893400000175461,
+        "comparaciones": 20000,
+        "ocurrencias": 19996
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 19.054200000027777,
+        "comparaciones": 99980,
+        "ocurrencias": 19996
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 12.43140000042331,
+        "comparaciones": 99980,
+        "ocurrencias": 19996
+      }
+    },
+    {
+      "caso": "b a^(m-1)",
+      "m": 5,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 1.825999999709893,
+        "comparaciones": 19996,
+        "ocurrencias": 0
+      },
+      "KMP": {
+        "minimo_ms": 1.3311000002431683,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 5.643200000122306,
+        "comparaciones": 0,
+        "ocurrencias": 0
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 2.8732000009767944,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      }
+    },
+    {
+      "caso": "a^m",
+      "m": 10,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 17.59680000031949,
+        "comparaciones": 199910,
+        "ocurrencias": 19991
+      },
+      "KMP": {
+        "minimo_ms": 2.9400999992503785,
+        "comparaciones": 20000,
+        "ocurrencias": 19991
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 29.857900000934023,
+        "comparaciones": 199910,
+        "ocurrencias": 19991
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 24.263600000267616,
+        "comparaciones": 199910,
+        "ocurrencias": 19991
+      }
+    },
+    {
+      "caso": "b a^(m-1)",
+      "m": 10,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 1.810499999919557,
+        "comparaciones": 19991,
+        "ocurrencias": 0
+      },
+      "KMP": {
+        "minimo_ms": 1.3288999998621875,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 5.630700001347577,
+        "comparaciones": 0,
+        "ocurrencias": 0
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 2.5353000000905013,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      }
+    },
+    {
+      "caso": "a^m",
+      "m": 20,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 31.633299999157316,
+        "comparaciones": 399620,
+        "ocurrencias": 19981
+      },
+      "KMP": {
+        "minimo_ms": 2.853200001482037,
+        "comparaciones": 20000,
+        "ocurrencias": 19981
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 47.355699998661294,
+        "comparaciones": 399620,
+        "ocurrencias": 19981
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 43.655999999828055,
+        "comparaciones": 399620,
+        "ocurrencias": 19981
+      }
+    },
+    {
+      "caso": "b a^(m-1)",
+      "m": 20,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 1.8162999986088835,
+        "comparaciones": 19981,
+        "ocurrencias": 0
+      },
+      "KMP": {
+        "minimo_ms": 1.3182000002416316,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 5.808399999295943,
+        "comparaciones": 0,
+        "ocurrencias": 0
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 2.2315999995043967,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      }
+    },
+    {
+      "caso": "a^m",
+      "m": 40,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 62.409100000877515,
+        "comparaciones": 798440,
+        "ocurrencias": 19961
+      },
+      "KMP": {
+        "minimo_ms": 2.887399999963236,
+        "comparaciones": 20000,
+        "ocurrencias": 19961
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 84.86679999987246,
+        "comparaciones": 798440,
+        "ocurrencias": 19961
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 83.93359999899985,
+        "comparaciones": 798440,
+        "ocurrencias": 19961
+      }
+    },
+    {
+      "caso": "b a^(m-1)",
+      "m": 40,
+      "n": 20000,
+      "Ingenuo": {
+        "minimo_ms": 1.7970999997487525,
+        "comparaciones": 19961,
+        "ocurrencias": 0
+      },
+      "KMP": {
+        "minimo_ms": 1.3123999997333158,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      },
+      "Rabin-Karp": {
+        "minimo_ms": 5.576800000199,
+        "comparaciones": 0,
+        "ocurrencias": 0
+      },
+      "Boyer-Moore": {
+        "minimo_ms": 2.10509999851638,
+        "comparaciones": 20000,
+        "ocurrencias": 0
+      }
+    }
+  ],
+  "modulo_rabin_karp": [
+    {
+      "patron": "education",
+      "q": 13,
+      "ocurrencias": 78,
+      "colisiones": 2086,
+      "colisiones_esperadas": 2163.3846153846152,
+      "comparaciones": 2994,
+      "minimo_ms": 6.774299999960931
+    },
+    {
+      "patron": "education",
+      "q": 101,
+      "ocurrencias": 78,
+      "colisiones": 300,
+      "colisiones_esperadas": 278.45544554455444,
+      "comparaciones": 1024,
+      "minimo_ms": 6.209700000908924
+    },
+    {
+      "patron": "education",
+      "q": 1000000007,
+      "ocurrencias": 78,
+      "colisiones": 0,
+      "colisiones_esperadas": 2.8123999803132e-05,
+      "comparaciones": 702,
+      "minimo_ms": 8.172500000000582
+    },
+    {
+      "patron": "learning",
+      "q": 13,
+      "ocurrencias": 37,
+      "colisiones": 2194,
+      "colisiones_esperadas": 2164.923076923077,
+      "comparaciones": 2552,
+      "minimo_ms": 6.852200000139419
+    },
+    {
+      "patron": "learning",
+      "q": 101,
+      "ocurrencias": 37,
+      "colisiones": 279,
+      "colisiones_esperadas": 278.65346534653463,
+      "comparaciones": 581,
+      "minimo_ms": 6.208099999639671
+    },
+    {
+      "patron": "learning",
+      "q": 1000000007,
+      "ocurrencias": 37,
+      "colisiones": 0,
+      "colisiones_esperadas": 2.8143999802992002e-05,
+      "comparaciones": 296,
+      "minimo_ms": 8.035700000618817
+    },
+    {
+      "patron": "AI",
+      "q": 13,
+      "ocurrencias": 143,
+      "colisiones": 3004,
+      "colisiones_esperadas": 2174.153846153846,
+      "comparaciones": 3298,
+      "minimo_ms": 7.053999999698135
+    },
+    {
+      "patron": "AI",
+      "q": 101,
+      "ocurrencias": 143,
+      "colisiones": 260,
+      "colisiones_esperadas": 279.84158415841586,
+      "comparaciones": 546,
+      "minimo_ms": 6.286100000579609
+    },
+    {
+      "patron": "AI",
+      "q": 1000000007,
+      "ocurrencias": 143,
+      "colisiones": 0,
+      "colisiones_esperadas": 2.8263999802152e-05,
+      "comparaciones": 286,
+      "minimo_ms": 6.180700000186334
+    }
+  ]
+}
