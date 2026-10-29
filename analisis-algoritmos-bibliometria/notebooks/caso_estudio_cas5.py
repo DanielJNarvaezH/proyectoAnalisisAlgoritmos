@@ -1,19 +1,20 @@
 """
-CAS-5 — Evidencia ejecutable del caso de estudio del R3 (KMP y Rabin-Karp)
-==========================================================================
+CAS-5 / CAS-6 — Evidencia ejecutable del caso de estudio del R3
+==============================================================
 
 Reproduce, corriendo este script, los numeros y tablas documentados en
-docs/caso_estudio_busqueda.md (secciones 2 y 3) para el caso definido en
-CAS-4:
+docs/caso_estudio_busqueda.md para el caso definido en CAS-4:
+KMP y Rabin-Karp (CAS-5, secciones 2 y 3) y Boyer-Moore (CAS-6, seccion 4).
 
     patron  P = "education"  (m = 9)
     texto   T = frase continua del abstract original del articulo 17 (n = 117)
 
 Las funciones traza_* repiten, linea por linea, el mismo procedimiento de
 src/busqueda/kmp.py y src/busqueda/rabin_karp.py, pero guardando el estado
-de cada paso. Al final de cada traza se comprueba con assert que el
-resultado (posiciones, comparaciones, colisiones, tablas) es identico al de
-las implementaciones reales, de modo que la tabla del documento corresponde
+de cada paso (y lo mismo para src/busqueda/boyer_moore.py). Al final de
+cada traza se comprueba con assert que el resultado (posiciones,
+comparaciones, colisiones, saltos, tablas) es identico al de las
+implementaciones reales, de modo que la tabla del documento corresponde
 exactamente al codigo entregado.
 
 Ejecutar desde la raiz del proyecto:
@@ -29,6 +30,7 @@ import sys
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(RAIZ, "src", "busqueda"))
 
+import boyer_moore  # noqa: E402
 import kmp  # noqa: E402
 import rabin_karp  # noqa: E402
 
@@ -45,6 +47,9 @@ PRIMOS_CONTRASTE = (13, 101, rabin_karp.PRIMO)
 
 # Mini ejemplo de Cormen et al. (2022, fig. 32.10) para una tabla pi no trivial
 PATRON_CORMEN = "ababaca"
+# Mini ejemplo de Boyer-Moore donde el sufijo bueno decide el salto
+PATRON_BM_EJEMPLO = "abcab"
+TEXTO_BM_EJEMPLO = "aaaabcab"
 
 
 def cargar_fragmento():
@@ -189,6 +194,122 @@ def traza_rabin_karp(texto, patron, base, primo):
 
 
 # ---------------------------------------------------------------------------
+# Boyer-Moore (CAS-6)
+# ---------------------------------------------------------------------------
+
+def traza_sufijo_bueno(patron):
+    """Mismo procedimiento que boyer_moore.construir_sufijo_bueno, con eventos."""
+    m = len(patron)
+    desplazamientos = [0] * (m + 1)
+    f = [0] * (m + 1)
+    eventos = []
+    i, j = m, m + 1
+    f[i] = j
+    while i > 0:
+        while j <= m and patron[i - 1] != patron[j - 1]:
+            if desplazamientos[j] == 0:
+                desplazamientos[j] = j - i
+                eventos.append(("caso1", i, j, patron[i - 1], patron[j - 1], j - i))
+            else:
+                eventos.append(("caso1_ya", i, j, patron[i - 1], patron[j - 1], None))
+            j = f[j]
+        if j <= m:
+            eventos.append(("borde", i, j, patron[i - 1], patron[j - 1], None))
+        i -= 1
+        j -= 1
+        f[i] = j
+    f_caso1 = f[:]
+    j = f[0]
+    for i in range(m + 1):
+        if desplazamientos[i] == 0:
+            desplazamientos[i] = j
+            eventos.append(("caso2", i, j, None, None, j))
+        if i == j:
+            j = f[j]
+    assert desplazamientos == boyer_moore.construir_sufijo_bueno(patron)
+    return desplazamientos, f_caso1, eventos
+
+
+def traza_boyer_moore(texto, patron):
+    """Mismo ciclo que boyer_moore.buscar_con_estadisticas, alineacion por alineacion."""
+    malo = boyer_moore.construir_caracter_malo(patron)
+    bueno = boyer_moore.construir_sufijo_bueno(patron)
+    n, m = len(texto), len(patron)
+    filas, posiciones, comparaciones, saltos_malo, saltos_bueno = [], [], 0, 0, 0
+    s = 0
+    while s <= n - m:
+        j, hechas = m - 1, 0
+        while j >= 0:
+            hechas += 1
+            if patron[j] != texto[s + j]:
+                break
+            j -= 1
+        comparaciones += hechas
+        fila = {"s": s, "ventana": texto[s:s + m], "comparaciones": hechas}
+        if j < 0:
+            posiciones.append(s)
+            fila.update(j=None, car=None, salto_malo=None, salto_bueno=bueno[0],
+                        salto=bueno[0], regla="ocurrencia")
+        else:
+            c = texto[s + j]
+            sm, sb = j - malo.get(c, -1), bueno[j + 1]
+            regla = "caracter malo" if sm >= sb else "sufijo bueno"
+            if sm >= sb:
+                saltos_malo += 1
+            else:
+                saltos_bueno += 1
+            fila.update(j=j, car=c, salto_malo=sm, salto_bueno=sb, salto=max(sm, sb), regla=regla)
+        s += fila["salto"]
+        filas.append(fila)
+    oficial = boyer_moore.buscar_con_estadisticas(texto, patron)
+    assert posiciones == oficial["posiciones"]
+    assert comparaciones == oficial["comparaciones"]
+    assert saltos_malo == oficial["saltos_caracter_malo"]
+    assert saltos_bueno == oficial["saltos_sufijo_bueno"]
+    return filas, posiciones, comparaciones
+
+
+def grafico_alineaciones(texto, patron, filas):
+    """Texto con regla de indices y el patron debajo en cada alineacion."""
+    margen = " " * 12
+    marcas = [" "] * (len(texto) + 3)
+    for i in range(0, len(texto), 10):
+        for k, d in enumerate(str(i)):
+            marcas[i + k] = d
+    lineas = [margen + "".join(marcas).rstrip(), margen + "|" + "".join(
+        "|" if i % 10 == 0 else "." for i in range(1, len(texto))), margen + texto]
+    for k, f in enumerate(filas, 1):
+        etiqueta = f"{k:>2} s={f['s']:>3}: "
+        marca = "  OCURRENCIA" if f["regla"] == "ocurrencia" else f"  j={f['j']} '{f['car']}'"
+        lineas.append(f"{etiqueta:<12}" + " " * f["s"] + patron
+                      + " " * (len(texto) - f["s"] - len(patron) + 2) + f"+{f['salto']}{marca}")
+    return "\n".join(lineas)
+
+
+def imprimir_boyer_moore(texto, patron):
+    print(f"\nTabla del caracter malo de {patron!r}: {boyer_moore.construir_caracter_malo(patron)}")
+    d, f, eventos = traza_sufijo_bueno(patron)
+    print(f"Sufijo bueno de {patron!r}: f tras el caso 1 = {f} | desplazamientos = {d}")
+    for e in eventos:
+        tipo, i, j, a, b, val = e
+        if tipo == "caso1":
+            print(f"  caso 1: i={i}, j={j}: P[{i-1}]='{a}' != P[{j-1}]='{b}' -> desplazamientos[{j}] = {j}-{i} = {val}")
+        elif tipo == "caso1_ya":
+            print(f"  caso 1: i={i}, j={j}: P[{i-1}]='{a}' != P[{j-1}]='{b}' (desplazamientos[{j}] ya asignado)")
+        elif tipo == "borde":
+            print(f"  caso 1: i={i}, j={j}: P[{i-1}]='{a}' == P[{j-1}]='{b}' -> el borde crece")
+        else:
+            print(f"  caso 2: desplazamientos[{i}] = {val}")
+    filas, posiciones, total = traza_boyer_moore(texto, patron)
+    for k, fl in enumerate(filas, 1):
+        detalle = ("ocurrencia" if fl["regla"] == "ocurrencia" else
+                   f"j={fl['j']} '{fl['car']}': malo={fl['salto_malo']}, bueno={fl['salto_bueno']} ({fl['regla']})")
+        print(f"  {k:>2} s={fl['s']:>3} '{fl['ventana']}' comp={fl['comparaciones']} {detalle} -> +{fl['salto']}")
+    print(f"Ocurrencias: {posiciones} | comparaciones: {total} | alineaciones: {len(filas)}")
+    return filas
+
+
+# ---------------------------------------------------------------------------
 # Salida
 # ---------------------------------------------------------------------------
 
@@ -256,6 +377,14 @@ def main():
         o = rabin_karp.buscar_con_estadisticas(T, P, BASE, q)
         print(f"  q = {q:>13,}: hash(P) = {o['hash_patron']:>11,} | ocurrencias {o['posiciones']} "
               f"| colisiones {len(o['colisiones'])} {o['colisiones']} | comparaciones {o['comparaciones']}")
+
+    # --- Boyer-Moore ---
+    print("\n--- Boyer-Moore (CAS-6): caso de estudio ---")
+    filas = imprimir_boyer_moore(T, P)
+    print("\nGrafico de alineaciones:")
+    print(grafico_alineaciones(T, P, filas))
+    print(f"\n--- Boyer-Moore: ejemplo complementario {PATRON_BM_EJEMPLO!r} en {TEXTO_BM_EJEMPLO!r} ---")
+    imprimir_boyer_moore(TEXTO_BM_EJEMPLO, PATRON_BM_EJEMPLO)
 
 
 if __name__ == "__main__":

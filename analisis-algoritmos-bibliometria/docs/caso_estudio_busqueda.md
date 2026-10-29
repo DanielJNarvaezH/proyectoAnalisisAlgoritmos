@@ -3,17 +3,18 @@
 Este documento contiene el caso de estudio práctico del Requerimiento 3:
 la selección del patrón y del texto (CAS-4), la demostración paso a paso de
 KMP y Rabin-Karp (CAS-5) y la de Boyer-Moore (CAS-6). Todos los números de
-las secciones 2 y 3 se reproducen con:
+las secciones 2, 3 y 4 se reproducen con:
 
 ```
 .\venv\Scripts\python.exe notebooks\caso_estudio_cas5.py            # pasos relevantes
 .\venv\Scripts\python.exe notebooks\caso_estudio_cas5.py --completo # todas las iteraciones
 ```
 
-El script repite el procedimiento de `src/busqueda/kmp.py` y
-`src/busqueda/rabin_karp.py` guardando el estado de cada paso, y comprueba con
-`assert` que posiciones, comparaciones, colisiones y tablas son idénticas a
-las que producen las implementaciones entregadas.
+El script repite el procedimiento de `src/busqueda/kmp.py`,
+`src/busqueda/rabin_karp.py` y `src/busqueda/boyer_moore.py` guardando el
+estado de cada paso, y comprueba con `assert` que posiciones, comparaciones,
+colisiones, saltos y tablas son idénticas a las que producen las
+implementaciones entregadas.
 
 ---
 
@@ -420,16 +421,18 @@ emplea solo en esta demostración.
 
 ### 4.1 Idea del algoritmo
 
-Boyer-Moore alinea el patrón con el texto y compara los caracteres **de derecha a izquierda**. Cuando encuentra un desajuste, calcula dos desplazamientos independientes:
+Boyer-Moore alinea el patrón con el texto y compara los caracteres **de derecha a izquierda**. Cuando encuentra un desajuste en la posición $j$ del patrón, calcula dos desplazamientos independientes:
 
-1. **Carácter malo:** utiliza la posición más a la derecha del carácter que provocó el desajuste dentro del patrón.
-2. **Sufijo bueno:** utiliza el sufijo que ya coincidió para determinar cuánto puede desplazarse el patrón sin perder una posible coincidencia.
+1. **Carácter malo:** usa la posición más a la derecha $R(c)$, dentro del patrón, del carácter del texto $c$ que provocó el desajuste: $\text{salto\_malo} = j - R(c)$.
+2. **Sufijo bueno:** usa el sufijo $P[j+1..m-1]$ que ya coincidió para determinar cuánto puede desplazarse el patrón sin perder una posible coincidencia.
 
 El código implementa ambas reglas y selecciona siempre el **mayor desplazamiento seguro**:
 
 ```text
 salto = max(salto_malo, salto_bueno)
 ```
+
+El máximo no es un detalle: si $c$ aparece en el patrón **a la derecha** de $j$, el salto por carácter malo es cero o negativo (sección 4.8), y es el sufijo bueno, que siempre vale al menos 1, el que garantiza el avance.
 
 Para una coincidencia completa, el código utiliza `tabla_sufijo_bueno[0]` para avanzar a la siguiente alineación.
 
@@ -443,7 +446,7 @@ El texto tiene $n = 117$ caracteres y el patrón `education` tiene $m = 9$. Las 
 
 ### 4.2 Tabla del carácter malo
 
-La función `construir_caracter_malo()` recorre el patrón de izquierda a derecha y guarda la posición de la **última aparición** de cada carácter.
+La función `construir_caracter_malo()` recorre el patrón de izquierda a derecha y guarda la posición de la **última aparición** de cada carácter (si un carácter se repite, la asignación posterior sobrescribe la anterior).
 
 Como `education` no repite ninguna letra, cada carácter queda asociado a su propia posición:
 
@@ -451,25 +454,7 @@ Como `education` no repite ninguna letra, cada carácter queda asociado a su pro
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Posición $R(c)$ | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 
-Por tanto, la tabla del carácter malo utilizada por el algoritmo es:
-
-```text
-tabla_caracter_malo = {
-    'e': 0,
-    'd': 1,
-    'u': 2,
-    'c': 3,
-    'a': 4,
-    't': 5,
-    'i': 6,
-    'o': 7,
-    'n': 8
-}
-```
-
-Si el carácter que provoca el desajuste **no aparece** en el patrón, `tabla_malo.get(caracter_malo, -1)` devuelve `-1`.
-
-En ese caso, el desplazamiento por carácter malo es:
+Si el carácter que provoca el desajuste **no aparece** en el patrón, `tabla_malo.get(caracter_malo, -1)` devuelve `-1`, y el desplazamiento por carácter malo es:
 
 $$
 \text{salto\_malo} = j - (-1) = j + 1
@@ -481,19 +466,48 @@ $$
 \text{salto\_malo} = 8 - 4 = 4
 $$
 
-Esto significa que el patrón puede desplazarse cuatro posiciones sin perder una posible coincidencia.
+Es decir, el patrón se desplaza hasta que su `a` (posición 4) quede debajo de la `a` del texto.
 
 ### 4.3 Tabla del sufijo bueno
 
-La función `construir_sufijo_bueno()` construye una lista de $m+1=10$ desplazamientos.
+#### Definición
 
-Para el patrón `education` se obtiene:
+La función `construir_sufijo_bueno()` implementa la regla **fuerte** del sufijo bueno y construye dos arreglos de tamaño $m + 1 = 10$:
+
+* `f[i]`: posición donde empieza el **borde** más ancho del sufijo $P[i..m-1]$ (un borde es una cadena que es a la vez prefijo propio y sufijo). Si no hay borde, $f[i] = m$ o $m + 1$.
+* `desplazamientos[j + 1]`: salto cuando el desajuste ocurre en la posición $j$, con $P[j+1..m-1]$ ya coincidiendo; `desplazamientos[0]` es el salto tras una ocurrencia completa.
+
+#### Llenado paso a paso para `education`
+
+**Caso 1** (el sufijo coincidente vuelve a aparecer dentro del patrón precedido por un carácter distinto). Se recorre $i$ de $m = 9$ hacia 0, con $j = m + 1 = 10$ y `f[9] = 10` al inicio. En cada paso se compara $P[i-1]$ con $P[j-1]$; si son distintos y `desplazamientos[j]` está vacío, se asigna `desplazamientos[j] = j - i`, y luego $j \leftarrow f[j]$:
+
+| $i$ | $j$ | Comparación $P[i-1]$ vs $P[j-1]$ | Acción | `f[i-1]` |
+|---:|---:|---|---|---:|
+| 9 | 10 | — ($j > m$, no se compara) | — | `f[8] = 9` |
+| 8 | 9 | `o` vs `n`: ≠ | `desplazamientos[9] = 9 − 8 = 1`; $j \leftarrow f[9] = 10$ | `f[7] = 9` |
+| 7 | 9 | `i` vs `n`: ≠ | `desplazamientos[9]` ya asignado; $j \leftarrow 10$ | `f[6] = 9` |
+| 6 | 9 | `t` vs `n`: ≠ | ídem | `f[5] = 9` |
+| 5 | 9 | `a` vs `n`: ≠ | ídem | `f[4] = 9` |
+| 4 | 9 | `c` vs `n`: ≠ | ídem | `f[3] = 9` |
+| 3 | 9 | `u` vs `n`: ≠ | ídem | `f[2] = 9` |
+| 2 | 9 | `d` vs `n`: ≠ | ídem | `f[1] = 9` |
+| 1 | 9 | `e` vs `n`: ≠ | ídem | `f[0] = 9` |
+
+Resultado del caso 1: `f = [9, 9, 9, 9, 9, 9, 9, 9, 9, 10]` y solo `desplazamientos[9] = 1` quedó asignado. Que la `n` final no vuelva a aparecer en el patrón significa que ningún sufijo no vacío se repite dentro de `education`.
+
+**Caso 2** (solo un prefijo del patrón coincide con la cola del sufijo). Con $j = f[0] = 9$, cada posición vacía recibe `desplazamientos[i] = j`. Como `f[0] = 9 = m`, el patrón no tiene borde: no hay prefijo que pueda reutilizarse y el salto es el patrón completo:
+
+```text
+desplazamientos[0..8] = 9        desplazamientos[9] = 1 (del caso 1)
+```
+
+Tabla final:
 
 ```text
 tabla_sufijo_bueno = [9, 9, 9, 9, 9, 9, 9, 9, 9, 1]
 ```
 
-La interpretación para cada posición de desajuste es:
+#### Interpretación
 
 | Posición de desajuste $j$ | Sufijo que ya coincidió | `tabla_bueno[j+1]` | Desplazamiento |
 |---:|---|---:|---:|
@@ -507,15 +521,7 @@ La interpretación para cada posición de desajuste es:
 | 7 | `n` | 9 | 9 |
 | 8 | vacío | 1 | 1 |
 
-Además, después de encontrar una coincidencia completa, el código utiliza:
-
-```text
-tabla_bueno[0] = 9
-```
-
-Por lo tanto, después de encontrar `education`, el patrón avanza 9 posiciones.
-
-Esto ocurre porque `education` no tiene un borde propio que permita un solapamiento con otra ocurrencia del patrón.
+Después de encontrar una coincidencia completa, el código utiliza `tabla_bueno[0] = 9`: el patrón avanza 9 posiciones, porque `education` no tiene un borde propio que permita un solapamiento con otra ocurrencia (lo mismo que indica $\pi[8] = 0$ en KMP, sección 2.2).
 
 ### 4.4 Resumen de las 16 alineaciones
 
@@ -527,7 +533,7 @@ El algoritmo realiza **16 iteraciones** sobre el fragmento. En cada iteración s
 | 2 | 4 | `ain an ov` | `v` | 9 | 1 | **9** | Carácter malo |
 | 3 | 13 | `erview of` | `f` | 9 | 1 | **9** | Carácter malo |
 | 4 | 22 | ` the appl` | `l` | 9 | 1 | **9** | Carácter malo |
-| 5 | 31 | `ication o` | `o` | 1 | 1 | **1** | Carácter malo |
+| 5 | 31 | `ication o` | `o` | 1 | 1 | **1** | Carácter malo (empate) |
 | 6 | 32 | `cation of` | `f` | 9 | 1 | **9** | Carácter malo |
 | 7 | 41 | ` AI-drive` | `e` | 8 | 1 | **8** | Carácter malo |
 | 8 | 49 | `en educat` | `t` | 3 | 1 | **3** | Carácter malo |
@@ -540,43 +546,41 @@ El algoritmo realiza **16 iteraciones** sobre el fragmento. En cada iteración s
 | 15 | 100 | `esearch c` | `c` | 5 | 1 | **5** | Carácter malo |
 | 16 | 105 | `ch conduc` | `c` | 5 | 1 | **5** | Carácter malo |
 
-Después de la iteración 16, el desplazamiento pasa de `s = 105` a `s = 110`.
-
-Como:
+Después de la iteración 16, el desplazamiento pasa de `s = 105` a `s = 110`. Como
 
 $$
-110 > 117 - 9 = 108
+110 > n - m = 117 - 9 = 108
 $$
 
-ya no existe otra ventana completa y la búsqueda termina.
+ya no existe otra ventana completa y la búsqueda termina. En la iteración 11 el carácter `S` mayúscula no está en la tabla (que solo tiene minúsculas), así que se trata como ausente: es la consecuencia del criterio de distinguir mayúsculas (sección 1.1).
 
 ### 4.5 Gráfico de cada iteración y desplazamiento
 
-La siguiente representación muestra el desplazamiento del patrón sobre el texto. La posición `s` indica dónde comienza el patrón en cada iteración.
+Cada fila muestra el patrón debajo de la porción del texto con la que se alinea (la regla superior marca los índices de 10 en 10); a la derecha, el salto aplicado y el carácter del texto que produjo el desajuste en la posición $j$ del patrón.
 
 ```text
-Texto:
-To gain an overview of the application of AI-driven educational assessment in STEM education, this research conducted
-
-01 s=  0: education  -> s=4
-02 s=  4:     education  -> s=13
-03 s= 13:              education  -> s=22
-04 s= 22:                       education  -> s=31
-05 s= 31:                                education  -> s=32
-06 s= 32:                                 education  -> s=41
-07 s= 41:                                          education  -> s=49
-08 s= 49:                                                  education  -> s=52
-09 s= 52:                                                     education  -> s=61  [OCURRENCIA]
-10 s= 61:                                                              education  -> s=70
-11 s= 70:                                                                       education  -> s=79
-12 s= 79:                                                                                education  -> s=83
-13 s= 83:                                                                                    education  -> s=92  [OCURRENCIA]
-14 s= 92:                                                                                             education  -> s=100
-15 s=100:                                                                                                     education  -> s=105
-16 s=105:                                                                                                          education  -> s=110
+            0         10        20        30        40        50        60        70        80        90        100       110
+            |.........|.........|.........|.........|.........|.........|.........|.........|.........|.........|.........|......
+            To gain an overview of the application of AI-driven educational assessment in STEM education, this research conducted
+ 1 s=  0:   education                                                                                                              +4  j=8 'a'
+ 2 s=  4:       education                                                                                                          +9  j=8 'v'
+ 3 s= 13:                education                                                                                                 +9  j=8 'f'
+ 4 s= 22:                         education                                                                                        +9  j=8 'l'
+ 5 s= 31:                                  education                                                                               +1  j=8 'o'
+ 6 s= 32:                                   education                                                                              +9  j=8 'f'
+ 7 s= 41:                                            education                                                                     +8  j=8 'e'
+ 8 s= 49:                                                    education                                                             +3  j=8 't'
+ 9 s= 52:                                                       education                                                          +9  OCURRENCIA
+10 s= 61:                                                                education                                                 +9  j=8 's'
+11 s= 70:                                                                         education                                        +9  j=8 'S'
+12 s= 79:                                                                                  education                               +4  j=8 'a'
+13 s= 83:                                                                                      education                           +9  OCURRENCIA
+14 s= 92:                                                                                               education                  +8  j=8 'e'
+15 s=100:                                                                                                       education          +5  j=8 'c'
+16 s=105:                                                                                                            education     +5  j=8 'c'
 ```
 
-Las posiciones `s = 52` y `s = 83` corresponden a las dos ocurrencias encontradas en el fragmento.
+Las alineaciones `s = 52` y `s = 83` corresponden a las dos ocurrencias encontradas. Los huecos entre filas consecutivas son los caracteres del texto que Boyer-Moore **nunca examina**: de las 117 posiciones, solo se leen 32.
 
 ### 4.6 Detalle de las comparaciones en cada iteración
 
@@ -609,19 +613,19 @@ $$
 14(1) + 2(9) = 32
 $$
 
-Por tanto, la implementación realiza **32 comparaciones de caracteres** sobre este fragmento.
+Por tanto, la implementación realiza **32 comparaciones de caracteres** sobre este fragmento, frente a 125 de KMP (sección 2.5).
 
 ### 4.7 Análisis de los desplazamientos
 
-El resultado de cada iteración muestra que la regla del **carácter malo** es la que determina todos los desplazamientos provocados por desajustes.
-
-Esto ocurre porque el patrón `education` tiene todos sus caracteres diferentes y la tabla del sufijo bueno produce desplazamientos menores que los obtenidos por la regla del carácter malo en los casos de desajuste.
+Los 14 desajustes ocurren en la **primera** comparación ($j = 8$): ningún carácter del texto bajo la última posición del patrón resultó ser `n` salvo en las dos ocurrencias. Por eso, en todos los desajustes el sufijo que ya coincidió es vacío y la regla del sufijo bueno solo puede ofrecer `tabla_bueno[9] = 1`. La regla del **carácter malo** decide todos los saltos tras un desajuste (con un empate en la iteración 5).
 
 Los saltos seleccionados por carácter malo son:
 
 ```text
-4, 9, 9, 9, 1, 9, 8, 3, 9, 9, 4, 9, 8, 5, 5
+4, 9, 9, 9, 1, 9, 8, 3, 9, 9, 4, 8, 5, 5
 ```
+
+De ellos, 6 son el salto máximo $m = 9$ (el carácter no aparece en el patrón). El salto promedio de las 16 alineaciones es $110 / 16 \approx 6{,}9$ posiciones, cerca de $m$: es el comportamiento típico de Boyer-Moore con un patrón de letras distintas sobre texto en lenguaje natural, que hace la búsqueda **sublineal** en la práctica.
 
 Las dos coincidencias completas producen un desplazamiento de 9 mediante `tabla_bueno[0]`:
 
@@ -639,7 +643,7 @@ Saltos ejecutados por Sufijo Bueno:   0
 Ocurrencias encontradas:              2
 ```
 
-El contador de `saltos_sufijo_bueno` permanece en cero porque el código solo lo incrementa cuando, después de un desajuste:
+El contador de `saltos_sufijo_bueno` permanece en cero porque el código solo lo incrementa cuando, después de un desajuste, el sufijo bueno ofrece un salto **estrictamente mayor**:
 
 ```python
 if salto_malo >= salto_bueno:
@@ -650,11 +654,40 @@ else:
     s += salto_bueno
 ```
 
-En este caso, `salto_bueno` nunca es estrictamente mayor que `salto_malo`.
-
 Las coincidencias completas sí utilizan `tabla_bueno[0] = 9`, pero ese desplazamiento no se contabiliza dentro de `saltos_sufijo_bueno`.
 
-### 4.8 Resultado final de CAS-6
+### 4.8 Ejemplo complementario: cuando decide el sufijo bueno
+
+Como en KMP (sección 2.3), el patrón del corpus no ejercita la regla del sufijo bueno. Este ejemplo mínimo lo hace: patrón $P =$ `abcab` ($m = 5$) y texto $T =$ `aaaabcab` ($n = 8$).
+
+**Tabla del carácter malo:** $R(\texttt{a}) = 3$, $R(\texttt{b}) = 4$, $R(\texttt{c}) = 2$ (la `a` de la posición 0 queda sobrescrita por la de la posición 3).
+
+**Tabla del sufijo bueno**, caso 1 (inicio $i = 5$, $j = 6$):
+
+| $i$ | $j$ | Comparación $P[i-1]$ vs $P[j-1]$ | Acción | `f[i-1]` |
+|---:|---:|---|---|---:|
+| 5 | 6 | — | — | `f[4] = 5` |
+| 4 | 5 | `a` vs `b`: ≠ | `desplazamientos[5] = 5 − 4 = 1`; $j \leftarrow f[5] = 6$ | `f[3] = 5` |
+| 3 | 5 | `c` vs `b`: ≠ | ya asignado; $j \leftarrow 6$ | `f[2] = 5` |
+| 2 | 5 | `b` vs `b`: = | el borde crece | `f[1] = 4` |
+| 1 | 4 | `a` vs `a`: = | el borde crece | `f[0] = 3` |
+
+`f[0] = 3` indica que el patrón completo tiene el borde `ab` (empieza en la posición 3). En el caso 2, con $j = f[0] = 3$, se asigna 3 a las posiciones 0 a 3; al llegar a $i = j = 3$, $j \leftarrow f[3] = 5$ y la posición 4 recibe 5:
+
+```text
+tabla_sufijo_bueno = [3, 3, 3, 3, 5, 1]
+```
+
+**Búsqueda:**
+
+| Iter. | $s$ | Ventana | Comparaciones (derecha a izquierda) | Desajuste | Salto malo | Salto bueno | Salto |
+|---:|---:|---|---|---|---:|---:|---:|
+| 1 | 0 | `aaaab` | `b`=`b`, `a`=`a`, `c`≠`a` | $j = 2$, $c =$ `a` | $2 - R(\texttt{a}) = 2 - 3 = -1$ | `tabla[3]` = 3 | **3** (sufijo bueno) |
+| 2 | 3 | `abcab` | 5 iguales | — | — | `tabla[0]` = 3 | ocurrencia en $s = 3$ |
+
+En la iteración 1 ya coincidió el sufijo `ab`. La única `a` útil para el carácter malo está **a la derecha** del desajuste, así que esa regla propone retroceder ($-1$); el sufijo bueno, en cambio, sabe que `ab` también es prefijo del patrón y desplaza 3 posiciones hasta alinear ese prefijo con el `ab` ya leído, lo que lleva directamente a la ocurrencia. Total: 8 comparaciones, 1 salto por sufijo bueno.
+
+### 4.9 Resultado final de CAS-6
 
 | Métrica | Resultado |
 |---|---:|
@@ -671,7 +704,7 @@ Las coincidencias completas sí utilizan `tabla_bueno[0] = 9`, pero ese desplaza
 
 El caso demuestra el comportamiento de Boyer-Moore sobre un texto real. El algoritmo comienza las comparaciones desde el final del patrón y, ante un desajuste, utiliza las tablas precomputadas para determinar cuánto puede desplazarse el patrón.
 
-Para `education`, la regla del **carácter malo** es la que produce los saltos efectivos en los desajustes. La tabla del **sufijo bueno** también participa en el algoritmo y permite desplazar el patrón 9 posiciones después de encontrar una coincidencia completa.
+Para `education`, la regla del **carácter malo** produce todos los saltos tras desajuste, porque los desajustes ocurren siempre en la primera comparación; la tabla del **sufijo bueno** desplaza el patrón 9 posiciones tras cada coincidencia completa y, como muestra el ejemplo de la sección 4.8, es la que garantiza el avance cuando el carácter malo propone un salto no positivo.
 
 Finalmente, Boyer-Moore encuentra las dos ocurrencias del patrón en las posiciones **52 y 83**, realizando solamente **32 comparaciones de caracteres** sobre las 117 posiciones del fragmento.
 
@@ -682,6 +715,8 @@ Finalmente, Boyer-Moore encuentra las dos ocurrencias del patrón en las posicio
 * Cormen, T. H., Leiserson, C. E., Rivest, R. L. y Stein, C. (2022).
   *Introduction to Algorithms* (4.ª ed.). MIT Press. Secciones 32.2
   (Rabin-Karp) y 32.4 (Knuth-Morris-Pratt).
+* Boyer, R. S. y Moore, J. S. (1977). A fast string searching algorithm.
+  *Communications of the ACM*, 20(10), 762-772.
 * Karp, R. M. y Rabin, M. O. (1987). Efficient randomized pattern-matching
   algorithms. *IBM Journal of Research and Development*, 31(2), 249-260.
 * Knuth, D. E., Morris, J. H. y Pratt, V. R. (1977). Fast pattern matching
