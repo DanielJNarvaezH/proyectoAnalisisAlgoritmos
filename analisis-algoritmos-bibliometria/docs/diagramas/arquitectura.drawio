@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
   <diagram id="arq" name="Arquitectura">
-    <mxGraphModel dx="951" dy="570" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1520" pageHeight="740" math="0" shadow="0">
+    <mxGraphModel dx="856" dy="513" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1520" pageHeight="740" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -19,7 +19,7 @@
         <mxCell id="D" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F9FD;strokeColor=#8FAADC;verticalAlign=top;fontStyle=1;fontSize=14;arcSize=3;spacingTop=6;" value="4. Presentación y acceso" vertex="1">
           <mxGeometry height="640" width="300" x="1060" y="60" as="geometry" />
         </mxCell>
-        <mxCell id="a1" parent="1" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#FFFFFF;strokeColor=#595959;fontSize=12;" value="20 artículos científicos (PDF)&#xa;data/raw/" vertex="1">
+        <mxCell id="a1" parent="1" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#FFFFFF;strokeColor=#595959;fontSize=12;" value="&lt;div&gt;&amp;nbsp; &amp;nbsp;20 artículos científicos (PDF)&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp;entregados por el docente&lt;/div&gt;" vertex="1">
           <mxGeometry height="70" width="220" x="60" y="120" as="geometry" />
         </mxCell>
         <mxCell id="a2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF3FB;strokeColor=#2F5496;fontSize=12;arcSize=8;" value="extraer_datos.py&#xa;(pypdf: título, autores, abstract)" vertex="1">
@@ -103,7 +103,9 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="e7" edge="1" parent="1" source="B" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2F5496;fontSize=11;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="C" value="lectura de JSON">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" x="0.2" y="20" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="e8" edge="1" parent="1" source="C" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2F5496;fontSize=11;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" target="d1" value="llamadas a funciones">
           <mxGeometry relative="1" x="0.1765" y="21" as="geometry">
