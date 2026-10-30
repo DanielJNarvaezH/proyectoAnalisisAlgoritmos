@@ -22,6 +22,16 @@ Todo corre sobre una aplicación desplegada (backend + interfaz) y está documen
 
 > Librerías como `pypdf`, `NLTK`/`spaCy`, `NumPy`/`Pandas` sí están permitidas para extracción, preprocesamiento y estructuras de datos. `matplotlib`/`scipy` solo se usan para **graficar**, nunca para calcular similitud o clustering (eso va implementado a mano).
 
+## Aplicación desplegada
+
+🔗 **https://bibliometria-algoritmos.streamlit.app/**
+
+La aplicación (Streamlit Community Cloud) tiene cinco pestañas: **Similitudes** (R1),
+**Dendrogramas** (R2), **Artículos**, **Búsqueda de patrones** (R3: KMP, Boyer-Moore
+y Rabin-Karp) y **Ranking de términos** (Counting, Radix y Bucket Sort). Los
+embeddings de los modelos de IA están precalculados en `data/embeddings/`, por lo
+que la aplicación no descarga ni ejecuta los modelos.
+
 ## Estructura del repositorio
 
 ```
