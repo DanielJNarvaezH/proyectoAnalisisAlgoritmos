@@ -23,33 +23,6 @@ def extraer_texto(pdf_path):
     return texto
 
 
-def extraer_titulo(texto):
-    """Intenta obtener el título del artículo."""
-
-    lineas = [
-        linea.strip()
-        for linea in texto.split("\n")
-        if linea.strip()
-    ]
-
-    if not lineas:
-        return ""
-
-    # Normalmente el título aparece al inicio.
-    # Tomamos las primeras líneas como posibles candidatos.
-    for linea in lineas[:10]:
-
-        # Ignorar palabras comunes de encabezado
-        if linea.lower() in ["abstract", "introduction", "keywords"]:
-            continue
-
-        # Evitar líneas demasiado largas
-        if len(linea) < 200:
-            return linea
-
-    return lineas[0]
-
-
 def extraer_autores(texto):
     """Intenta obtener los autores."""
 
@@ -132,18 +105,21 @@ for archivo in os.listdir(CARPETA_PDFS):
             archivo
         )
 
+        # El numero y el titulo vienen en el nombre de cada PDF entregado
+        # por el docente (p. ej. "1. Artificial intelligence literacy....pdf").
+        numero_y_titulo = os.path.splitext(archivo)[0]
+
         print(f"Procesando: {archivo}")
 
         try:
 
             texto = extraer_texto(ruta_pdf)
 
-            titulo = extraer_titulo(texto)
             autores = extraer_autores(texto)
             abstract = extraer_abstract(texto)
 
             resultados.append({
-                "archivo": archivo,
+                "archivo": numero_y_titulo,
                 "autores": "Autores: " + autores,
                 "abstract": "Abstractas: " + abstract
             })
@@ -153,8 +129,7 @@ for archivo in os.listdir(CARPETA_PDFS):
             print(f"Error en {archivo}: {e}")
 
             resultados.append({
-                "archivo": archivo,
-                "titulo": "",
+                "archivo": numero_y_titulo,
                 "autores": "",
                 "abstract": ""
             })
